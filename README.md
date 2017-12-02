@@ -1,0 +1,1 @@
+# spark-nginx-logs-handler
