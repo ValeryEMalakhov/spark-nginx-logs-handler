@@ -28,13 +28,4 @@ object DriverContext {
 
   // since cloudera used Spark 1.6.0, we use SQLContext instead of SparkSession.
   val sqlContext = new SQLContext(sc)
-
-
-  // create SparkSession with default settings
-  //  val spark: SparkSession = SparkSession
-  //    .builder()
-  //    .appName("SimpleTest")
-  //    .master("local[4]")
-  //    .enableHiveSupport()
-  //    .getOrCreate()
 }

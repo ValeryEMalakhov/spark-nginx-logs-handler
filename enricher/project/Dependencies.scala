@@ -23,7 +23,6 @@ object Dependencies {
   lazy val configType = "com.typesafe" % "config" % typesafeVersion
 
   lazy val scopt = "com.github.scopt" %% "scopt" % scoptVersion
-
   lazy val jackson = "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion
 
   lazy val specs2 = "org.specs2" %% "specs2-core" % specs2Version % "test"

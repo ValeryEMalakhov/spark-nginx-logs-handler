@@ -1,12 +1,12 @@
 package com.prb.dnhs.executors
 
-import com.prb.dnhs.entities.ParsedPixel
+import com.prb.dnhs.entities.DefaultParsedPixel
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
 
 class RddToDataFrameConverter extends RddConverter[DataFrame] {
 
-  override def convert(logRDD: RDD[ParsedPixel]): DataFrame = {
+  override def convert(logRDD: RDD[DefaultParsedPixel]): DataFrame = {
 
     import com.prb.dnhs.DriverContext.sqlContext.implicits._
 

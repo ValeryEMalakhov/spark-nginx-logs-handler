@@ -1,9 +1,6 @@
 package com.prb.dnhs
 
 import org.specs2._
-import org.apache.spark.rdd.RDD
-import com.prb.dnhs.entities.ParsedPixel
-import com.prb.dnhs.entities.ParsedPixel._
 import org.apache.spark.{SparkConf, SparkContext}
 
 class ParsedPixelTest extends mutable.Specification {
@@ -30,7 +27,7 @@ class ParsedPixelTest extends mutable.Specification {
 
     "single log archive from test `file`" >> {
 
-      val singleLogRDD = parsePixel(spcSC.parallelize(testLogString_1))
+      val singleLogRDD = ExecutorContext.parser.parse(spcSC.parallelize(testLogString_1))
 
       "it must contain `b5a8a368df05b837211ac8de7aca2bfd` id in first row" >> {
         //   each event line contains a unique `request_id`, so the tests can use it in comparisons
@@ -42,7 +39,7 @@ class ParsedPixelTest extends mutable.Specification {
 
       val logs: Seq[String] = testLogString_1 :+ testLogString_2.toString
 
-      val multiLogsRDD = parsePixel(spcSC.parallelize(logs))
+      val multiLogsRDD = ExecutorContext.parser.parse(spcSC.parallelize(logs))
 
       "it must contain `b5a8a368df05b837211ac8de7aca2bfd` id in first row" >> {
         multiLogsRDD.first.requesrId must_== "b5a8a368df05b837211ac8de7aca2bfd"
