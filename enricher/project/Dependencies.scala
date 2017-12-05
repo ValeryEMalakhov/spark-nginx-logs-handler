@@ -5,7 +5,7 @@ object Dependencies {
   lazy val scala211 = "2.11.11"
   lazy val scala212 = "2.12.4"
 
-  lazy val sparkVersion = "1.6.0"
+  lazy val sparkVersion = "2.2.0"
   lazy val hadoopVersion = "2.9.0"
 
   lazy val typesafeVersion = "1.3.2"

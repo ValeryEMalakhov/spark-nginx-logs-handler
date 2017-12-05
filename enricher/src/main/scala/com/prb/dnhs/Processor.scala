@@ -5,7 +5,7 @@ import com.typesafe.config._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.DataFrame
 
-import com.prb.dnhs.entities.DefaultParsedPixel
+import com.prb.dnhs.entities._
 
 case class Processor(input: String = "")
 
@@ -32,7 +32,7 @@ object Processor {
         // do stuff
         if (proc.input != "") {
           val logRDD: RDD[String] = DriverContext.sc.textFile(proc.input)
-          val parsed_logRDD: RDD[DefaultParsedPixel] = ExecutorContext.parser.parse(logRDD)
+          val parsed_logRDD: RDD[ParsedPixel] = ExecutorContext.parser.parse(logRDD)
           val logDataFrame: DataFrame = ExecutorContext.converterToDataFrame.convert(parsed_logRDD)
 
           logDataFrame.show
@@ -42,16 +42,10 @@ object Processor {
 
         } else {
           val logRDD: RDD[String] = DriverContext.sc.textFile(DriverContext.pathToFile + "READY/*")
-          val parsed_logRDD: RDD[DefaultParsedPixel] = ExecutorContext.parser.parse(logRDD)
+          val parsed_logRDD: RDD[ParsedPixel] = ExecutorContext.parser.parse(logRDD)
           val logDataFrame: DataFrame = ExecutorContext.converterToDataFrame.convert(parsed_logRDD)
 
           logDataFrame.show
-
-          //  val logRDD: RDD[String] = DriverContext.sc.textFile(DriverContext.pathToFile + "READY/*")
-          //  val parsed_logRDD: RDD[ParsedPixel] = parsePixel(logRDD)
-          //  val logDataFrame: DataFrame = ExecutorContext.converterToDataFrame.convert(parsed_logRDD)
-
-          //  logDataFrame.show
 
           //  ExecutorContext.packagerAsTextFile.save(parsed_logRDD)
           //  ExecutorContext.packagerAsCSV.save(logDataFrame)

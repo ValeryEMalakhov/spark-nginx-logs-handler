@@ -1,6 +1,6 @@
 package com.prb.dnhs.executors
 
-import com.prb.dnhs.entities.DefaultParsedPixel
+import com.prb.dnhs.entities._
 import org.apache.spark.rdd.RDD
 
 /**
@@ -15,6 +15,6 @@ trait RddConverter[T] {
     * @param logRDD the RDD which contain the objects with `ParsedPixel` type
     * @return a new data structure (DataFrame etc.)
     */
-  def convert(logRDD: RDD[DefaultParsedPixel]): T
+  def convert(logRDD: RDD[ParsedPixel]): T
 }
 

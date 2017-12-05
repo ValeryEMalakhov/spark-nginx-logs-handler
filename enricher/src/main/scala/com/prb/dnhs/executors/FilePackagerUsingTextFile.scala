@@ -5,11 +5,11 @@ import java.util.Calendar
 
 import org.apache.spark.rdd.RDD
 import com.prb.dnhs.DriverContext
-import com.prb.dnhs.entities.DefaultParsedPixel
+import com.prb.dnhs.entities._
 
-class FilePackagerUsingTextFile extends FilePackager[RDD[DefaultParsedPixel]] {
+class FilePackagerUsingTextFile extends FilePackager[RDD[ParsedPixel]] {
 
-  override def save(logData: RDD[DefaultParsedPixel]): Unit = {
+  override def save(logData: RDD[ParsedPixel]): Unit = {
 
     //  filter logs by events
     val rtLogRDD = logData.filter(rdd => rdd.eventType == "rt")
