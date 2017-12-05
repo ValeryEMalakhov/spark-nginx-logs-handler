@@ -13,15 +13,21 @@ object DriverContext {
 
   private val config: Config = ConfigFactory.load("application.conf")
 
-//  private val runStatus = "remote"
-  private val runStatus = "local"
+  //  private val runStatus = "def"
+  private val runStatus = "debug"
 
   val pathToFile: String = config.getString(s"hdfs.$runStatus.node") + config.getString(s"hdfs.$runStatus.files")
 
   // create Spark config with default settings
-  private val sparkConf: SparkConf = new SparkConf()
-    .setAppName(config.getString("spark.name"))
-    .setMaster(config.getString(s"spark.$runStatus.master"))
+  private val sparkConf: SparkConf =
+    if (runStatus == "debug") {
+      new SparkConf()
+        .setAppName(config.getString("spark.name"))
+        .setMaster(config.getString(s"spark.$runStatus.master"))
+    } else {
+      new SparkConf()
+        .setAppName(config.getString("spark.name"))
+    }
 
   // create Spark context with Spark configuration
   val sc: SparkContext = new SparkContext(sparkConf)
