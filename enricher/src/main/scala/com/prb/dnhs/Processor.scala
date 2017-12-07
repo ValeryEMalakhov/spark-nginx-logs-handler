@@ -30,11 +30,13 @@ object Processor {
       case Some(proc) =>
         // do stuff
         if (proc.input != "") {
-          //          val logRDD: RDD[String] = DriverContext.sc.textFile(proc.input)
-          //          val parsed_logRDD: RDD[LogEntry] = ExecutorContext.parser.parse(logRDD)
-          //          val logDataFrame: DataFrame = ExecutorContext.converterToDataFrame.convert(parsed_logRDD)
-          //
-          //          logDataFrame.show
+          val logRDD: RDD[String] = DriverContext.sc.textFile(proc.input)
+
+          val logEntryRDD: RDD[LogEntry] = ExecutorContext.rddParser.parse(logRDD)
+
+          val parsedRDD: RDD[Row] = ExecutorContext.logEntryParser.parse(logEntryRDD)
+
+          parsedRDD.foreach(println)
 
           //  ExecutorContext.packagerAsTextFile.save(parsed_logRDD)
           //  ExecutorContext.packagerAsCSV.save(logDataFrame)
@@ -49,9 +51,7 @@ object Processor {
 
           val parsedRDD: RDD[Row] = ExecutorContext.logEntryParser.parse(logEntryRDD)
 
-          //          parsedRDD.foreach(println)
-
-
+          parsedRDD.foreach(println)
         }
       case None =>
       // arguments are bad, error message will have been displayed

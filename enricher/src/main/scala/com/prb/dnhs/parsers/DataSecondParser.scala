@@ -51,6 +51,7 @@ class DataSecondParser extends DataParser[RDD[LogEntry], RDD[Row]] {
   }
 }
 
+//  Necessity in the object since serialization occurs in the `map`
 private object DataSecondParser {
 
   private def fieldBuilder(log: LogEntry) = {
