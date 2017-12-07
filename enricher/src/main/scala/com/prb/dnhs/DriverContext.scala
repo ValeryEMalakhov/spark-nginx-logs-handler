@@ -34,4 +34,10 @@ object DriverContext {
 
   // since cloudera used Spark 1.6.0, we use SQLContext instead of SparkSession.
   val sqlContext = new SQLContext(sc)
+
+  lazy val core: DataFrame = sqlContext.read.parquet("src/main/resources/schemas/core.parquet")
+
+  lazy val rt: DataFrame = sqlContext.read.parquet("src/main/resources/schemas/rt.parquet")
+  lazy val impr: DataFrame = sqlContext.read.parquet("src/main/resources/schemas/impr.parquet")
+  lazy val clk: DataFrame = sqlContext.read.parquet("src/main/resources/schemas/clk.parquet")
 }

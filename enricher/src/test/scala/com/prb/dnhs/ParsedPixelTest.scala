@@ -1,3 +1,4 @@
+/*
 package com.prb.dnhs
 
 import org.specs2._
@@ -52,3 +53,4 @@ class ParsedPixelTest extends mutable.Specification {
   }
 }
 
+*/

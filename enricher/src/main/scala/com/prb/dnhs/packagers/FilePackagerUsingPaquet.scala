@@ -1,13 +1,12 @@
-package com.prb.dnhs.executors
+package com.prb.dnhs.packagers
 
 import java.text.SimpleDateFormat
 import java.util.Calendar
 
+import com.prb.dnhs.DriverContext
 import org.apache.spark.sql.DataFrame
 
-import com.prb.dnhs.DriverContext
-
-class FilePackagerUsingOrc extends FilePackager[DataFrame] {
+class FilePackagerUsingPaquet extends FilePackager[DataFrame]  {
 
   override def save(logData: DataFrame): Unit = {
 
@@ -20,18 +19,18 @@ class FilePackagerUsingOrc extends FilePackager[DataFrame] {
     val destinationFolderName = new SimpleDateFormat("yyyy_MM_dd__HH_mm_ss").format(Calendar.getInstance().getTime)
 
     rtLogRDD.write
-      .format("orc")
+      .format("parquet")
       //.option("header", "true")
-      .save(DriverContext.pathToFile + s"DONE/orc/" + destinationFolderName + "/rt/")
+      .save(DriverContext.pathToFile + s"DONE/parquet/" + destinationFolderName + "/rt/")
 
     imprLogRDD.write
-      .format("orc")
+      .format("parquet")
       //.option("header", "true")
-      .save(DriverContext.pathToFile + s"DONE/orc/" + destinationFolderName + "/impr/")
+      .save(DriverContext.pathToFile + s"DONE/parquet/" + destinationFolderName + "/impr/")
 
     clkLogRDD.write
-      .format("orc")
+      .format("parquet")
       //.option("header", "true")
-      .save(DriverContext.pathToFile + s"DONE/orc/" + destinationFolderName + "/clk/")
+      .save(DriverContext.pathToFile + s"DONE/parquet/" + destinationFolderName + "/clk/")
   }
 }

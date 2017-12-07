@@ -6,7 +6,7 @@ import org.apache.spark.sql._
 
 class RddToDataFrameConverter extends RddConverter[DataFrame] {
 
-  override def convert(logRDD: RDD[ParsedPixel]): DataFrame = {
+  override def convert(logRDD: RDD[LogEntry]): DataFrame = {
 
     import com.prb.dnhs.DriverContext.sqlContext.implicits._
 

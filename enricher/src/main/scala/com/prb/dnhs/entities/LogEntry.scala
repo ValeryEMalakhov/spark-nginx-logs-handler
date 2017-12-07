@@ -1,6 +1,6 @@
 package com.prb.dnhs.entities
 
-case class ParsedPixel(
+case class LogEntry(
     dateTime: String,
     eventType: String,
     requesrId: String,
@@ -9,5 +9,5 @@ case class ParsedPixel(
     ipAddress: String,
     useragent: String,
 
-    segments: String
+    segments: Array[String]
 )

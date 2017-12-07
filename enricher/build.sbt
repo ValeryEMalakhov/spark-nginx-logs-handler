@@ -14,5 +14,6 @@ libraryDependencies ++= Seq(
   configType, scopt,
   hadoopCommon, hadoopClient,
   sparkCore, sparkSQL,
+  parquetHadoop, parquetColumn, parquetCommon,
   specs2
 )
