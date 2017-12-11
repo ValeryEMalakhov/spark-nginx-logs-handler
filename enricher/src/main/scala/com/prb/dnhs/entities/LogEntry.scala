@@ -9,5 +9,5 @@ case class LogEntry(
     ipAddress: String,
     useragent: String,
 
-    segments: Array[String]
+    segments: Map[String, String]
 )
