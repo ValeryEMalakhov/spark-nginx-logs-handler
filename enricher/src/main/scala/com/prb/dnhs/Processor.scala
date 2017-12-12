@@ -1,10 +1,10 @@
 package com.prb.dnhs
 
 import com.typesafe.config._
-
-import com.prb.dnhs.entities._
 import org.apache.spark.rdd._
 import org.apache.spark.sql._
+import com.prb.dnhs.entities._
+import com.prb.dnhs.exceptions.DataException
 
 case class Processor(input: String = "")
 
@@ -30,20 +30,17 @@ object Processor {
       case Some(proc) =>
         // do stuff
         if (proc.input != "") {
-          val logRDD: RDD[String] = DriverContext.sc.textFile(proc.input)
+          val logRDD: RDD[String] = DriverContext.sc
+            .textFile(proc.input)
 
           val logEntryRDD: RDD[LogEntry] = ExecutorContext.rddParser.parse(logRDD)
 
           val parsedRDD: RDD[Row] = ExecutorContext.logEntryParser.parse(logEntryRDD)
 
-          parsedRDD.foreach(println)
-
           //  ExecutorContext.packagerAsTextFile.save(parsed_logRDD)
           //  ExecutorContext.packagerAsCSV.save(logDataFrame)
 
         } else {
-          //  logDataFrame.select("eventType").show()
-
           val logRDD: RDD[String] = DriverContext.sc
             .textFile(DriverContext.pathToFile + "READY/*")
 
@@ -51,7 +48,10 @@ object Processor {
 
           val parsedRDD: RDD[Row] = ExecutorContext.logEntryParser.parse(logEntryRDD)
 
-          parsedRDD.foreach(println)
+          //  obtain a combined dataframe from the created rdd and the merged scheme
+          val logDF = DriverContext.sqlContext.createDataFrame(parsedRDD, DriverContext.mergedSchema.schema)
+
+          logDF.show()
         }
       case None =>
       // arguments are bad, error message will have been displayed

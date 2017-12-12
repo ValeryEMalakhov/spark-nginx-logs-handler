@@ -37,7 +37,14 @@ object DriverContext {
 
   lazy val core: DataFrame = sqlContext.read.parquet("src/main/resources/schemas/core.parquet")
 
-  lazy val rt: DataFrame = sqlContext.read.parquet("src/main/resources/schemas/rt.parquet")
-  lazy val impr: DataFrame = sqlContext.read.parquet("src/main/resources/schemas/impr.parquet")
-  lazy val clk: DataFrame = sqlContext.read.parquet("src/main/resources/schemas/clk.parquet")
+  lazy val rt: DataFrame = sqlContext.read.parquet("src/main/resources/schemas/rtNotNullable.parquet")
+  lazy val impr: DataFrame = sqlContext.read.parquet("src/main/resources/schemas/imprNotNullable.parquet")
+  lazy val clk: DataFrame = sqlContext.read.parquet("src/main/resources/schemas/clkNotNullable.parquet")
+
+  // get merged schema without duplicated columns
+  lazy val mergedSchema: DataFrame =
+    rt.join(right = impr, usingColumns = rt.columns)
+      .join(right = clk, usingColumns = (rt.columns ++ impr.columns).distinct)
+
+  lazy val mutablePartOfSchema: Array[String] = mergedSchema.columns.drop(core.columns.length)
 }
