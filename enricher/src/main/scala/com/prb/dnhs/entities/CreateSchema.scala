@@ -1,13 +1,10 @@
 package com.prb.dnhs.entities
 
-import com.prb.dnhs.DriverContext
 import com.prb.dnhs.DriverContext._
-import com.prb.dnhs.DriverContext.sqlContext._
-import com.prb.dnhs.DriverContext.sqlContext.implicits._
-import org.apache.spark._
 import org.apache.spark.sql._
 import org.apache.spark.sql.types._
 
+//  Debug Object for parquet-file creation
 object CreateSchema {
 
   def create(): Unit = {
@@ -21,20 +18,15 @@ object CreateSchema {
           StructField(name = "ipAddress", dataType = StringType, nullable = false) ::
           StructField(name = "useragent", dataType = StringType, nullable = false) ::
 
-          /*StructField(name = "AdId", dataType = IntegerType, nullable = true) ::*/
-          /*StructField(name = "SomeId", dataType = IntegerType, nullable = true) ::*/ Nil
+          //  StructField(name = "AdId", dataType = IntegerType, nullable = true) ::
+          //  StructField(name = "SomeId", dataType = IntegerType, nullable = true) ::
+          Nil
       )
 
-    val emptyVal = Seq(Row("", "", "", "", "", "", ""/*, null, null*/))
-
+    val emptyVal = Seq(Row("", "", "", "", "", "", "" /*, null, null*/))
     val emptyDF = sqlContext.createDataFrame(sc.parallelize(emptyVal), schema)
-    //    val emptyDF = sqlContext.createDataFrame(sc.parallelize(Seq(Row())), schema)
 
-    emptyDF.show()
     emptyDF.printSchema()
-
     emptyDF.write.option("header", "true").parquet("src/main/resources/schemas/test")
-
-    //    clk.printSchema()
   }
 }

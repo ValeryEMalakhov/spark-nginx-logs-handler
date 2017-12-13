@@ -15,6 +15,7 @@ object Dependencies {
   lazy val jacksonVersion = "2.9.2"
 
   lazy val specs2Version = "4.0.0"
+  lazy val log4jVersion = "1.2.17"
 
   lazy val sparkCore = "org.apache.spark" %% "spark-core" % sparkVersion
   lazy val sparkSQL = "org.apache.spark" %% "spark-sql" % sparkVersion
@@ -32,5 +33,6 @@ object Dependencies {
   lazy val jackson = "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion
 
   lazy val specs2 = "org.specs2" %% "specs2-core" % specs2Version % "test"
+  lazy val log4j = "log4j" % "log4j" % log4jVersion
 }
 

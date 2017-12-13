@@ -15,17 +15,17 @@ class ParsedPixelTest extends mutable.Specification {
 
   //   The creation of these Sequences made it possible to avoid calls to the file system in the tests
 
-  //   log lines equivalent to the first three lines of the log file `15_09_*`
+  //   logEntry lines equivalent to the first three lines of the logEntry file `15_09_*`
   private val testLogString_1 = Seq[String](
     "29/Nov/2017:15:05:21 +0000\trt\tb5a8a368df05b837211ac8de7aca2bfd\t100\t192.168.80.132\t192.168.80.1\tMozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36\t-\n29/Nov/2017:15:05:33 +0000\timpr\t2b8625702c5563ffff1a4f1d6c16c9f6\t100\t192.168.80.132\t192.168.80.1\tMozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36\tAdId=100\n29/Nov/2017:15:05:36 +0000\tclk\t26f770590fa1d753dc1d1e3a4d214148\t100\t192.168.80.132\t192.168.80.1\tMozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36\tAdId=100")
 
-  //   log lines equivalent to the last three lines of the log file `15_12_*`
+  //   logEntry lines equivalent to the last three lines of the logEntry file `15_12_*`
   private val testLogString_2 = Seq[String](
     "29/Nov/2017:15:12:18 +0000\timpr\tc8f79b15d2bcf6245bace205de50ead0\t105\t192.168.80.132\t192.168.80.1\tMozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36\tAdId=103\n29/Nov/2017:15:12:29 +0000\timpr\t94385342a5f0f4e871666f722d1d682c\t103\t192.168.80.132\t192.168.80.1\tMozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36\tAdId=104\n29/Nov/2017:15:12:40 +0000\tclk\t134211f6e0aae99718e47c5a69d5b6a1\t103\t192.168.80.132\t192.168.80.1\tMozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36\tAdId=104")
 
   "When RDD contains" >> {
 
-    "single log archive from test `file`" >> {
+    "single logEntry archive from test `file`" >> {
 
       val singleLogRDD = ExecutorContext.rddParser.parse(spcSC.parallelize(testLogString_1))
 
@@ -35,7 +35,7 @@ class ParsedPixelTest extends mutable.Specification {
       }
     }
 
-    "multiple log archives from test `files`" >> {
+    "multiple logEntry archives from test `files`" >> {
 
       val logs: Seq[String] = testLogString_1 :+ testLogString_2.toString
 

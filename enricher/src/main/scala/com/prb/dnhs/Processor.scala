@@ -4,7 +4,6 @@ import com.typesafe.config._
 import org.apache.spark.rdd._
 import org.apache.spark.sql._
 import com.prb.dnhs.entities._
-import com.prb.dnhs.exceptions.DataException
 
 case class Processor(input: String = "")
 
@@ -37,8 +36,11 @@ object Processor {
 
           val parsedRDD: RDD[Row] = ExecutorContext.logEntryParser.parse(logEntryRDD)
 
-          //  ExecutorContext.packagerAsTextFile.save(parsed_logRDD)
-          //  ExecutorContext.packagerAsCSV.save(logDataFrame)
+          //  obtain a combined dataframe from the created rdd and the merged scheme
+          val logDF = DriverContext.sqlContext.createDataFrame(parsedRDD, DriverContext.mergedSchema.schema)
+
+          //  ExecutorContext.packagerAsTextFile.save(parsedRDD)
+          //  ExecutorContext.packagerAsCSV.save(logDF)
 
         } else {
           val logRDD: RDD[String] = DriverContext.sc
@@ -51,7 +53,10 @@ object Processor {
           //  obtain a combined dataframe from the created rdd and the merged scheme
           val logDF = DriverContext.sqlContext.createDataFrame(parsedRDD, DriverContext.mergedSchema.schema)
 
-          logDF.show(100, truncate = true)
+          logDF.sort("dateTime").show(100, truncate = true)
+
+          //  ExecutorContext.packagerAsTextFile.save(parsedRDD)
+          //  ExecutorContext.packagerAsCSV.save(logDF)
         }
       case None =>
       // arguments are bad, error message will have been displayed
