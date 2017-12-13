@@ -51,7 +51,7 @@ object Processor {
           //  obtain a combined dataframe from the created rdd and the merged scheme
           val logDF = DriverContext.sqlContext.createDataFrame(parsedRDD, DriverContext.mergedSchema.schema)
 
-          logDF.show()
+          logDF.show(100, truncate = true)
         }
       case None =>
       // arguments are bad, error message will have been displayed
