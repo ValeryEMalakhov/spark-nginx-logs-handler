@@ -6,14 +6,23 @@ version := "1.0.0.f2"
 
 scalaVersion := scala211
 
+fork := true
+enablePlugins(AssemblyPlugin)
+
+assemblyMergeStrategy in assembly := {
+  case PathList("META-INF", xs@_ *) => MergeStrategy.discard
+  case x => MergeStrategy.last
+}
+test in assembly := {}
+
+mainClass in assembly := Some("com.prb.dnhs.Main")
 mainClass in (Compile, run) := Some("com.prb.dnhs.Main")
 
-scalaSource in Test := baseDirectory.value / "src" / "test" / "scala"
+fullClasspath in Runtime := (fullClasspath in Compile).value
 
 libraryDependencies ++= Seq(
-  configType, scopt,
-  hadoopCommon, hadoopClient,
   sparkCore, sparkSQL,
-  parquetHadoop, parquetColumn, parquetCommon,
+  configType, scopt,
   specs2, log4j
 )
+

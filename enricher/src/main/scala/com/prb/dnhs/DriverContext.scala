@@ -14,19 +14,23 @@ object DriverContext {
 
   private val config: Config = ConfigFactory.load("application.conf")
 
-  private val runStatus = "def"
-  //  private val runStatus = "debug"
+  //  private val runStatus = "def"
+  private val runStatus = "debug"
 
+  //  val pathToFile: String = "D:\\Progs\\LerningProg\\spark\\spark-nginx-logs-handler\\" + "enricher\\files\\"
   val pathToFile: String = config.getString(s"hdfs.$runStatus.node") + config.getString(s"hdfs.$runStatus.files")
 
   //  create Spark config with default settings
   private val sparkConf: SparkConf =
     if (runStatus == "debug") {
       new SparkConf()
+        //        .setAppName("LogsEnricher")
         .setAppName(config.getString("spark.name"))
+        //        .setMaster("local[8]")
         .setMaster(config.getString(s"spark.$runStatus.master"))
     } else {
       new SparkConf()
+        //        .setAppName("LogsEnricher")
         .setAppName(config.getString("spark.name"))
     }
 

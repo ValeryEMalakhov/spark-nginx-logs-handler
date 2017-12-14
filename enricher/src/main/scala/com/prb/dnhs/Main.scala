@@ -1,7 +1,10 @@
 package com.prb.dnhs
 
-object Main extends App {
+object Main /* extends App */ {
 
-  Processor.run(args)
+  def main(args: Array[String]): Unit = {
+
+    Processor.run(args)
+  }
 }
 

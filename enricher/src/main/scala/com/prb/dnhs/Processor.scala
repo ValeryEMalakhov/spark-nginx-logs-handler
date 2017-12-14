@@ -44,7 +44,7 @@ object Processor {
 
         } else {
           val logRDD: RDD[String] = DriverContext.sc
-            .textFile(DriverContext.pathToFile + "READY/*")
+            .textFile(DriverContext.pathToFile + "READY/*.gz")
 
           val logEntryRDD: RDD[LogEntry] = ExecutorContext.rddParser.parse(logRDD)
 
