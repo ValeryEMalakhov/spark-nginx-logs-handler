@@ -14,8 +14,8 @@ object DriverContext {
 
   private val config: Config = ConfigFactory.load("application.conf")
 
-  //  private val runStatus = "def"
-  private val runStatus = "debug"
+    private val runStatus = "def"
+//  private val runStatus = "debug"
 
   val pathToFile: String = config.getString(s"hdfs.$runStatus.node") + config.getString(s"hdfs.$runStatus.files")
 
