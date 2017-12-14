@@ -12,7 +12,7 @@ object CreateSchema {
       StructType(
         StructField(name = "dateTime", dataType = StringType, nullable = false) ::
           StructField(name = "eventType", dataType = StringType, nullable = false) ::
-          StructField(name = "requesrId", dataType = StringType, nullable = false) ::
+          StructField(name = "requestId", dataType = StringType, nullable = false) ::
           StructField(name = "userCookie", dataType = StringType, nullable = false) ::
           StructField(name = "site", dataType = StringType, nullable = false) ::
           StructField(name = "ipAddress", dataType = StringType, nullable = false) ::

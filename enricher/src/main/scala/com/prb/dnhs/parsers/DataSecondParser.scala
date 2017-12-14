@@ -20,7 +20,7 @@ class DataSecondParser extends DataParser[RDD[LogEntry], RDD[Row]] {
         DataSecondParser.fieldsBuilder(logEntry)
       }
       else {
-        log.error(s"An invalid row is [${logEntry.dateTime}, ${logEntry.requesrId}]")
+        log.error(s"An invalid row is [${logEntry.dateTime}, ${logEntry.requestId}]")
         null
       }
     }
@@ -37,7 +37,7 @@ private object DataSecondParser {
     val immutableFields = Row(
       log.dateTime,
       log.eventType,
-      log.requesrId,
+      log.requestId,
       log.userCookie,
       log.site,
       log.ipAddress,

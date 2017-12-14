@@ -16,7 +16,7 @@ object LogRowValidator {
     val immutableFields = Row(
       logEntry.dateTime,
       logEntry.eventType,
-      logEntry.requesrId,
+      logEntry.requestId,
       logEntry.userCookie,
       logEntry.site,
       logEntry.ipAddress,

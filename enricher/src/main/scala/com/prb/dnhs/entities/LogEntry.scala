@@ -3,7 +3,7 @@ package com.prb.dnhs.entities
 case class LogEntry(
     dateTime: String,
     eventType: String,
-    requesrId: String,
+    requestId: String,
     userCookie: String,
     site: String,
     ipAddress: String,
