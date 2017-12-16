@@ -3,10 +3,10 @@ package com.prb.dnhs.parsers
 import scala.language.implicitConversions
 
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql._
+import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
 
-import com.prb.dnhs.DriverContext._
+import com.prb.dnhs.SchemaRepos._
 import com.prb.dnhs.entities._
 import com.prb.dnhs.validators.LogRowValidator._
 
@@ -46,27 +46,27 @@ private object DataSecondParser {
 
     log.eventType match {
       case "rt" => {
-        val dataType: Array[DataType] = rt.schema.fields.map(_.dataType).drop(core.columns.length)
+        val dataType: Array[DataType] = rt.fields.map(_.dataType).drop(core.length)
 
-        val segmentsList = if (!(core.columns sameElements rt.columns)) {
+        val segmentsList = if (!(core.fields sameElements rt.fields)) {
           log.segments.toList
         } else List(("", ""))
 
         mutableFieldsBuilder(log, immutableFields, segmentsList, dataType)
       }
       case "impr" => {
-        val dataType = impr.schema.fields.map(_.dataType).drop(core.columns.length)
+        val dataType = impr.fields.map(_.dataType).drop(core.length)
 
-        val segmentsList = if (!(core.columns sameElements impr.columns)) {
+        val segmentsList = if (!(core.fields sameElements impr.fields)) {
           log.segments.toList
         } else List(("", ""))
 
         mutableFieldsBuilder(log, immutableFields, segmentsList, dataType)
       }
       case "clk" => {
-        val dataType = clk.schema.fields.map(_.dataType).drop(core.columns.length)
+        val dataType = clk.fields.map(_.dataType).drop(core.length)
 
-        val segmentsList = if (!(core.columns sameElements clk.columns)) {
+        val segmentsList = if (!(core.fields sameElements clk.fields)) {
           log.segments.toList
         } else List(("", ""))
 
@@ -83,10 +83,10 @@ private object DataSecondParser {
       segmentsList: Seq[(String, String)],
       dataType: Array[DataType]) = {
 
-    val mutableFields: Array[Row] = mutablePartOfSchema.zipWithIndex
+    val mutableFields: Seq[Row] = mutablePartOfSchema.zipWithIndex
       .map { case (list, i) =>
         if (segmentsList.lengthCompare(i) != 0) {
-          if (segmentsList(i)._1 == list) {
+          if (segmentsList(i)._1 == list.name) {
             dataType(i) match {
               case StringType => Row(segmentsList(i)._2.toString)
               case IntegerType => Row(segmentsList(i)._2.toInt)

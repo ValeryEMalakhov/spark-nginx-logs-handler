@@ -5,7 +5,7 @@ import scala.language.implicitConversions
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
 
-import com.prb.dnhs.DriverContext._
+import com.prb.dnhs.SchemaRepos._
 import com.prb.dnhs.exceptions._
 import com.prb.dnhs.entities._
 
@@ -33,8 +33,8 @@ object LogRowValidator {
     logEntry.eventType match {
       case "rt" => {
         //  check for the presence of mutable fields
-        if (!(core.columns sameElements rt.columns)) {
-          val checkFields = rt.schema.fields.map(f => (f.name, f.dataType, f.nullable)).drop(core.columns.length)
+        if (!(core.fields sameElements rt.fields)) {
+          val checkFields = rt.fields.map(f => (f.name, f.dataType, f.nullable)).drop(core.length)
 
           mutableFieldsValidator(checkFields.toList, logEntry.segments.toList) match {
             case Some(toReturn) => toReturn
@@ -44,8 +44,8 @@ object LogRowValidator {
       }
       case "impr" => {
         //  check for the presence of mutable fields
-        if (!(core.columns sameElements impr.columns)) {
-          val checkFields = impr.schema.fields.map(f => (f.name, f.dataType, f.nullable)).drop(core.columns.length)
+        if (!(core.fields sameElements impr.fields)) {
+          val checkFields = impr.fields.map(f => (f.name, f.dataType, f.nullable)).drop(core.length)
 
           mutableFieldsValidator(checkFields.toList, logEntry.segments.toList) match {
             case Some(toReturn) => toReturn
@@ -55,8 +55,8 @@ object LogRowValidator {
       }
       case "clk" => {
         //  check for the presence of mutable fields
-        if (!(core.columns sameElements clk.columns)) {
-          val checkFields = clk.schema.fields.map(f => (f.name, f.dataType, f.nullable)).drop(core.columns.length)
+        if (!(core.fields sameElements clk.fields)) {
+          val checkFields = clk.fields.map(f => (f.name, f.dataType, f.nullable)).drop(core.length)
 
           mutableFieldsValidator(checkFields.toList, logEntry.segments.toList) match {
             case Some(toReturn) => toReturn
@@ -125,3 +125,4 @@ object LogRowValidator {
     None
   }
 }
+

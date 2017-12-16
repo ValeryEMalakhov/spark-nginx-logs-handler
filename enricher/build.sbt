@@ -21,8 +21,10 @@ mainClass in (Compile, run) := Some("com.prb.dnhs.Main")
 fullClasspath in Runtime := (fullClasspath in Compile).value
 
 libraryDependencies ++= Seq(
-  sparkCore, sparkSQL,
+  sparkCore, sparkSQL, sparkStreaming,
+  hadoopCommon,
+  parquetCommon, parquetHadoop, parquetColumn,
   configType, scopt,
-  specs2, log4j
+  specs2, slf4j
 )
 
