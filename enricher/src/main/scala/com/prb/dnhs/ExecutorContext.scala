@@ -1,7 +1,7 @@
 package com.prb.dnhs
 
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.{DataFrame, Row}
+import org.apache.spark.sql.Row
 import com.prb.dnhs.entities._
 import com.prb.dnhs.parsers._
 

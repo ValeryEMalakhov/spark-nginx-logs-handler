@@ -37,11 +37,11 @@ object Processor {
 
           val parsedRDD: RDD[Row] = ExecutorContext.logEntryParser.parse(logEntryRDD)
 
-          //  obtain a combined dataframe from the created rdd and the merged scheme
-          val logDF = DriverContext.sqlContext.createDataFrame(parsedRDD, core)
+          // obtain a combined dataframe from the created rdd and the merged scheme
+          val logDF = DriverContext.sqlContext.createDataFrame(parsedRDD, getSchema("core"))
 
-          //  ExecutorContext.packagerAsTextFile.save(parsedRDD)
-          //  ExecutorContext.packagerAsCSV.save(logDF)
+          // ExecutorContext.packagerAsTextFile.save(parsedRDD)
+          // ExecutorContext.packagerAsCSV.save(logDF)
 
         } else {
           val logRDD: RDD[String] = DriverContext.sc
@@ -51,15 +51,13 @@ object Processor {
 
           val parsedRDD: RDD[Row] = ExecutorContext.logEntryParser.parse(logEntryRDD)
 
-          parsedRDD.collect.foreach(println)
+          // obtain a combined dataframe from the created rdd and the merged scheme
+          val logDF = DriverContext.sqlContext.createDataFrame(parsedRDD, getSchema("merged"))
 
-          //  obtain a combined dataframe from the created rdd and the merged scheme
-          //  val logDF = DriverContext.sqlContext.createDataFrame(parsedRDD, core)
+          logDF.sort("dateTime").show(100, truncate = true)
 
-          //  logDF.sort("dateTime").show(100, truncate = true)
-
-          //  ExecutorContext.packagerAsTextFile.save(parsedRDD)
-          //  ExecutorContext.packagerAsCSV.save(logDF)
+          // ExecutorContext.packagerAsTextFile.save(parsedRDD)
+          // ExecutorContext.packagerAsCSV.save(logDF)
         }
       case None =>
       // arguments are bad, error message will have been displayed

@@ -11,10 +11,10 @@ class DataFirstParser extends DataParser[RDD[String], RDD[LogEntry]] {
   override def parse(logRDD: RDD[String]): RDD[LogEntry] = {
 
     logRDD.map { str =>
-      //  breaks the input string into tabs
+      // breaks the input string into tabs
       val logEntry: Array[String] = str.split('\t')
 
-      //  if the argument field does not contain a hyphen, parse it and store in a Map
+      // if the argument field does not contain a hyphen, parse it and store in a Map
       val segments: Map[String, String] =
         if (logEntry(7) != "-")
           logEntry(7).split(",").map(_.split("=")).map(pair => (pair(0), pair(1))).toMap

@@ -6,21 +6,21 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
 
-import com.prb.dnhs.SchemaRepos._
 import com.prb.dnhs.entities._
+import com.prb.dnhs.entities.SchemaRepos._
 import com.prb.dnhs.validators.LogRowValidator._
 
 class DataSecondParser extends DataParser[RDD[LogEntry], RDD[Row]] {
 
   def parse(logRDD: RDD[LogEntry]): RDD[Row] = {
 
-    //  if logEntry entry string is valid, then get Row with that string, else get Null
+    // if logEntry entry string is valid, then get Row with that string, else get Null
     val parsedLogRDD: RDD[Row] = logRDD.map { logEntry =>
       if (fieldsValidator(logEntry)) {
         DataSecondParser.fieldsBuilder(logEntry)
       }
       else {
-        log.error(s"An invalid row is [${logEntry.dateTime}, ${logEntry.requestId}]")
+        LOG.error(s"An invalid row is [${logEntry.dateTime}, ${logEntry.requestId}]")
         null
       }
     }
@@ -29,11 +29,11 @@ class DataSecondParser extends DataParser[RDD[LogEntry], RDD[Row]] {
   }
 }
 
-//  Necessity in the object since serialization occurs in the `map`
+// Necessity in the object since serialization occurs in the `map`
 private object DataSecondParser {
 
   private def fieldsBuilder(log: LogEntry) = {
-    //  unchanged part of the logEntry-data, none of the column can be Null
+    // unchanged part of the logEntry-data, none of the column can be Null
     val immutableFields = Row(
       log.dateTime,
       log.eventType,
@@ -44,37 +44,13 @@ private object DataSecondParser {
       log.useragent
     )
 
-    log.eventType match {
-      case "rt" => {
-        val dataType: Array[DataType] = rt.fields.map(_.dataType).drop(core.length)
+    val dataType: Array[DataType] = getSchema(log.eventType).fields.map(_.dataType).drop(getSchema("core").length)
 
-        val segmentsList = if (!(core.fields sameElements rt.fields)) {
-          log.segments.toList
-        } else List(("", ""))
+    val segmentsList = if (!(getSchema(log.eventType).fields sameElements getSchema("core").fields)) {
+      log.segments.toList
+    } else List(("", ""))
 
-        mutableFieldsBuilder(log, immutableFields, segmentsList, dataType)
-      }
-      case "impr" => {
-        val dataType = impr.fields.map(_.dataType).drop(core.length)
-
-        val segmentsList = if (!(core.fields sameElements impr.fields)) {
-          log.segments.toList
-        } else List(("", ""))
-
-        mutableFieldsBuilder(log, immutableFields, segmentsList, dataType)
-      }
-      case "clk" => {
-        val dataType = clk.fields.map(_.dataType).drop(core.length)
-
-        val segmentsList = if (!(core.fields sameElements clk.fields)) {
-          log.segments.toList
-        } else List(("", ""))
-
-        mutableFieldsBuilder(log, immutableFields, segmentsList, dataType)
-      }
-      //  cannot be reached after a correct validation
-      case _ => immutableFields
-    }
+    mutableFieldsBuilder(log, immutableFields, segmentsList, dataType)
   }
 
   private def mutableFieldsBuilder(
@@ -83,7 +59,7 @@ private object DataSecondParser {
       segmentsList: Seq[(String, String)],
       dataType: Array[DataType]) = {
 
-    val mutableFields: Seq[Row] = mutablePartOfSchema.zipWithIndex
+    val mutableFields: Seq[Row] = getSchema("mutable").zipWithIndex
       .map { case (list, i) =>
         if (segmentsList.lengthCompare(i) != 0) {
           if (segmentsList(i)._1 == list.name) {
