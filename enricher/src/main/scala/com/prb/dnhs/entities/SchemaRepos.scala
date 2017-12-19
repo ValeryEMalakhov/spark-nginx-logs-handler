@@ -45,12 +45,12 @@ object SchemaRepos {
     "merged" -> merged,
     "mutable" -> mutablePart)
 
-  // the function receives the schema form Map by String-key
+  // the function receives the schema from Map by String-key
   def getSchema(eventType: String): StructType = {
     schemaMap(eventType)
   }
 
-  // the function receives the schema directly from the file
+  // the function receives the schema directly from the file (alternative - not used)
   def getSchemaFromFile(name: String): StructType = {
 
     val file = Source.fromFile(s"src/main/resources/schemas/${name}.parquet")
