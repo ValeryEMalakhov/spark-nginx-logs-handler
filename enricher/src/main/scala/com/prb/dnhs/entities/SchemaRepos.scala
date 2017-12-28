@@ -49,7 +49,10 @@ object SchemaRepos {
 
   // the function receives the schema from Map by String-key
   def getSchema(eventType: String): StructType = {
-    sr.schemaMap(eventType)
+    if (eventType != null && eventType != "-")
+      sr.schemaMap(eventType)
+    else
+      sr.schemaMap("core")
   }
 
   // the function receives the schema directly from the file (alternative - not used)
