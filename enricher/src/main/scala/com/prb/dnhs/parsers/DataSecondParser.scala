@@ -5,10 +5,10 @@ import scala.language.implicitConversions
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
-
 import com.prb.dnhs.entities._
 import com.prb.dnhs.entities.SchemaRepos._
 import com.prb.dnhs.validators.LogRowValidator._
+import com.prb.dnhs.ScalaLogger._
 
 class DataSecondParser extends DataParser[RDD[LogEntry], RDD[Row]] {
 
@@ -20,7 +20,7 @@ class DataSecondParser extends DataParser[RDD[LogEntry], RDD[Row]] {
         DataSecondParser.fieldsBuilder(logEntry)
       }
       else {
-        LOG.error(s"An invalid row is [${logEntry.dateTime}, ${logEntry.requestId}]")
+        logger.error(s"An invalid row is [${logEntry.dateTime}, ${logEntry.requestId}]")
         null
       }
     }

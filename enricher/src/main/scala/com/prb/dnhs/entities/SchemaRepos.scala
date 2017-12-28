@@ -2,16 +2,13 @@ package com.prb.dnhs.entities
 
 import scala.io._
 
+import com.typesafe.scalalogging.StrictLogging
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.execution.datasources.parquet._
 import org.apache.parquet.schema._
-import com.typesafe.scalalogging._
 
 // Block of global values
 object SchemaRepos {
-
-  // create a [[Logger]] wrapping the given underlying `org.slf4j.Logger`.
-  val LOG = Logger("root")
 
   // the spark.sql private class instance that containing
   //  all the necessary methods for converting parquet schemes

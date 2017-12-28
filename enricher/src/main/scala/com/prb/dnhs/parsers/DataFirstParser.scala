@@ -3,8 +3,8 @@ package com.prb.dnhs.parsers
 import scala.language.implicitConversions
 
 import org.apache.spark.rdd.RDD
-
 import com.prb.dnhs.entities.LogEntry
+import com.typesafe.scalalogging.StrictLogging
 
 class DataFirstParser extends DataParser[RDD[String], RDD[LogEntry]] {
 

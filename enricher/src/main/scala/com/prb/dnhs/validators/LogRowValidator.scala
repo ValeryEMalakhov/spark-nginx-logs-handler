@@ -4,10 +4,10 @@ import scala.language.implicitConversions
 
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
-
 import com.prb.dnhs.entities.SchemaRepos._
 import com.prb.dnhs.exceptions._
 import com.prb.dnhs.entities._
+import com.prb.dnhs.ScalaLogger._
 
 object LogRowValidator {
 
@@ -26,7 +26,7 @@ object LogRowValidator {
     // immutable fields are enough to check for not null
     if (immutableFields.mkString(",").contains("null")) {
       // throw DataException(s"Immutable fields must not have empty fields")
-      LOG.error(s"Immutable fields must not have empty fields")
+      logger.error(s"Immutable fields must not have empty fields")
       return false
     }
 
@@ -37,7 +37,7 @@ object LogRowValidator {
       case "clk" =>
       case _ =>
         // throw new SchemaValidationException(s"Failed to find eventType.")
-        LOG.error(s"Failed to find eventType.")
+        logger.error(s"Failed to find eventType.")
         false
     }
 
@@ -79,27 +79,27 @@ object LogRowValidator {
             catch {
               case _: IllegalArgumentException => {
                 // throw DataException(s"Wrong data type! Expected type: ${checkFields(i)._2}")
-                LOG.error(s"Wrong data type! Expected type: ${checkFields(i)._2}")
+                logger.error(s"Wrong data type! Expected type: ${checkFields(i)._2}")
                 return Some(false)
               }
             }
           } else {
             // throw DataException(s"Field ${segmentList(i)._1} must not be empty")
-            LOG.error(s"Field ${segmentsList(i)._1} must not be empty")
+            logger.error(s"Field ${segmentsList(i)._1} must not be empty")
             return Some(false)
           }
         } else {
           // show an error if the field can not be empty
           if (!field._3) {
             // throw DataException(s"Field ${segmentList(i)._1} is not nullable")
-            LOG.error(s"Field ${segmentsList(i)._1} is not nullable")
+            logger.error(s"Field ${segmentsList(i)._1} is not nullable")
             return Some(false)
           }
         }
       }
       else {
         // throw DataException(s"Missing required fields")
-        LOG.error(s"Missing required fields")
+        logger.error(s"Missing required fields")
         return Some(false)
       }
     }
