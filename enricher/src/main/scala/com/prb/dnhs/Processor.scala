@@ -5,6 +5,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import com.prb.dnhs.entities._
 import com.prb.dnhs.entities.SchemaRepos._
+import com.prb.dnhs.recorders.ParquetRecorder._
 
 case class Processor(input: String = "")
 
@@ -56,8 +57,7 @@ object Processor {
 
           logDF.sort("dateTime").show(100, truncate = true)
 
-          // ExecutorContext.packagerAsTextFile.save(parsedRDD)
-          // ExecutorContext.packagerAsCSV.save(logDF)
+          logDF.save()
         }
       case None =>
       // arguments are bad, error message will have been displayed

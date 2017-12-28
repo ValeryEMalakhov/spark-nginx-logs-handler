@@ -84,14 +84,14 @@ object LogRowValidator {
               }
             }
           } else {
-            // throw DataException(s"Field ${segmentList(i)._1} must not be empty")
+            // throw DataException(s"Field ${segmentsList(i)._1} must not be empty")
             logger.error(s"Field ${segmentsList(i)._1} must not be empty")
             return Some(false)
           }
         } else {
           // show an error if the field can not be empty
           if (!field._3) {
-            // throw DataException(s"Field ${segmentList(i)._1} is not nullable")
+            // throw DataException(s"Field ${segmentsList(i)._1} is not nullable")
             logger.error(s"Field ${segmentsList(i)._1} is not nullable")
             return Some(false)
           }
@@ -103,7 +103,7 @@ object LogRowValidator {
         return Some(false)
       }
     }
-    // return `None` if validation successfully complete
+    // return `None` (errors) if validation successfully complete
     None
   }
 }
