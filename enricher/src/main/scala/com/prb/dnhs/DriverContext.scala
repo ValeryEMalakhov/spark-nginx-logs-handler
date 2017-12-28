@@ -13,7 +13,7 @@ object DriverContext {
 
   private val config: Config = ConfigFactory.load("application.conf")
 
-  //TODO: add that variable in scopt
+  //TODO: maybe add that variable in scopt param
 //   private val runStatus = "def"
   private val runStatus = "debug"
 

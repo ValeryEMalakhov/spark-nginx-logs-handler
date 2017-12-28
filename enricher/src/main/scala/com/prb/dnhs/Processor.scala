@@ -41,8 +41,7 @@ object Processor {
           // obtain a combined dataframe from the created rdd and the merged scheme
           val logDF = DriverContext.sqlContext.createDataFrame(parsedRDD, getSchema("core"))
 
-          // ExecutorContext.packagerAsTextFile.save(parsedRDD)
-          // ExecutorContext.packagerAsCSV.save(logDF)
+          logDF.save()
 
         } else {
           val logRDD: RDD[String] = DriverContext.sc

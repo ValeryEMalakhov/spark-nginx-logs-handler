@@ -9,6 +9,7 @@ scalaVersion := scala211
 fork := true
 enablePlugins(AssemblyPlugin)
 
+// Assembly added for correct work with scopt, slf4j and configType.
 assemblyMergeStrategy in assembly := {
   case PathList("META-INF", xs@_ *) => MergeStrategy.discard
   case x => MergeStrategy.last
