@@ -8,6 +8,6 @@ case class LogEntry(
     site: String,
     ipAddress: String,
     useragent: String,
-
-    segments: Map[String, String]
+    segments: Map[String, String],
+    mutableFields: Map[String, String]
 )

@@ -20,15 +20,22 @@ object LogRowValidator {
       logEntry.userCookie,
       logEntry.site,
       logEntry.ipAddress,
-      logEntry.useragent
+      logEntry.useragent,
+      logEntry.segments
     )
 
-    // immutable fields are enough to check for not null
-    if (immutableFields.mkString(",").contains("null")) {
-      // throw DataException(s"Immutable fields must not have empty fields")
-      logger.error(s"Immutable fields must not have empty fields")
-      return false
-    }
+    getSchema("core")
+      .fields.map(f => f.nullable)
+      .zipWithIndex
+      .foreach { case (field, i) =>
+        if (immutableFields.toSeq(i) == null) {
+          if (!field) {
+            // throw DataException(s"Immutable fields must not have empty fields")
+            logger.error(s"Immutable fields must not have empty fields")
+            return false
+          }
+        }
+      }
 
     // at the moment there are definitely only three types of events
     logEntry.eventType match {
@@ -38,7 +45,7 @@ object LogRowValidator {
       case _ =>
         // throw new SchemaValidationException(s"Failed to find eventType.")
         logger.error(s"Failed to find eventType.")
-        false
+        return false
     }
 
     // check for the presence of mutable fields
@@ -47,7 +54,7 @@ object LogRowValidator {
         .fields.map(f => (f.name, f.dataType, f.nullable))
         .drop(getSchema("core").length)
 
-      mutableFieldsValidator(checkFields.toList, logEntry.segments.toList) match {
+      mutableFieldsValidator(checkFields.toList, logEntry.mutableFields.toList) match {
         case Some(toReturn) => toReturn
         case None => true
       }

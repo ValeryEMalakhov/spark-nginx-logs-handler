@@ -32,25 +32,26 @@ class DataSecondParser extends DataParser[RDD[LogEntry], RDD[Row]] {
 // Necessity in the object since serialization occurs in the `map`
 private object DataSecondParser {
 
-  private def fieldsBuilder(log: LogEntry) = {
+  private def fieldsBuilder(logEntry: LogEntry) = {
     // unchanged part of the logEntry-data, none of the column can be Null
     val immutableFields = Row(
-      log.dateTime,
-      log.eventType,
-      log.requestId,
-      log.userCookie,
-      log.site,
-      log.ipAddress,
-      log.useragent
+      logEntry.dateTime,
+      logEntry.eventType,
+      logEntry.requestId,
+      logEntry.userCookie,
+      logEntry.site,
+      logEntry.ipAddress,
+      logEntry.useragent,
+      logEntry.segments
     )
 
-    val dataType: Array[DataType] = getSchema(log.eventType).fields.map(_.dataType).drop(getSchema("core").length)
+    val dataType: Array[DataType] = getSchema(logEntry.eventType).fields.map(_.dataType).drop(getSchema("core").length)
 
-    val segmentsList = if (!(getSchema(log.eventType).fields sameElements getSchema("core").fields)) {
-      log.segments.toList
+    val segmentsList = if (!(getSchema(logEntry.eventType).fields sameElements getSchema("core").fields)) {
+      logEntry.mutableFields.toList
     } else List(("", ""))
 
-    mutableFieldsBuilder(log, immutableFields, segmentsList, dataType)
+    mutableFieldsBuilder(logEntry, immutableFields, segmentsList, dataType)
   }
 
   private def mutableFieldsBuilder(

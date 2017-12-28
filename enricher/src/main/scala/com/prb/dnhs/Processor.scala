@@ -41,13 +41,15 @@ object Processor {
           // obtain a combined dataframe from the created rdd and the merged scheme
           val logDF = DriverContext.sqlContext.createDataFrame(parsedRDD, getSchema("core"))
 
-          logDF.save()
+          //logDF.save()
 
         } else {
           val logRDD: RDD[String] = DriverContext.sc
             .textFile(DriverContext.pathToFile + "READY/*.gz")
 
           val logEntryRDD: RDD[LogEntry] = ExecutorContext.rddParser.parse(logRDD)
+
+          // logEntryRDD.collect().foreach(println)
 
           val parsedRDD: RDD[Row] = ExecutorContext.logEntryParser.parse(logEntryRDD)
 
@@ -56,7 +58,7 @@ object Processor {
 
           logDF.sort("dateTime").show(100, truncate = true)
 
-          logDF.save()
+          //logDF.save()
         }
       case None =>
       // arguments are bad, error message will have been displayed

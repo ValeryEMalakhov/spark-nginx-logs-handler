@@ -3,7 +3,8 @@ package com.prb.dnhs.parsers
 import scala.language.implicitConversions
 
 import org.apache.spark.rdd.RDD
-import com.prb.dnhs.entities.LogEntry
+import com.prb.dnhs.entities._
+import com.prb.dnhs.entities.SchemaRepos._
 import com.typesafe.scalalogging.StrictLogging
 
 class DataFirstParser extends DataParser[RDD[String], RDD[LogEntry]] {
@@ -20,6 +21,11 @@ class DataFirstParser extends DataParser[RDD[String], RDD[LogEntry]] {
           logEntry(7).split(",").map(_.split("=")).map(pair => (pair(0), pair(1))).toMap
         else null
 
+      val mutableFieldsList: List[String] =
+        logEntry.drop(getSchema("core").fields.length).toList
+
+      val mutableFields: Map[String, String] = DataFirstParser.parseMutableFieldsListToMap(logEntry(1), mutableFieldsList)
+
       LogEntry(
         DataFirstParser.hyphenToNullConverter(logEntry(0)),
         DataFirstParser.hyphenToNullConverter(logEntry(1)),
@@ -28,7 +34,8 @@ class DataFirstParser extends DataParser[RDD[String], RDD[LogEntry]] {
         DataFirstParser.hyphenToNullConverter(logEntry(4)),
         DataFirstParser.hyphenToNullConverter(logEntry(5)),
         DataFirstParser.hyphenToNullConverter(logEntry(6)),
-        segments)
+        segments,
+        mutableFields)
     }
   }
 }
@@ -40,5 +47,17 @@ private object DataFirstParser {
     */
   private def hyphenToNullConverter(logPart: String): String = {
     if (logPart != "-") logPart else null
+  }
+
+  private def parseMutableFieldsListToMap(eventType: String, mutableFieldsList: List[String]): Map[String, String] = {
+
+    getSchema(eventType)
+      .drop(getSchema("core").length)
+      .zipWithIndex
+      .map { case (field, i) =>
+        if (mutableFieldsList.lengthCompare(i) != 0) {
+          field.name -> mutableFieldsList(i)
+        } else field.name -> null
+      }.toMap
   }
 }
