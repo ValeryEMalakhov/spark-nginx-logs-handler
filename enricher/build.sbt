@@ -21,11 +21,13 @@ mainClass in (Compile, run) := Some("com.prb.dnhs.Main")
 
 fullClasspath in Runtime := (fullClasspath in Compile).value
 
+scalacOptions += "-Ypartial-unification"
+
 libraryDependencies ++= Seq(
   sparkCore, sparkSQL, sparkStreaming,
   hadoopCommon,
   parquetCommon, parquetHadoop, parquetColumn,
   configType, scopt,
-  specs2, slf4j
+  specs2, slf4j, cats
 )
 

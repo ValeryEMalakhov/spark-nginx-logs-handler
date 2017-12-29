@@ -1,5 +1,7 @@
 package com.prb.dnhs.entities
 
+import cats.data.Validated
+
 case class LogEntry(
     dateTime: String,
     eventType: String,
@@ -8,6 +10,10 @@ case class LogEntry(
     site: String,
     ipAddress: String,
     useragent: String,
-    segments: Map[String, String],
-    mutableFields: Map[String, String]
-)
+    queryString: Map[String, String] = Map.empty
+) {
+
+//  def validate(): Validated[this] = {
+//
+//  }
+}

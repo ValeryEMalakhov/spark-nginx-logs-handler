@@ -1,17 +1,25 @@
-package com.prb.dnhs.validators
+/*package com.prb.dnhs.validators
 
 import scala.language.implicitConversions
 
+import cats.data.Validated
+import cats.data.Validated._
+
+import com.prb.dnhs.LoggerHelper
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
+
 import com.prb.dnhs.entities.SchemaRepos._
 import com.prb.dnhs.exceptions._
-import com.prb.dnhs.entities._
-import com.prb.dnhs.ScalaLogger._
+import com.prb.dnhs.entities._*/
 
-object LogRowValidator {
+//trait Validator[T] {
+//  def validate(in: T): Validated[T]
+//}
 
-  implicit def fieldsValidator(logEntry: LogEntry): Boolean = {
+/*object LogRowValidator extends LoggerHelper {
+
+  implicit def fieldsValidator(logEntry: LogEntry): Validated[LogEntry, Boolean] = {
 
     val immutableFields = Row(
       logEntry.dateTime,
@@ -20,8 +28,7 @@ object LogRowValidator {
       logEntry.userCookie,
       logEntry.site,
       logEntry.ipAddress,
-      logEntry.useragent,
-      logEntry.segments
+      logEntry.useragent
     )
 
     getSchema("core")
@@ -32,7 +39,7 @@ object LogRowValidator {
           if (!field) {
             // throw DataException(s"Immutable fields must not have empty fields")
             logger.error(s"Immutable fields must not have empty fields")
-            return false
+            return Invalid(logEntry, false)
           }
         }
       }
@@ -44,7 +51,7 @@ object LogRowValidator {
       case "clk" =>
       case _ =>
         // throw new SchemaValidationException(s"Failed to find eventType.")
-        logger.error(s"Failed to find eventType.")
+        logger.warn(s"Failed to find eventType.")
         return false
     }
 
@@ -54,7 +61,7 @@ object LogRowValidator {
         .fields.map(f => (f.name, f.dataType, f.nullable))
         .drop(getSchema("core").length)
 
-      mutableFieldsValidator(checkFields.toList, logEntry.mutableFields.toList) match {
+      mutableFieldsValidator(checkFields.toList, logEntry.queryString.toList) match {
         case Some(toReturn) => toReturn
         case None => true
       }
@@ -86,32 +93,32 @@ object LogRowValidator {
             catch {
               case _: IllegalArgumentException => {
                 // throw DataException(s"Wrong data type! Expected type: ${checkFields(i)._2}")
-                logger.error(s"Wrong data type! Expected type: ${checkFields(i)._2}")
+                logger.warn(s"Wrong data type! Expected type: ${checkFields(i)._2}")
                 return Some(false)
               }
             }
           } else {
             // throw DataException(s"Field ${segmentsList(i)._1} must not be empty")
-            logger.error(s"Field ${segmentsList(i)._1} must not be empty")
+            logger.warn(s"Field ${segmentsList(i)._1} must not be empty")
             return Some(false)
           }
         } else {
           // show an error if the field can not be empty
           if (!field._3) {
             // throw DataException(s"Field ${segmentsList(i)._1} is not nullable")
-            logger.error(s"Field ${segmentsList(i)._1} is not nullable")
+            logger.warn(s"Field ${segmentsList(i)._1} is not nullable")
             return Some(false)
           }
         }
       }
       else {
         // throw DataException(s"Missing required fields")
-        logger.error(s"Missing required fields")
+        logger.warn(s"Missing required fields")
         return Some(false)
       }
     }
     // return `None` (errors) if validation successfully complete
     None
   }
-}
+}*/
 

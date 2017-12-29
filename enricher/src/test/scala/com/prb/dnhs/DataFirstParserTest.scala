@@ -1,3 +1,4 @@
+/*
 package com.prb.dnhs
 
 import com.prb.dnhs.entities.LogEntry
@@ -54,3 +55,4 @@ class DataFirstParserTest extends mutable.Specification {
   }
 }
 
+*/
