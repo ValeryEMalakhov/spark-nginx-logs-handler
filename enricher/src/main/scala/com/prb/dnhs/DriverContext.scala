@@ -1,7 +1,7 @@
 package com.prb.dnhs
 
+import com.prb.dnhs.helpers.ConfigHelper
 import com.typesafe.config._
-
 import org.apache.spark._
 import org.apache.spark.sql._
 
@@ -9,9 +9,7 @@ import org.apache.spark.sql._
   * The DriverContext object contains a number of parameters
   * that enable to work with Spark.
   */
-object DriverContext {
-
-  private val config: Config = ConfigFactory.load("application.conf")
+object DriverContext extends ConfigHelper {
 
   //TODO: maybe add that variable in scopt param
 //   private val runStatus = "def"

@@ -2,11 +2,13 @@ package com.prb.dnhs.parsers
 
 import scala.language.implicitConversions
 
-import com.prb.dnhs.LoggerHelper
 import com.prb.dnhs.entities._
 import com.prb.dnhs.exceptions.DataException
+import com.prb.dnhs.helpers.LoggerHelper
 
-class DataFirstParser extends DataParser[String, Either[Exception, LogEntry]] with LoggerHelper {
+private[parsers] class RddStringParser
+  extends DataParser[String, Either[Exception, LogEntry]]
+    with LoggerHelper {
 
   override def parse(logRDD: String): Either[Exception, LogEntry] = {
 

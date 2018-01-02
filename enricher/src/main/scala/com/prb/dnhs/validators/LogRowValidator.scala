@@ -5,7 +5,7 @@ import scala.language.implicitConversions
 import cats.data.Validated
 import cats.data.Validated._
 
-import com.prb.dnhs.LoggerHelper
+import com.prb.dnhs.helpers.LoggerHelper
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
 

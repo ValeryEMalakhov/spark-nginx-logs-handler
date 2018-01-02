@@ -30,27 +30,14 @@ object Processor {
       case Some(proc) =>
         // do stuff
         if (proc.input != "") {
-          /*
-                    val logEntry: RDD[String] = DriverContext.sc
-                      .textFile(proc.input)
-
-                    val logEntryRDD: RDD[LogEntry] = ExecutorContext.rddParser.parse(logEntry)
-
-                    val parsedRDD: RDD[Row] = ExecutorContext.logEntryParser.parse(logEntryRDD)
-
-                    // obtain a combined dataframe from the created rdd and the merged scheme
-                    val logDF = DriverContext.sqlContext.createDataFrame(parsedRDD, getSchema("core"))
-          */
 
         } else {
           val logRDD: RDD[String] = DriverContext.sc
             .textFile(DriverContext.pathToFile + "READY/*.gz")
 
-          val logRow: RDD[Row] = ExecutorContext.parse(logRDD)
+          val logRow = ExecutorContext.dataParser.parse(logRDD)
 
           logRow.collect.foreach(println)
-
-          // val parsedRDD: RDD[Row] = ExecutorContext.logEntryParser.parse(logEntryRDD)
 
           // obtain a combined dataframe from the created rdd and the merged scheme
           // val logDF = DriverContext.sqlContext.createDataFrame(parsedRDD, getSchema("merged"))
