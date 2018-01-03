@@ -35,14 +35,13 @@ object Processor {
           val logRDD: RDD[String] = DriverContext.sc
             .textFile(DriverContext.pathToFile + "READY/*.gz")
 
-          val logRow = ExecutorContext.dataParser.parse(logRDD)
-
-          logRow.collect.foreach(println)
+          val logRow: RDD[Row] = ExecutorContext.dataParser.parse(logRDD)
 
           // obtain a combined dataframe from the created rdd and the merged scheme
-          // val logDF = DriverContext.sqlContext.createDataFrame(parsedRDD, getSchema("merged"))
+          val logDF = DriverContext.sqlContext
+            .createDataFrame(logRow, ExecutorContext.schemas.getSchema("generic-event").get)
 
-          // logDF.sort("dateTime").show(100, truncate = true)
+          logDF.sort("dateTime").show(100, truncate = true)
 
           // logDF.save()
         }

@@ -6,9 +6,9 @@ message spark_schema {
   required binary site (UTF8);
   required binary ipAddress (UTF8);
   required binary useragent (UTF8);
-  required group segments (LIST) {
+  optional group segments (LIST) {
     repeated group list {
-      required binary element (UTF8);
+      optional binary element (UTF8);
     }
   }
 }
