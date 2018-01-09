@@ -9,7 +9,18 @@ import org.specs2._
 
 class NonEmptyLogEntryValidatorTest extends mutable.Specification {
 
-  private val testLogEntry = LogEntry("01/Jan/2000:00:00:01", "clk", "01234567890123456789012345678901", "001", "127.0.0.1", "127.0.0.1", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)", Map("AdId" -> "100", "SomeId" -> "012345"))
+  private val testLogEntry =
+    LogEntry("01/Jan/2000:00:00:01",
+      "clk",
+      "01234567890123456789012345678901",
+      "001",
+      "127.0.0.1",
+      "127.0.0.1",
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+      Map("AdId" -> "100", "SomeId" -> "012345")
+    )
+
+  //TODO: add more tests after validator will be expanded
 
   "Validator must return exception if" >> {
     "log string got empty value" >> {
@@ -17,43 +28,43 @@ class NonEmptyLogEntryValidatorTest extends mutable.Specification {
         NonEmptyLogEntryValidator
           .validate("-", testLogEntry.eventType, testLogEntry.requestId, testLogEntry.userCookie,
             testLogEntry.site, testLogEntry.ipAddress, testLogEntry.useragent, testLogEntry.queryString)
-          .left.get must_== ImmutableFieldIsEmpty
+          .left.get must_== GeneralFieldIsEmpty
       }
       "in eventType" >> {
         NonEmptyLogEntryValidator
           .validate(testLogEntry.dateTime, "-", testLogEntry.requestId, testLogEntry.userCookie,
             testLogEntry.site, testLogEntry.ipAddress, testLogEntry.useragent, testLogEntry.queryString)
-          .left.get must_== ImmutableFieldIsEmpty
+          .left.get must_== GeneralFieldIsEmpty
       }
       "in requestId" >> {
         NonEmptyLogEntryValidator
           .validate(testLogEntry.dateTime, testLogEntry.eventType, "-", testLogEntry.userCookie,
             testLogEntry.site, testLogEntry.ipAddress, testLogEntry.useragent, testLogEntry.queryString)
-          .left.get must_== ImmutableFieldIsEmpty
+          .left.get must_== GeneralFieldIsEmpty
       }
       "in userCookie" >> {
         NonEmptyLogEntryValidator
           .validate(testLogEntry.dateTime, testLogEntry.eventType, testLogEntry.requestId, "-",
             testLogEntry.site, testLogEntry.ipAddress, testLogEntry.useragent, testLogEntry.queryString)
-          .left.get must_== ImmutableFieldIsEmpty
+          .left.get must_== GeneralFieldIsEmpty
       }
       "in site" >> {
         NonEmptyLogEntryValidator
           .validate(testLogEntry.dateTime, testLogEntry.eventType, testLogEntry.requestId, testLogEntry.userCookie,
             "-", testLogEntry.ipAddress, testLogEntry.useragent, testLogEntry.queryString)
-          .left.get must_== ImmutableFieldIsEmpty
+          .left.get must_== GeneralFieldIsEmpty
       }
       "in ipAddress" >> {
         NonEmptyLogEntryValidator
           .validate(testLogEntry.dateTime, testLogEntry.eventType, testLogEntry.requestId, testLogEntry.userCookie,
             testLogEntry.site, "-", testLogEntry.useragent, testLogEntry.queryString)
-          .left.get must_== ImmutableFieldIsEmpty
+          .left.get must_== GeneralFieldIsEmpty
       }
       "in useragent" >> {
         NonEmptyLogEntryValidator
           .validate(testLogEntry.dateTime, testLogEntry.eventType, testLogEntry.requestId, testLogEntry.userCookie,
             testLogEntry.site, testLogEntry.ipAddress, "-", testLogEntry.queryString)
-          .left.get must_== ImmutableFieldIsEmpty
+          .left.get must_== GeneralFieldIsEmpty
       }
     }
   }

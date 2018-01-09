@@ -1,5 +1,7 @@
 package com.prb.dnhs
 
+import scala.io.Source
+
 import com.typesafe.config._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
@@ -29,21 +31,30 @@ object Processor {
     parser.parse(args, Processor()) match {
       case Some(proc) =>
         // do stuff
-        if (proc.input != "") {
+        proc.input match {
+          case "" =>
+          case "def" => {
+            val logRDD: RDD[String] = DriverContext.sc
+              .textFile(DriverContext.pathToFile + "READY/*.gz")
 
-        } else {
-          val logRDD: RDD[String] = DriverContext.sc
-            .textFile(DriverContext.pathToFile + "READY/*.gz")
+            // logRDD.collect.foreach(println)
 
-          val logRow: RDD[Row] = ExecutorContext.dataParser.parse(logRDD)
+            val logRow: RDD[Row] = ExecutorContext.dataParser.parse(logRDD)
 
-          // obtain a combined dataframe from the created rdd and the merged scheme
-          val logDF = DriverContext.sqlContext
-            .createDataFrame(logRow, ExecutorContext.schemas.getSchema("generic-event").get)
+            // obtain a combined dataframe from the created rdd and the merged scheme
+            val logDF = DriverContext.sqlContext
+              .createDataFrame(logRow, ExecutorContext.schemas.getSchema("generic-event").get)
 
-          logDF.sort("dateTime").show(100, truncate = true)
+            logDF.sort("dateTime").show(100, truncate = true)
 
-          // logDF.save()
+            // logDF.save()
+          }
+          case "debug" => {
+            ExecutorContext.schemas.getSchema("generic-event") match {
+              case Some(schema) => schema.printTreeString()
+              case None => println("No such schema")
+            }
+          }
         }
       case None =>
       // arguments are bad, error message will have been displayed

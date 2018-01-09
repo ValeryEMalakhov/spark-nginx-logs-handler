@@ -1,33 +1,37 @@
 import Dependencies._
+import sbt.Keys._
 
-name := "LogsEnricher"
+lazy val root = (project in file(".")).
+  settings(
+    name := "LogsEnricher",
+    version := "1.0.0.f3",
+    scalaVersion := scala211,
+    mainClass in assembly := Some("com.prb.dnhs.Main"),
+    mainClass in(Compile, run) := Some("com.prb.dnhs.Main"),
+    fullClasspath in Runtime := (fullClasspath in Compile).value,
+      test in assembly := {}
+  )
 
-version := "1.0.0.f2"
-
-scalaVersion := scala211
-
+exportJars := true
 fork := true
+
+libraryDependencies ++= Seq(
+  sparkCore, sparkSQL,
+  parquetColumn,
+  configType, scopt,
+  specs2, slf4j, cats
+)
+
+scalacOptions += "-Ypartial-unification"
+
 enablePlugins(AssemblyPlugin)
 
 // Assembly added for correct work with scopt, slf4j and configType.
 assemblyMergeStrategy in assembly := {
   case PathList("META-INF", xs@_ *) => MergeStrategy.discard
+  case n if n.endsWith(".conf") => MergeStrategy.concat
   case x => MergeStrategy.last
 }
-test in assembly := {}
 
-mainClass in assembly := Some("com.prb.dnhs.Main")
-mainClass in (Compile, run) := Some("com.prb.dnhs.Main")
-
-fullClasspath in Runtime := (fullClasspath in Compile).value
-
-scalacOptions += "-Ypartial-unification"
-
-libraryDependencies ++= Seq(
-  sparkCore, sparkSQL, sparkStreaming,
-  hadoopCommon,
-  parquetCommon, parquetHadoop, parquetColumn,
-  configType, scopt,
-  specs2, slf4j, cats
-)
+assemblyJarName := "LogsEnricher.jar"
 

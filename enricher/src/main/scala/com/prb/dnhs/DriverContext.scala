@@ -2,6 +2,7 @@ package com.prb.dnhs
 
 import com.prb.dnhs.helpers.ConfigHelper
 import com.typesafe.config._
+import org.apache.spark
 import org.apache.spark._
 import org.apache.spark.sql._
 
@@ -12,8 +13,8 @@ import org.apache.spark.sql._
 object DriverContext extends ConfigHelper {
 
   //TODO: maybe add that variable in scopt param
-//   private val runStatus = "def"
-  private val runStatus = "debug"
+  private val runStatus = "def"
+  //  private val runStatus = "debug"
 
   val pathToFile: String = config.getString(s"hdfs.$runStatus.node") + config.getString(s"hdfs.$runStatus.files")
 

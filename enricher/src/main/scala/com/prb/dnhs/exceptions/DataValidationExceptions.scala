@@ -4,8 +4,8 @@ sealed trait DataValidationExceptions extends RuntimeException {
   override def getMessage: String
 }
 
-case object ImmutableFieldIsEmpty extends DataValidationExceptions {
-  override def getMessage: String = "Immutable fields cannot be empty."
+case object GeneralFieldIsEmpty extends DataValidationExceptions {
+  override def getMessage: String = "General fields cannot be empty."
 }
 
 case object MutableFieldIsEmpty extends DataValidationExceptions {
@@ -22,6 +22,7 @@ case object IncorrectDataTypeExceptions extends DataValidationExceptions {
 
 /**
   * Exception messages for `CorrectTypeValidator`
+  * which checks the general fields for the correctness of type
   */
 
 case object IncorrectDateTimeValueType extends DataValidationExceptions {

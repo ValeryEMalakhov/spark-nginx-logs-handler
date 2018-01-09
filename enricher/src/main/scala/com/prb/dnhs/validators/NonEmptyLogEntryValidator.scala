@@ -1,6 +1,8 @@
 package com.prb.dnhs.validators
 
+import cats.data._
 import cats.implicits._
+import scala.concurrent.ExecutionContext.Implicits.global
 import com.prb.dnhs.entities.LogEntry
 import com.prb.dnhs.exceptions._
 
@@ -35,7 +37,7 @@ sealed trait NonEmptyLogEntryValidator {
     Either.cond(
       value != "-" && value != null,
       value,
-      ImmutableFieldIsEmpty
+      GeneralFieldIsEmpty
     )
   }
 }

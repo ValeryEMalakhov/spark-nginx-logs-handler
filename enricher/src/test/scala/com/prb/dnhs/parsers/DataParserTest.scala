@@ -21,7 +21,7 @@ class DataParserTest extends mutable.Specification {
   private val testLogString =
     "01/Jan/2000:00:00:01\trt\t01234567890123456789012345678901\t001\t127.0.0.1\t127.0.0.1\tMozilla/5.0 (Windows NT 10.0; Win64; x64)\tsegments={111,true,some%20info}\n01/Jan/2000:00:00:03\timpr\t01234567890123456789012345678901\t001\t127.0.0.1\t127.0.0.1\tMozilla/5.0 (Windows NT 10.0; Win64; x64)\tAdId=100\n01/Jan/2000:00:00:05\tclk\t01234567890123456789012345678901\t001\t127.0.0.1\t127.0.0.1\tMozilla/5.0 (Windows NT 10.0; Win64; x64)\tAdId=101&SomeId=012345"
 
-  val testRddLogString: RDD[String] = spcSC.parallelize(Seq[String](testLogString))
+  val testRddLogString: RDD[String] = spcSC.parallelize(testLogString.split("\n"))
 
   val parsedLogString: RDD[Row] = ExecutorContext.dataParser.parse(testRddLogString)
 
@@ -42,10 +42,10 @@ class DataParserTest extends mutable.Specification {
         parsedLogString.collect.last(0) must_== "01/Jan/2000:00:00:05"
       }
       "AdId must be equivalent to the `101`" >> {
-        parsedLogString.collect.last(7) must_== "101"
+        parsedLogString.collect.last(7) must_== 101
       }
       "SomeId must be equivalent to the `012345`" >> {
-        parsedLogString.collect.last(8) must_== "012345"
+        parsedLogString.collect.last(8) must_== 12345
       }
     }
   }

@@ -14,12 +14,12 @@ import org.apache.spark.sql.Row
   */
 object ExecutorContext extends LoggerHelper {
 
+  val schemas: SchemaRepositorуImpl = new SchemaRepositorуImpl()
+
   val rddStringParser: DataParser[String, Either[DataValidationExceptions, LogEntry]] = new RddStringParser()
 
   val logEntryParser: DataParser[Option[LogEntry], Either[Exception, Row]] = new LogEntryParser()
 
   val dataParser: DataParserImpl.type = DataParserImpl
-
-  val schemas: SchemaRepositorуImpl = new SchemaRepositorуImpl()
 }
 

@@ -1,8 +1,6 @@
 package com.prb.dnhs.entities
 
-import java.io.File
-
-import scala.io.{BufferedSource, Source}
+import scala.io.Source
 
 import com.prb.dnhs.helpers.ConfigHelper
 import org.apache.parquet.schema.{MessageType, MessageTypeParser}
@@ -22,18 +20,21 @@ class SchemaRepositorуImpl extends SchemaRepositorу with ConfigHelper {
   }
 
   private def readParquetSchema(schemaName: String): StructType = {
-    val file: BufferedSource = Source.fromFile(config.getString("parquet.schemas") + schemaName)
-    val message: MessageType = MessageTypeParser.parseMessageType(file.getLines.mkString)
+    val path = getClass.getResource(s"/schemas/$schemaName")
+    val fileSource = Source.fromURL(path)
+    val file = fileSource.getLines
+
+    val message: MessageType = MessageTypeParser.parseMessageType(file.mkString)
+
     schemaConverter.convert(message)
   }
 
   private def readPixelSchemas(): Map[String, StructType] = {
-    val parquetFileList: Array[String] = new File(config.getString("parquet.schemas")).list()
-
-    parquetFileList.flatMap { file =>
+    DEFAULT_SCHEMAS.flatMap { file =>
       val structType = readParquetSchema(file)
       Map(file.dropRight(8) -> structType)
     }.toMap
+
   }
 
   private def getGenericEvent(schemaMap: Map[String, StructType]): StructType = {
@@ -43,11 +44,14 @@ class SchemaRepositorуImpl extends SchemaRepositorу with ConfigHelper {
   private val schemas = {
     val pixelSchemas = readPixelSchemas()
     val generic = getGenericEvent(pixelSchemas)
+
     pixelSchemas ++ Map(GENERIC_EVENT -> generic)
   }
 }
 
 object SchemaRepositorуImpl {
   val GENERIC_EVENT = "generic-event"
+
+  val DEFAULT_SCHEMAS = List("clk.parquet", "impr.parquet", "rt.parquet")
 }
 

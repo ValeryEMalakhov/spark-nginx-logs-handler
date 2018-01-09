@@ -18,7 +18,7 @@ class LogEntryParser
     logEntry match {
       case Some(log) => {
 
-        val immutableFields = Row(
+        val generalFields = Row(
           log.dateTime, log.eventType, log.requestId,
           log.userCookie, log.site, log.ipAddress,
           log.useragent
@@ -29,7 +29,7 @@ class LogEntryParser
             case Some(schema) => schema
               .fields
               .map(f => (f.name, f.dataType, f.nullable))
-              .drop(immutableFields.length)
+              .drop(generalFields.length)
             case None => return Left(exceptions.UnexpectedEventType)
           }
 
@@ -47,12 +47,11 @@ class LogEntryParser
             }
           }
           catch {
-            case _: IllegalArgumentException => {
+            case _: IllegalArgumentException =>
               return Left(exceptions.IncorrectDataTypeExceptions)
-            }
           }
 
-        Right(mutableFields.foldLeft(immutableFields)((head: Row, tail: Row) => Row.merge(head, tail)))
+        Right(mutableFields.foldLeft(generalFields)((head: Row, tail: Row) => Row.merge(head, tail)))
       }
       case None => Left(exceptions.MutableFieldIsEmpty)
     }

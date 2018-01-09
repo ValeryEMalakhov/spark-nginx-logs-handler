@@ -26,7 +26,7 @@ sealed trait CorrectTypesValidator {
         dateTime.toString
         true
       } catch {
-        case _ => false
+        case _ : Throwable => false
       },
       dateTime,
       IncorrectDateTimeValueType
@@ -39,7 +39,7 @@ sealed trait CorrectTypesValidator {
         eventType.toString
         true
       } catch {
-        case _ => false
+        case _ : Throwable => false
       },
       eventType,
       IncorrectEventTypeValueType
@@ -52,7 +52,7 @@ sealed trait CorrectTypesValidator {
         requestId.toString
         true
       } catch {
-        case _ => false
+        case _ : Throwable => false
       },
       requestId,
       IncorrectRequestIdValueType
@@ -65,7 +65,7 @@ sealed trait CorrectTypesValidator {
         userCookie.toString
         true
       } catch {
-        case _ => false
+        case _ : Throwable => false
       },
       userCookie,
       IncorrectUserCookieValueType
@@ -78,7 +78,7 @@ sealed trait CorrectTypesValidator {
         site.toString
         true
       } catch {
-        case _ => false
+        case _ : Throwable => false
       },
       site,
       IncorrectSiteValueType
@@ -91,7 +91,7 @@ sealed trait CorrectTypesValidator {
         ipAddress.toString
         true
       } catch {
-        case _ => false
+        case _ : Throwable => false
       },
       ipAddress,
       IncorrectIpAddressValueType
@@ -104,7 +104,7 @@ sealed trait CorrectTypesValidator {
         useragent.toString
         true
       } catch {
-        case _ => false
+        case _ : Throwable => false
       },
       useragent,
       IncorrectUseragentValueType

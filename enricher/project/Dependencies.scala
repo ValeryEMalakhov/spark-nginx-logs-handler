@@ -6,8 +6,6 @@ object Dependencies {
   lazy val scala212 = "2.12.4"
 
   lazy val sparkVersion = "2.2.0"
-  lazy val hadoopVersion = "2.9.0"
-
   lazy val parquetVersion = "1.9.0"
 
   lazy val typesafeVersion = "1.3.2"
@@ -21,12 +19,7 @@ object Dependencies {
 
   lazy val sparkCore = "org.apache.spark" %% "spark-core" % sparkVersion
   lazy val sparkSQL = "org.apache.spark" %% "spark-sql" % sparkVersion
-  lazy val sparkStreaming = "org.apache.spark" %% "spark-streaming" % sparkVersion
 
-  lazy val hadoopCommon = "org.apache.hadoop" % "hadoop-common" % hadoopVersion
-
-  lazy val parquetCommon = "org.apache.parquet" % "parquet-common" % parquetVersion
-  lazy val parquetHadoop = "org.apache.parquet" % "parquet-hadoop" % parquetVersion
   lazy val parquetColumn = "org.apache.parquet" % "parquet-column" % parquetVersion
 
   lazy val configType = "com.typesafe" % "config" % typesafeVersion
