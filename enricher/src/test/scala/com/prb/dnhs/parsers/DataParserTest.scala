@@ -1,3 +1,4 @@
+/*
 package com.prb.dnhs.parsers
 
 import com.prb.dnhs.entities.LogEntry
@@ -23,7 +24,7 @@ class DataParserTest extends mutable.Specification {
 
   val testRddLogString: RDD[String] = spcSC.parallelize(testLogString.split("\n"))
 
-  val parsedLogString: RDD[Row] = ExecutorContext.dataParser.parse(testRddLogString)
+  val parsedLogString: RDD[Row] = DriverContext.localDataParser.parse(testRddLogString)
 
   "If the parser has completed successfully, then" >> {
     "in first row" >> {
@@ -50,3 +51,4 @@ class DataParserTest extends mutable.Specification {
     }
   }
 }
+*/

@@ -26,10 +26,12 @@ class LogEntryParser
 
         val mutableDataTypeArray: Array[(String, DataType, Boolean)] =
           ExecutorContext.schemas.getSchema("generic-event") match {
-            case Some(schema) => schema
-              .fields
-              .map(f => (f.name, f.dataType, f.nullable))
-              .drop(generalFields.length)
+            case Some(schema) => {
+              schema
+                .fields
+                .map(f => (f.name, f.dataType, f.nullable))
+                .drop(generalFields.length)
+            }
             case None => return Left(exceptions.UnexpectedEventType)
           }
 

@@ -14,10 +14,12 @@ object ParquetRecorder {
 
       val destinationFolderName = new SimpleDateFormat("yyyy_MM_dd__HH_mm_ss").format(Calendar.getInstance().getTime)
 
-      inputDF.write
-        .format("parquet")
-        .save(DriverContext.pathToFile + s"DONE/parquet/" + destinationFolderName)
+      /*
+            inputDF.write
+              .format("parquet")
+              .save(DriverContext.pathToFile + s"DONE/parquet/" + destinationFolderName)
+      */
+//      inputDF.write.saveAsTable("")
     }
   }
-
 }

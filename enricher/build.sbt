@@ -9,14 +9,14 @@ lazy val root = (project in file(".")).
     mainClass in assembly := Some("com.prb.dnhs.Main"),
     mainClass in(Compile, run) := Some("com.prb.dnhs.Main"),
     fullClasspath in Runtime := (fullClasspath in Compile).value,
-      test in assembly := {}
+    test in assembly := {}
   )
 
 exportJars := true
 fork := true
 
 libraryDependencies ++= Seq(
-  sparkCore, sparkSQL,
+  sparkCore, sparkSQL, sparkStreaming, sparkHive,
   parquetColumn,
   configType, scopt,
   specs2, slf4j, cats

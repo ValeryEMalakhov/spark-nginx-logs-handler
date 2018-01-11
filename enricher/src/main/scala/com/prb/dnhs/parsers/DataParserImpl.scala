@@ -10,12 +10,11 @@ import com.prb.dnhs.validators._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 
-object DataParserImpl
+class DataParserImpl
   extends DataParser[RDD[String], RDD[Row]]
-    with LoggerHelper {
+    with LoggerHelper{
 
   override def parse(logRDD: RDD[String]): RDD[Row] = {
-
     logRDD.flatMap { row =>
 
       val logEntry: Option[LogEntry] = ExecutorContext.rddStringParser.parse(row) match {

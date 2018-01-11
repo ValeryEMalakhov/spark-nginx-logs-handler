@@ -26,10 +26,6 @@ class RddStringParser
 
     Right(LogEntry(logEntry(0), logEntry(1), logEntry(2), logEntry(3),
       logEntry(4), logEntry(5), logEntry(6), queryString))
-/*
-    NonEmptyLogEntryValidator.validate(logEntry(0), logEntry(1), logEntry(2), logEntry(3),
-      logEntry(4), logEntry(5), logEntry(6), queryString)
-*/
   }
 }
 

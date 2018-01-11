@@ -19,7 +19,5 @@ object ExecutorContext extends LoggerHelper {
   val rddStringParser: DataParser[String, Either[DataValidationExceptions, LogEntry]] = new RddStringParser()
 
   val logEntryParser: DataParser[Option[LogEntry], Either[Exception, Row]] = new LogEntryParser()
-
-  val dataParser: DataParserImpl.type = DataParserImpl
 }
 
