@@ -1,35 +1,31 @@
 package com.prb.dnhs.parsers
 
-import scala.util.{Either, Left, Right}
-
-import com.prb.dnhs.ExecutorContext
+import cats.data.Validated
+import com.prb.dnhs.{DriverContext, ExecutorContext}
 import com.prb.dnhs.entities.LogEntry
-import com.prb.dnhs.exceptions.DataValidationExceptions
 import com.prb.dnhs.helpers.LoggerHelper
-import com.prb.dnhs.validators._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 
 class DataParserImpl
-  extends DataParser[RDD[String], RDD[Row]]
-    with LoggerHelper{
+  extends DataParser[String, Option[Row]]
+    with LoggerHelper {
 
-  override def parse(logRDD: RDD[String]): RDD[Row] = {
-    logRDD.flatMap { row =>
+  override def parse(row: String): Option[Row] = {
 
-      val logEntry: Option[LogEntry] = ExecutorContext.rddStringParser.parse(row) match {
-        case Left(x) =>
+    val logEntry: Option[LogEntry] =
+      ExecutorContext.rddStringParser.parse(row) match {
+        case Validated.Invalid(x) =>
           logger.warn(x.getMessage)
           None
-        case Right(value) => Some(value)
+        case Validated.Valid(value) => Some(value)
       }
 
-      ExecutorContext.logEntryParser.parse(logEntry) match {
-        case Left(x) =>
-          logger.warn(x.getMessage)
-          None
-        case Right(value) => Some(value)
-      }
+    ExecutorContext.logEntryParser.parse(logEntry) match {
+      case Validated.Invalid(x) =>
+        logger.warn(x.getMessage)
+        None
+      case Validated.Valid(value) => Some(value)
     }
   }
 }

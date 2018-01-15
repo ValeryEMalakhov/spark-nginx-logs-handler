@@ -1,7 +1,6 @@
 package com.prb.dnhs
 
-import scala.util.Either
-
+import cats.data.Validated
 import com.prb.dnhs.entities._
 import com.prb.dnhs.exceptions.DataValidationExceptions
 import com.prb.dnhs.helpers.LoggerHelper
@@ -14,10 +13,12 @@ import org.apache.spark.sql.Row
   */
 object ExecutorContext extends LoggerHelper {
 
-  val schemas: SchemaRepositorуImpl = new SchemaRepositorуImpl()
+  val schemasImpl: SchemaRepositorуImpl = new SchemaRepositorуImpl()
 
-  val rddStringParser: DataParser[String, Either[DataValidationExceptions, LogEntry]] = new RddStringParser()
+  val dataParserImpl: DataParser[String, Option[Row]] = new DataParserImpl()
 
-  val logEntryParser: DataParser[Option[LogEntry], Either[Exception, Row]] = new LogEntryParser()
+  val rddStringParser: DataParser[String, Validated[DataValidationExceptions, LogEntry]] = new RddStringParser()
+
+  val logEntryParser: DataParser[Option[LogEntry], Validated[DataValidationExceptions, Row]] = new LogEntryParser()
 }
 

@@ -2,6 +2,7 @@ package com.prb.dnhs.entities
 
 import scala.io.Source
 
+import com.prb.dnhs.MainApp
 import com.prb.dnhs.helpers.ConfigHelper
 import org.apache.parquet.schema.{MessageType, MessageTypeParser}
 import org.apache.spark.sql.execution.datasources.parquet.PublicParquetSchemaConverter

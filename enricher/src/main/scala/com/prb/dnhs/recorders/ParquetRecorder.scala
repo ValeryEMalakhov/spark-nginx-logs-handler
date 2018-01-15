@@ -1,25 +1,46 @@
 package com.prb.dnhs.recorders
 
-import java.text.SimpleDateFormat
-import java.util.Calendar
+import java.time.Instant
 
 import com.prb.dnhs.DriverContext
-import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.{DataFrame, Row}
 
-object ParquetRecorder {
+class ParquetRecorder extends DataRecorder[DataFrame] {
 
-  implicit class ParquetRecorder(inputDF: DataFrame) {
+  def save(data: DataFrame): Unit = {
 
-    def save(): Unit = {
+    val batchId = Instant.now.toEpochMilli
+    val destPath = buildPath(DriverContext.recorder.warehouseLocation, DriverContext.recorder.tableName, batchId)
 
-      val destinationFolderName = new SimpleDateFormat("yyyy_MM_dd__HH_mm_ss").format(Calendar.getInstance().getTime)
+    if (!DriverContext.recorder
+      .sparkSession
+      .sqlContext
+      .tableNames
+      .contains(DriverContext.recorder.tableName)) {
 
-      /*
-            inputDF.write
-              .format("parquet")
-              .save(DriverContext.pathToFile + s"DONE/parquet/" + destinationFolderName)
-      */
-//      inputDF.write.saveAsTable("")
+      val fields = data.schema.fields
+        .map { f =>
+          if (f.dataType.typeName == "array")
+            s"${f.name} ${f.dataType.typeName}<string>"
+          else
+            s"${f.name} ${f.dataType.typeName}"
+        }.mkString(", ")
+
+      DriverContext.recorder
+        .sparkSession
+        .sql(s"CREATE TABLE IF NOT EXISTS ${DriverContext.recorder.tableName}($fields) PARTITIONED BY (batch_Id string)")
     }
+
+    // write
+    data.write.parquet(destPath)
+
+    // update metastore info
+    DriverContext.recorder
+      .sparkSession
+      .sql(s"ALTER TABLE ${DriverContext.recorder.tableName} ADD IF NOT EXISTS PARTITION(batch_Id=$batchId)")
+  }
+
+  private def buildPath(warehouseLocation: String, tableName: String, batchId: Long): String = {
+    s"$warehouseLocation/$tableName/batch_id=$batchId"
   }
 }

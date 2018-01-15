@@ -30,12 +30,12 @@ class RddStringParserTest extends mutable.Specification {
   "If" >> {
     "correct string set in `RddStringParser`, it must return" >> {
       "LogEntry object in Either(Right)" >> {
-        ExecutorContext.rddStringParser.parse(testLogString).right.get must_== testLogEntry
+        ExecutorContext.rddStringParser.parse(testLogString).getOrElse() must_== testLogEntry
       }
     }
     "incorrect string set in `RddStringParser`, it must return" >> {
       "Exception in Either(Left)" >> {
-        ExecutorContext.rddStringParser.parse(incorrectTestLogString).left.get must_== GeneralFieldIsEmpty
+        ExecutorContext.rddStringParser.parse(incorrectTestLogString).getOrElse() must_== GeneralFieldIsEmpty
       }
     }
   }

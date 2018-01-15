@@ -6,8 +6,8 @@ lazy val root = (project in file(".")).
     name := "LogsEnricher",
     version := "1.0.0.f3",
     scalaVersion := scala211,
-    mainClass in assembly := Some("com.prb.dnhs.Main"),
-    mainClass in(Compile, run) := Some("com.prb.dnhs.Main"),
+    mainClass in assembly := Some("com.prb.dnhs.MainApp"),
+    mainClass in(Compile, run) := Some("com.prb.dnhs.MainApp"),
     fullClasspath in Runtime := (fullClasspath in Compile).value,
     test in assembly := {}
   )

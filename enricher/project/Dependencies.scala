@@ -23,8 +23,6 @@ object Dependencies {
   lazy val sparkStreaming = "org.apache.spark" %% "spark-streaming" % sparkVersion
   lazy val sparkHive = "org.apache.spark" %% "spark-hive" % sparkVersion
 
-  lazy val hiveCommon = "org.apache.hive" % "hive-common" % hiveVersion
-
   lazy val parquetColumn = "org.apache.parquet" % "parquet-column" % parquetVersion
 
   lazy val configType = "com.typesafe" % "config" % typesafeVersion
