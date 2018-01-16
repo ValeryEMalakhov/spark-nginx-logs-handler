@@ -15,7 +15,7 @@ class Processor {
         else args.inputDir
       }
 
-    if (args.startupMode == "debug")
+    if (args.debug)
       logRDD.collect.foreach(println)
 
     val logRow: RDD[Row] = logRDD.flatMap(DriverContext.processor.parser.value.parse)
@@ -24,10 +24,10 @@ class Processor {
     val logDF = DriverContext.processor.sparkSession
       .createDataFrame(logRow, DriverContext.processor.schemas.getSchema("generic-event").get)
 
-    if (args.startupMode == "debug")
+    if (args.debug)
       logDF.sort("dateTime").show(100, truncate = false)
 
-    DriverContext.recorder.save(logDF)
+    //DriverContext.recorder.save(logDF)
   }
 
 }

@@ -1,3 +1,3 @@
 package com.prb.dnhs.processor
 
-case class ProcessorConfig(inputDir: String = "", startupMode: String = "prod")
+case class ProcessorConfig(inputDir: String = "", startupMode: String = "prod", debug: Boolean = false)

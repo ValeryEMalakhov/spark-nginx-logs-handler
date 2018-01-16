@@ -4,3 +4,4 @@ enricher/.idea/
 enricher/project/target/*
 enricher/target/*
 enricher/files/*
+enricher/metastore_db/*
