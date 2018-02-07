@@ -6,4 +6,3 @@ enricher/project/target/*
 enricher/target/*
 enricher/metastore_db/*
 enricher/spark-warehouse/*
-enricher/com/prb/dnhs/processor/ProcUtils.scala
