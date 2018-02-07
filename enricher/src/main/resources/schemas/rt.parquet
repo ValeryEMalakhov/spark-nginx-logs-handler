@@ -1,0 +1,15 @@
+message spark_schema {
+  required binary dateTime (UTF8);
+  required binary eventType (UTF8);
+  required binary requesrId (UTF8);
+  required binary userCookie (UTF8);
+  required binary site (UTF8);
+  required binary ipAddress (UTF8);
+  required binary useragent (UTF8);
+  optional group segments (LIST) {
+    repeated group list {
+      optional binary element (UTF8);
+    }
+  }
+}
+

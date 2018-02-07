@@ -1,6 +1,8 @@
 *.class
 *.log
 enricher/.idea/
+enricher/files/*
 enricher/project/target/*
 enricher/target/*
-enricher/files/*
+enricher/metastore_db/*
+enricher/spark-warehouse/*
