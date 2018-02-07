@@ -20,7 +20,7 @@ libraryDependencies ++= Seq(
   scalazStream, scalazCore,
   parquetColumn,
   configType, scopt,
-  slf4j, cats
+  specs2, specs2Mock, slf4j, cats
 )
 
 scalacOptions += "-Ypartial-unification"
