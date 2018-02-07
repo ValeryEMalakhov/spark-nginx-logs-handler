@@ -130,7 +130,7 @@ spark-submit --master yarn-cluster $PATH_TO_APP/SparkNginxLogsHandler/enricher/t
 
 ## Versioning
 
-1.0.0.f1
+1.0.0.f4
 
 ## Authors
 

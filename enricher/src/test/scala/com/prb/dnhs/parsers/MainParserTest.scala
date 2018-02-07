@@ -18,8 +18,6 @@ class MainParserTest extends mutable.Specification
 
   private val testRddLogString: RDD[String] = spark.sparkContext.parallelize(testLogStringSeq)
 
-  testLogStringSeq(0)
-
   ///////////////////////////////////////////////////////////////////////////
   // An objects of the test classes
   ///////////////////////////////////////////////////////////////////////////

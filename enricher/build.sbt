@@ -4,7 +4,7 @@ import sbt.Keys._
 lazy val root = (project in file(".")).
   settings(
     name := "LogsEnricher",
-    version := "1.0.0.f3",
+    version := "1.0.0.f4",
     scalaVersion := scala211,
     mainClass in assembly := Some("com.prb.dnhs.MainApp"),
     mainClass in(Compile, run) := Some("com.prb.dnhs.MainApp"),
