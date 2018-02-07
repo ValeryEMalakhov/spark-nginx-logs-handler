@@ -7,6 +7,6 @@ message spark_schema {
   required binary ipAddress (UTF8);
   required binary useragent (UTF8);
   optional int32 AdId;
-  optional int32 SomeId;
+  optional binary SomeId (UTF8);
 }
 

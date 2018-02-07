@@ -1,15 +1,18 @@
 package com.prb.dnhs
 
 import java.io.File
+import java.time.Instant
 
-import cats.data.Validated
-import com.prb.dnhs.entities.{SerializableContainer, _}
-import com.prb.dnhs.exceptions.DataValidationExceptions
+import com.prb.dnhs.entities._
+import com.prb.dnhs.exceptions._
+import com.prb.dnhs.handlers._
 import com.prb.dnhs.helpers._
-import com.prb.dnhs.parsers.DataParser
-import com.prb.dnhs.processor.{Processor, ProcessorConfig}
-import com.prb.dnhs.recorders.{DataRecorder, ParquetRecorder}
-import org.apache.spark._
+import com.prb.dnhs.parsers._
+import com.prb.dnhs.processor.Processor
+import com.prb.dnhs.readers._
+import com.prb.dnhs.recorders._
+import com.prb.dnhs.validators._
+import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
 
 /**
@@ -18,72 +21,160 @@ import org.apache.spark.sql._
   */
 object DriverContext extends ConfigHelper with LoggerHelper {
 
-  private val runStatus = "prod"
-  //  private val runStatus = "debug"
+  ///////////////////////////////////////////////////////////////////////////
+  // Spark conf
+  ///////////////////////////////////////////////////////////////////////////
 
-  val pathToFile: String = config.getString(s"hdfs.$runStatus.node") + config.getString(s"hdfs.$runStatus.files")
-  val warehouseLocation: String = new File("spark-warehouse").getAbsolutePath
+  private val warehouseLocation = new File("spark-warehouse").getAbsolutePath
 
-  // create Spark config with default settings
-  private lazy val sparkConf: SparkConf =
-    if (runStatus == "debug") {
-      new SparkConf()
-        .setAppName(config.getString("spark.name"))
-        .setMaster(config.getString(s"spark.$runStatus.master"))
-    } else {
-      new SparkConf()
-        .setAppName(config.getString("spark.name"))
-    }
+  // default path to hdfs data folder
+  private val pathToFile =
+    config.getString("hdfs.node") + config.getString("hdfs.files")
 
-  // SparkSession for Spark 2.2.0
-  lazy val spark: SparkSession = SparkSession
+  // SparkSession for Spark 2.*.*
+  lazy val sparkSession = SparkSession
     .builder()
-    .appName(config.getString("spark.name"))
-    .config(sparkConf)
+    .appName(config.getString("app.name"))
+    .master(config.getString("spark.master"))
     .config("spark.sql.warehouse.dir", warehouseLocation)
     .enableHiveSupport()
     .getOrCreate()
 
-  // app values
+  ///////////////////////////////////////////////////////////////////////////
+  // Parsers
+  ///////////////////////////////////////////////////////////////////////////
 
-  val scDataParserImpl = new SerializableContainer[DataParser[String, Option[Row]]] {
-    override def obj: DataParser[String, Option[Row]] = ExecutorContext.dataParserImpl
-  }
+  private val schemasImpl: SchemaRepositorу = new SchemaRepositoryImpl()
 
+  // string to row log parser in serializable container
+  lazy val dcDataParserImpl =
+    new SerializableContainer[DataParser[String, Either[ErrorDetails, Row]]] {
+      override def obj = ExecutorContext.dataParserImpl
+    }
+
+  val mainParser
+  : DataParser[RDD[String], RDD[Either[ErrorDetails, Row]]] =
+    new MainParser() {
+
+      lazy val parser = dcDataParserImpl
+    }
+
+  ///////////////////////////////////////////////////////////////////////////
+  // Data readers
+  ///////////////////////////////////////////////////////////////////////////
+
+  private val archiveReaderImpl
+  : DataReader[RDD[String]] =
+    new ArchiveReaderImpl() {
+
+      lazy val spark: SparkSession = sparkSession
+      lazy val defInputPath: String = pathToFile
+    }
+
+  ///////////////////////////////////////////////////////////////////////////
+  // Data recorders
+  ///////////////////////////////////////////////////////////////////////////
+
+  private lazy val globalBatchId = Instant.now.toEpochMilli
+
+  // a recorder for storing the processed data and adding it to the database
+  private val hiveRecorderImpl
+  : DataRecorder[RDD[Row]] =
+    new HiveRecorderImpl() {
+
+      lazy val spark = sparkSession
+      lazy val tableName = config.getString("app.name")
+      lazy val schema = schemasImpl.getSchema(schemasImpl.GENERIC_EVENT).get
+      lazy val batchId = globalBatchId
+    }
+
+  // a recorder for storing the invalid data
+  private val fileRecorderImpl
+  : DataRecorder[RDD[String]] =
+    new FileRecorderImpl() {
+
+      lazy val filePath = pathToFile + "DEFAULT/"
+      lazy val batchId = globalBatchId
+    }
+
+  ///////////////////////////////////////////////////////////////////////////
+  // Data handlers
+  ///////////////////////////////////////////////////////////////////////////
+
+  private val validRowHandlerImpl
+  : RowHandler[RDD[Either[ErrorDetails, Row]], RDD[Row]] =
+    new ValidRowHandler()
+
+  private val invalidRowHandlerImpl
+  : RowHandler[RDD[Either[ErrorDetails, Row]], Unit] =
+    new InvalidRowHandler() {
+
+      lazy val fileRecorder = fileRecorderImpl
+    }
+
+  private val mainHandler
+  : RowHandler[RDD[Either[ErrorDetails, Row]], RDD[Row]] =
+    new MainHandler {
+
+      lazy val validRowHandler = validRowHandlerImpl
+      lazy val invalidRowHandler = invalidRowHandlerImpl
+
+      lazy val saveValidator = dcSaveValidatorImpl
+    }
+
+  ///////////////////////////////////////////////////////////////////////////
+  // DB requests
+  ///////////////////////////////////////////////////////////////////////////
+
+  // stores data from the database at the time of application execution
+  // this implementation assumes the existence of required table
+  private lazy val dbData = sparkSession.sql(
+    s"SELECT userCookie FROM ${config.getString("app.name")} " +
+      "WHERE eventType = \"rt\""
+  )
+  // this one can be used even if the table not exists
+  /*
+    if (sparkSession.catalog.tableExists(config.getString("spark.name"))) {
+        Some(sparkSession.sql(
+          "SELECT dateTime, eventType, requesrId, userCookie " +
+            s"FROM ${config.getString("spark.name")} " +
+            "WHERE eventType = \"rt\""
+        ))
+    } else None
+  */
+
+  ///////////////////////////////////////////////////////////////////////////
+  // Validators
+  ///////////////////////////////////////////////////////////////////////////
+
+  private val saveValidatorImpl
+  : Validator[Row, Either[ErrorDetails, Row]] =
+    new SaveAbilityValidatorImpl() {
+
+      // lazy val table = dbData
+      // lazy val clearTable = dbData.drop("batchId").collect.toSeq
+      lazy val userCookies = dbData.collect.mkString("\t")
+    }
+
+  lazy val dcSaveValidatorImpl =
+    new SerializableContainer[Validator[Row, Either[ErrorDetails, Row]]] {
+      override def obj = saveValidatorImpl
+    }
+
+  ///////////////////////////////////////////////////////////////////////////
+  // Processor
+  ///////////////////////////////////////////////////////////////////////////
+
+  // scopt object for app coordination
   val processor = new Processor() {
-    lazy val sparkSession: SparkSession = DriverContext.spark
-    lazy val defInputPath: String = DriverContext.pathToFile + "READY/*.gz"
-    lazy val parser = DriverContext.scDataParserImpl
-    lazy val schemas: SchemaRepositorуImpl = ExecutorContext.schemasImpl
+    val gzReader = archiveReaderImpl
+    val parser = mainParser
+    val handler = mainHandler
+    val hiveRecorder = hiveRecorderImpl
   }
 
-  val processorParser = new scopt.OptionParser[ProcessorConfig]("scopt") {
-
-    head("scopt", DriverContext.config.getString("scopt.version"))
-
-    opt[String]("input")
-      .abbr("in")
-      .action((x, c) => c.copy(inputDir = x))
-      .text("inputDir is an address to income hdfs files")
-
-    opt[String]("mode")
-      .abbr("m")
-      .action((x, c) => c.copy(startupMode = x))
-      .text("startupMode is a runtime arg")
-
-    opt[Unit]("debug")
-      .hidden()
-      .action((x, c) => c.copy(debug = true))
-      .text("activates debug mode functions")
-
-    help("help").text("prints this usage text")
-  }
-
-  val recorder = new ParquetRecorder() {
-    lazy val tableName: String = "SparkEnricher"
-    lazy val warehouseLocation: String = DriverContext.warehouseLocation
-    lazy val sparkSession: SparkSession = DriverContext.spark
-  }
-
-
+  ///////////////////////////////////////////////////////////////////////////
+  // Other
+  ///////////////////////////////////////////////////////////////////////////
 }
+

@@ -1,31 +1,23 @@
 package com.prb.dnhs.parsers
 
-import cats.data.Validated
-import com.prb.dnhs.{DriverContext, ExecutorContext}
 import com.prb.dnhs.entities.LogEntry
-import com.prb.dnhs.helpers.LoggerHelper
-import org.apache.spark.rdd.RDD
+import com.prb.dnhs.exceptions.ErrorDetails
 import org.apache.spark.sql.Row
 
-class DataParserImpl
-  extends DataParser[String, Option[Row]]
-    with LoggerHelper {
+abstract class DataParserImpl
+  extends DataParser[String, Either[ErrorDetails, Row]] {
 
-  override def parse(row: String): Option[Row] = {
+  val rddStringParser: DataParser[String, Either[ErrorDetails, LogEntry]]
+  val logEntryParser: DataParser[LogEntry, Either[ErrorDetails, Row]]
 
-    val logEntry: Option[LogEntry] =
-      ExecutorContext.rddStringParser.parse(row) match {
-        case Validated.Invalid(x) =>
-          logger.warn(x.getMessage)
-          None
-        case Validated.Valid(value) => Some(value)
-      }
+  override def parse(row: String): Either[ErrorDetails, Row] = {
 
-    ExecutorContext.logEntryParser.parse(logEntry) match {
-      case Validated.Invalid(x) =>
-        logger.warn(x.getMessage)
-        None
-      case Validated.Valid(value) => Some(value)
-    }
+    for {
+      // getting LogEntry (or one of exceptions) by parsing string
+      logEnitry <- rddStringParser.parse(row).right
+      // getting Row (or one of exceptions) by parsing LogEntry
+      row <- logEntryParser.parse(logEnitry).right
+    } yield row
   }
 }
+

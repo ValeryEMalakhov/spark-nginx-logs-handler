@@ -1,31 +1,75 @@
 package com.prb.dnhs.parsers
 
+import java.nio.charset.StandardCharsets
+
+import scala.collection.JavaConverters._
 import scala.language.implicitConversions
 
-import cats.data.Validated
 import com.prb.dnhs.entities._
-import com.prb.dnhs.exceptions.{DataValidationExceptions, GeneralFieldIsEmpty}
+import com.prb.dnhs.exceptions.ErrorDetails
+import com.prb.dnhs.exceptions.ErrorType.ParserError
 import com.prb.dnhs.helpers.LoggerHelper
+import com.prb.dnhs.validators.Validator
+import org.apache.http.client.utils.URLEncodedUtils
 
-class RddStringParser
-  extends DataParser[String, Validated[DataValidationExceptions, LogEntry]]
+abstract class RddStringParser
+  extends DataParser[String, Either[ErrorDetails, LogEntry]]
     with LoggerHelper {
 
-  override def parse(logRDD: String): Validated[DataValidationExceptions, LogEntry] = {
+  val nonEmptinessValidator: Validator[String, Either[ErrorDetails, String]]
 
-    // breaks the inputDir string into tabs
-    val logEntry: Array[String] = logRDD.split('\t')
+  val TAB = "\t"
 
-    // if the mutable field does not contain a hyphen, parse it and store in a Map
-    val queryString: Map[String, String] =
-      if (logEntry(7) != "-")
-        logEntry(7).split("&").map(_.split("=")).map(pair => (pair(0), pair(1))).toMap
-      else Map.empty
+  override def parse(logRDD: String): Either[ErrorDetails, LogEntry] = {
 
-    if (logEntry.contains("-")) return Validated.Invalid(GeneralFieldIsEmpty)
+    for {
+      notEmptyString <- nonEmptinessValidator.validate(logRDD).right
+      // breaks the inputDir string into tabs
+      parsedLog <- parseRddString(logRDD).right
+      // if the mutable field does not contain a hyphen, parse it and store in a Map
+      queryString <- buildSegmentsMap(parsedLog(7)).right
+      // build `LogEntry` using parsed string
+      logEntry <- buildLogEntry(logRDD, parsedLog, queryString).right
+    } yield logEntry
+  }
 
-    Validated.Valid(LogEntry(logEntry(0), logEntry(1), logEntry(2), logEntry(3),
-      logEntry(4), logEntry(5), logEntry(6), queryString))
+  private def parseRddString(logRDD: String) = Right(logRDD.split(TAB))
+
+  /**
+    * Decrypts arguments from the `queryString` and transforms the result into a Map
+    *
+    * @param queryString arguments in the http query string
+    */
+  private def buildSegmentsMap(queryString: String) = {
+    Right(
+      URLEncodedUtils
+        .parse(queryString, StandardCharsets.UTF_8)
+        .asScala
+        .filter(t => t.getValue != "-")
+        .map(t => t.getName -> t.getValue)
+        .toMap
+    )
+  }
+
+  /**
+    * Build a LogEntry object based on the parsed original log line,
+    * if it does not contain a hyphen (the null equivalent in the logs)
+    *
+    * @param logRDD      original log string
+    * @param parsedLog   log string after parsing (by '\t')
+    * @param queryString Map based on http query string (@args)
+    */
+  private def buildLogEntry(logRDD: String, parsedLog: Seq[String], queryString: Map[String, String]) = {
+
+    Either.cond(
+      // if
+      !parsedLog.contains("-"),
+      // valid
+      LogEntry(parsedLog(0), parsedLog(1), parsedLog(2), parsedLog(3),
+        parsedLog(4), parsedLog(5), parsedLog(6), queryString),
+      // invalid
+      ErrorDetails(errorType = ParserError, errorMessage = "General field's value is empty", line = logRDD)
+    )
   }
 }
 

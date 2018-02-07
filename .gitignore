@@ -1,7 +1,9 @@
 *.class
 *.log
 enricher/.idea/
+enricher/files/*
 enricher/project/target/*
 enricher/target/*
-enricher/files/*
 enricher/metastore_db/*
+enricher/spark-warehouse/*
+enricher/com/prb/dnhs/processor/ProcUtils.scala

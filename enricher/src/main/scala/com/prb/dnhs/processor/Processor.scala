@@ -1,33 +1,40 @@
 package com.prb.dnhs.processor
 
-import com.prb.dnhs.{DriverContext, ExecutorContext}
+import com.prb.dnhs.exceptions.ErrorDetails
+import com.prb.dnhs.handlers.RowHandler
+import com.prb.dnhs.parsers.DataParser
+import com.prb.dnhs.readers.DataReader
+import com.prb.dnhs.recorders.DataRecorder
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 
-class Processor {
+abstract class Processor {
+
+  val gzReader: DataReader[RDD[String]]
+  val parser: DataParser[RDD[String], RDD[Either[ErrorDetails, Row]]]
+  val handler: RowHandler[RDD[Either[ErrorDetails, Row]], RDD[Row]]
+  val hiveRecorder: DataRecorder[RDD[Row]]
 
   def process(args: ProcessorConfig): Unit = {
 
-    val logRDD: RDD[String] = DriverContext.processor.sparkSession
-      .sparkContext
-      .textFile {
-        if (args.inputDir == "") DriverContext.processor.defInputPath
-        else args.inputDir
-      }
+    // get logs from files
+    val logRDD = gzReader.read(args.inputDir)
+    if (args.debug) log(logRDD)
 
-    if (args.debug)
-      logRDD.collect.foreach(println)
+    // get parsed rows
+    val logRow = parser.parse(logRDD)
+    if (args.debug) log(logRow)
 
-    val logRow: RDD[Row] = logRDD.flatMap(DriverContext.processor.parser.value.parse)
+    // get only valid rows, which ready for recording
+    val validRow = handler.handle(logRow, args.outputDir)
+    if (args.debug) log(validRow)
 
-    // obtain a combined dataframe from the created rdd and the merged scheme
-    val logDF = DriverContext.processor.sparkSession
-      .createDataFrame(logRow, DriverContext.processor.schemas.getSchema("generic-event").get)
-
-    if (args.debug)
-      logDF.sort("dateTime").show(100, truncate = false)
-
-    //DriverContext.recorder.save(logDF)
+    // save valid rows with DB updating
+    hiveRecorder.save(validRow)
   }
 
+  private def log[T](data: RDD[T]) = {
+    data.take(50).foreach(println)
+  }
 }
+

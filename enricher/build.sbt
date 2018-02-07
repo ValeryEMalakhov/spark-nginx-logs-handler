@@ -17,9 +17,10 @@ fork := true
 
 libraryDependencies ++= Seq(
   sparkCore, sparkSQL, sparkStreaming, sparkHive,
+  scalazStream, scalazCore,
   parquetColumn,
   configType, scopt,
-  specs2, slf4j, cats
+  slf4j, cats
 )
 
 scalacOptions += "-Ypartial-unification"
