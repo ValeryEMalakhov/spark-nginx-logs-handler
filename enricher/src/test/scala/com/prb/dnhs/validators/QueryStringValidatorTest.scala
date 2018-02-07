@@ -12,11 +12,7 @@ class QueryStringValidatorTest extends mutable.Specification
   // Test values
   ///////////////////////////////////////////////////////////////////////////
 
-  private val testVal = Map("AdId" -> "100", "SomeId" -> "012345")
-
   private val expecterRow = Seq(Row(100), Row("012345"))
-
-  private val testValWithIllegalArgument = Map("AdId" -> "err", "SomeId" -> "012345")
 
   ///////////////////////////////////////////////////////////////////////////
   // An objects of the test classes.
@@ -28,9 +24,9 @@ class QueryStringValidatorTest extends mutable.Specification
   // Test body
   ///////////////////////////////////////////////////////////////////////////
 
-  "If `QueryStringValidator` validate" >> {
-
-    "valid LogEntry, it must return Either.Right with Seq of query string Rows" >> {
+  "If the `QueryStringValidator` gets" >> {
+    // valid
+    "valid LogEntry, it must return Either.Right with Seq of query string's Rows" >> {
 
       val res = validator.validate(
         testLogEntry,
@@ -40,7 +36,7 @@ class QueryStringValidatorTest extends mutable.Specification
 
       res must_== expecterRow
     }
-
+    // invalid
     "invalid LogEntry with wrong datatype, it must return Either.Left with ParserError" >> {
 
       val res = validator.validate(

@@ -1,45 +1,38 @@
 package com.prb.dnhs.entities
 
-import org.apache.spark.sql.types._
+import com.prb.dnhs.constants.TestConst
+import org.specs2.mutable
 
-class SchemaRepositoryImplTest extends SchemaRepositoryImpl {
+class SchemaRepositoryImplTest extends mutable.Specification
+  with TestConst {
 
-  lazy val testSchemas: Map[String, StructType] = Map(
-    "rt.parquet" -> StructType(
-      StructField("dateTime", StringType, false) ::
-        StructField("eventType", StringType, false) ::
-        StructField("requesrId", StringType, false) ::
-        StructField("userCookie", StringType, false) ::
-        StructField("site", StringType, false) ::
-        StructField("ipAddress", StringType, false) ::
-        StructField("useragent", StringType, false) ::
-        StructField("segments", ArrayType(StringType, false), false) :: Nil
-    ),
-    "impr.parquet" -> StructType(
-      StructField("dateTime", StringType, false) ::
-        StructField("eventType", StringType, false) ::
-        StructField("requesrId", StringType, false) ::
-        StructField("userCookie", StringType, false) ::
-        StructField("site", StringType, false) ::
-        StructField("ipAddress", StringType, false) ::
-        StructField("useragent", StringType, false) ::
-        StructField("AdId", IntegerType, true) :: Nil
-    ),
-    "clk.parquet" -> StructType(
-      StructField("dateTime", StringType, false) ::
-        StructField("eventType", StringType, false) ::
-        StructField("requesrId", StringType, false) ::
-        StructField("userCookie", StringType, false) ::
-        StructField("site", StringType, false) ::
-        StructField("ipAddress", StringType, false) ::
-        StructField("useragent", StringType, false) ::
-        StructField("AdId", IntegerType, true) ::
-        StructField("SomeId", StringType, true) :: Nil
-    )
-  )
+  ///////////////////////////////////////////////////////////////////////////
+  // An objects of the test classes
+  ///////////////////////////////////////////////////////////////////////////
 
-  override private[entities] def readParquetSchema(schemaName: String) = {
+  val schemaRepository = new SchemaRepositoryTestImpl()
 
-    testSchemas(schemaName)
+  ///////////////////////////////////////////////////////////////////////////
+  // Test body
+  ///////////////////////////////////////////////////////////////////////////
+
+  "When an application requests" >> {
+    // valid
+    "specific event scheme, SchemaRepository must get and return it" >> {
+
+      schemaRepository.getSchema(testLogEntry.eventType)
+        .must(beSome(schemaRepository.testSchemas(testLogEntry.eventType + ".parquet")))
+    }
+    // invalid
+    "generic event schema, SchemaRepository must build and return it" >> {
+
+      schemaRepository.getSchema(schemaRepository.GENERIC_EVENT) must beSome(genericSchema)
+    }
+    // empty
+    "wrong event schema, SchemaRepository must return `None`" >> {
+
+      schemaRepository.getSchema("err") must beNone
+    }
   }
 }
+

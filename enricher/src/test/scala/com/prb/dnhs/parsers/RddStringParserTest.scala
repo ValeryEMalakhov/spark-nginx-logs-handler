@@ -4,7 +4,7 @@ import com.prb.dnhs.constants.TestConst
 import com.prb.dnhs.entities.LogEntry
 import com.prb.dnhs.exceptions.ErrorDetails
 import com.prb.dnhs.exceptions.ErrorType._
-import com.prb.dnhs.validators.NonEmptinessValidator
+import com.prb.dnhs.validators.{NonEmptinessValidator, Validator}
 import org.specs2._
 
 class RddStringParserTest extends mutable.Specification
@@ -20,33 +20,34 @@ class RddStringParserTest extends mutable.Specification
   : DataParser[String, Either[ErrorDetails, LogEntry]] =
     new RddStringParser() {
 
-      lazy val nonEmptinessValidator = nonEmptinessValidatorImpl
+      lazy val nonEmptinessValidator: Validator[String, Either[ErrorDetails, String]]
+      = nonEmptinessValidatorImpl
     }
 
   ///////////////////////////////////////////////////////////////////////////
   // Test body
   ///////////////////////////////////////////////////////////////////////////
 
-  "If" >> {
-    "correct string set in `RddStringParser`, it must return" >> {
-      "LogEntry object in Either.Right" >> {
-        val res = rddStringParser.parse(testLogString) match {
-          case Left(err) => null
-          case Right(value) => value
-        }
+  "If the `RddStringParser` gets" >> {
+    // valid
+    "correct string , it must return Either.Right with LogEntry object" >> {
 
-        res must_== testLogEntry
+      val res = rddStringParser.parse(testLogString) match {
+        case Left(err) => null
+        case Right(value) => value
       }
+
+      res must_== testLogEntry
     }
-    "incorrect string set in `RddStringParser`, it must return" >> {
-      "Exception in Either.Left" >> {
-        val res = rddStringParser.parse(emptyGeneralFieldTLS) match {
-          case Left(err) => err.errorType
-          case Right(value) => null
-        }
+    // invalid
+    "incorrect string, it must return Either.Left with ParserError" >> {
 
-        res must_== ParserError
+      val res = rddStringParser.parse(emptyGeneralFieldTLS) match {
+        case Left(err) => err.errorType
+        case Right(value) => null
       }
+
+      res must_== ParserError
     }
   }
 }

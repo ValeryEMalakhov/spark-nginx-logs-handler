@@ -16,7 +16,11 @@ class ValidRowHandlerTest extends mutable.Specification
 
   private val testRowSeqRes: Seq[Row] = Seq(Row("testValid"))
 
-  private val testRddLogString: RDD[Either[ErrorDetails, Row]] = spark.sparkContext.parallelize(testSimpleLogRowSeq)
+  private val testRddLogString: RDD[Either[ErrorDetails, Row]] =
+    spark.sparkContext.parallelize(testSimpleLogRowSeq)
+
+  private val testInvalidRddLogString: RDD[Either[ErrorDetails, Row]] =
+    spark.sparkContext.parallelize(testInvalidSimpleLogRowSeq)
 
   private val testRddLogStringRes: RDD[Row] = spark.sparkContext.parallelize(testRowSeqRes)
 
@@ -32,13 +36,20 @@ class ValidRowHandlerTest extends mutable.Specification
   // Test body
   ///////////////////////////////////////////////////////////////////////////
 
-  "If" >> {
-    "test RDD contains valid rows" >> {
-      "handler must return single valid row" >> {
-        val res = validRowHandler.handle(testRddLogString)
+  "If the `ValidRowHandler` gets test RDD with " >> {
+    // valid
+    "valid rows, handler must return it" >> {
 
-        res.collect must_== testRddLogStringRes.collect
-      }
+      val res = validRowHandler.handle(testRddLogString)
+
+      res.collect must_== testRddLogStringRes.collect
+    }
+    // invalid
+    "invalid rows, handler must return nothing" >> {
+
+      val res = validRowHandler.handle(testInvalidRddLogString)
+
+      res.collect must_== Array.empty[Row]
     }
   }
 }

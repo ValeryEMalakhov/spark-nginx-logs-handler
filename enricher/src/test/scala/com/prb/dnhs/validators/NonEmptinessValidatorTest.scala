@@ -17,26 +17,26 @@ class NonEmptinessValidatorTest extends mutable.Specification
   // Test body
   ///////////////////////////////////////////////////////////////////////////
 
-  "If" >> {
-    "correct string set in `nonEmptinessValidator`, it must return" >> {
-      "input string back" >> {
-        val res = validarot.validate(testLogString) match {
-          case Left(err) => null
-          case Right(value) => value
-        }
+  "If the `nonEmptinessValidator` gets" >> {
+    // valid
+    "the correct entry line, it must return it." >> {
 
-        res must_== testLogString
+      val res = validarot.validate(testLogString) match {
+        case Left(err) => null
+        case Right(value) => value
       }
+
+      res must_== testLogString
     }
-    "incorrect string set in `RddStringParser`, it must return" >> {
-      "Exception in Either.Left" >> {
-        val res = validarot.validate(emptyTLS) match {
-          case Left(err) => err.errorType
-          case Right(value) => null
-        }
+    // invalid
+    "an invalid entry string, it must return Either.Left with ParserError" >> {
 
-        res must_== ParserError
+      val res = validarot.validate(emptyTLS) match {
+        case Left(err) => err.errorType
+        case Right(value) => null
       }
+
+      res must_== ParserError
     }
   }
 }

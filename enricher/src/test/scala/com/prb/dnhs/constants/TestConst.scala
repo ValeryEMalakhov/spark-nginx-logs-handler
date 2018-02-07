@@ -175,5 +175,10 @@ trait TestConst {
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
       Map("AdId" -> "err", "SomeId" -> "012345")
     )
+
+  val testInvalidSimpleLogRowSeq: Seq[Either[ErrorDetails, Row]] = Seq(
+    Left(ErrorDetails(errorType = ParserError, errorMessage = "testInvalid", line = "")),
+    Left(ErrorDetails(errorType = ParserError, errorMessage = "testInvalid", line = ""))
+  )
 }
 

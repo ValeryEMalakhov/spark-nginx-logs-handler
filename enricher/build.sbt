@@ -1,8 +1,8 @@
 import Dependencies._
 import sbt.Keys._
 
-lazy val root = (project in file(".")).
-  settings(
+lazy val enricher = (project in file("."))
+  .settings(
     name := "LogsEnricher",
     version := "1.0.0.f4",
     scalaVersion := scala211,
