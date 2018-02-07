@@ -1,0 +1,12 @@
+SHELL=/bin/bash
+MAILTO=hdfs
+
+APP_PATH=/home/hdfs/SparkNginxLogsHandler
+LOG_PATH=/home/hdfs/SparkNginxLogsHandler/output/nginx_logs
+
+#every minute get nginx log files
+* * * * * bash $APP_PATH/injection/cron/rename_and_move_logs.sh $LOG_PATH
+
+#every hour get log-pack and put it in hdfs folder
+0 * * * * bash $APP_PATH/injection/cron/put_local_logs_in_hdfs.sh $LOG_PATH
+
