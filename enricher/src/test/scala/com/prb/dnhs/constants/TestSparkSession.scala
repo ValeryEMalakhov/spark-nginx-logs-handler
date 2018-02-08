@@ -21,7 +21,7 @@ trait TestSparkSession {
     .builder()
     .appName(appName)
     .master(sparkMaster)
-    .config("spark.driver.memory", 471859200)
+    .config("spark.driver.memory", "500mb")
     // .config("spark.sql.warehouse.dir", warehouseLocation)
     // .enableHiveSupport()
     .getOrCreate()
