@@ -11,7 +11,7 @@ lazy val enricher = (project in file("."))
     fullClasspath in Runtime := (fullClasspath in Compile).value,
     test in assembly := {}
   )
-  .settings(publishSettings)
+  .settings(publishSettingsWithNexus2)
 
 exportJars := true
 fork := true
@@ -37,16 +37,29 @@ assemblyMergeStrategy in assembly := {
 
 assemblyJarName := "LogsEnricher.jar"
 
-lazy val publishSettings = Seq(
+lazy val publishSettingsWithNexus3 = Seq(
   publishMavenStyle := true,
   credentials += Credentials("Sonatype Nexus Repository Manager", "192.168.80.132", "admin", "admin123"),
   resolvers += "Nexus" at "http://192.168.80.132:8082/repository/maven-public/",
   publishTo := {
-    val nexus = "http://192.168.80.132:8082" // http://172.17.0.3:8081/nexus
+    val nexus = "http://192.168.80.132:8082"
     if (isSnapshot.value)
       Some("maven-snapshots" at nexus + "/repository/maven-snapshots")
     else
       Some("maven-releases" at nexus + "/repository/maven-releases")
+  }
+)
+
+lazy val publishSettingsWithNexus2 = Seq(
+  publishMavenStyle := true,
+  credentials += Credentials("Sonatype Nexus Repository Manager", "192.168.80.132", "admin", "admin123"),
+  resolvers += "Nexus" at "http://192.168.80.132:8083/nexus/content/groups/public",
+  publishTo := {
+    val nexus = "http://192.168.80.132:8083/nexus"
+    if (isSnapshot.value)
+      Some("maven-snapshots" at nexus + "/content/repositories/snapshots")
+    else
+      Some("maven-releases" at nexus + "/content/repositories/releases")
   }
 )
 

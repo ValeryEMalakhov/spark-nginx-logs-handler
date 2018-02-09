@@ -95,6 +95,9 @@ class DataParserImplTest extends mutable.Specification
         validParsedLogString.collect.head(9) must beNull
       }
     }
+    "data parser mock must be called only one time" >> {
+      //verify(dataParserImpl, atMost(4))
+    }
   }
 }
 
