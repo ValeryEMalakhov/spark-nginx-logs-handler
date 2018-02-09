@@ -13,6 +13,7 @@ lazy val enricher = (project in file("."))
   )
   .settings(publishSettings)
 
+isSnapshot := true
 exportJars := true
 fork := true
 
