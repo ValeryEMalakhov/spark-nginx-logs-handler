@@ -1,16 +1,65 @@
 package com.prb.dnhs.validators
 
-import com.prb.dnhs.constants.TestConst
+import com.prb.dnhs.entities.LogEntry
 import com.prb.dnhs.exceptions.ErrorType.ParserError
 import org.apache.spark.sql.Row
+import org.apache.spark.sql.types._
 import org.specs2.mutable
 
-class QueryStringValidatorTest extends mutable.Specification
-  with TestConst {
+class QueryStringValidatorTest extends mutable.Specification {
 
   ///////////////////////////////////////////////////////////////////////////
   // Test values
   ///////////////////////////////////////////////////////////////////////////
+
+  private val testSchemas: Map[String, StructType] = Map(
+    "rt" -> StructType(
+      StructField("dateTime", StringType, false) ::
+        StructField("eventType", StringType, false) ::
+        StructField("requesrId", StringType, false) ::
+        StructField("userCookie", StringType, false) ::
+        StructField("site", StringType, false) ::
+        StructField("ipAddress", StringType, false) ::
+        StructField("useragent", StringType, false) ::
+        StructField("segments", ArrayType(StringType, false), false) ::
+        Nil
+    ),
+    "impr" -> StructType(
+      StructField("dateTime", StringType, false) ::
+        StructField("eventType", StringType, false) ::
+        StructField("requesrId", StringType, false) ::
+        StructField("userCookie", StringType, false) ::
+        StructField("site", StringType, false) ::
+        StructField("ipAddress", StringType, false) ::
+        StructField("useragent", StringType, false) ::
+        StructField("AdId", IntegerType, true) ::
+        Nil
+    ),
+    "clk" -> StructType(
+      StructField("dateTime", StringType, false) ::
+        StructField("eventType", StringType, false) ::
+        StructField("requesrId", StringType, false) ::
+        StructField("userCookie", StringType, false) ::
+        StructField("site", StringType, false) ::
+        StructField("ipAddress", StringType, false) ::
+        StructField("useragent", StringType, false) ::
+        StructField("AdId", IntegerType, true) ::
+        StructField("SomeId", StringType, true) ::
+        Nil
+    )
+  )
+
+  private val testLogEntry =
+    LogEntry("01/Jan/2000:00:00:01", "clk", "01234567890123456789012345678901", "001",
+      "127.0.0.1", "127.0.0.1", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+      Map("AdId" -> "100", "SomeId" -> "012345")
+    )
+
+  private val wrongQueryStringDataTypeTLE =
+    LogEntry("01/Jan/2000:00:00:01", "clk", "01234567890123456789012345678901", "001",
+      "127.0.0.1", "127.0.0.1", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+      Map("AdId" -> "err", "SomeId" -> "012345")
+    )
 
   private val expecterRow = Seq(Row(100), Row("012345"))
 
@@ -18,34 +67,23 @@ class QueryStringValidatorTest extends mutable.Specification
   // An objects of the test classes.
   ///////////////////////////////////////////////////////////////////////////
 
-  private val validator = new QueryStringValidator()
+  private def validator = new QueryStringValidator()
 
   ///////////////////////////////////////////////////////////////////////////
   // Test body
   ///////////////////////////////////////////////////////////////////////////
 
   "If the `QueryStringValidator` gets" >> {
-    // valid
     "valid LogEntry, it must return Either.Right with Seq of query string's Rows" >> {
-
-      val res = validator.validate(
-        testLogEntry,
-        7,
-        testSchemas(testLogEntry.eventType)
-      ).right.get
-
-      res must_== expecterRow
+      validator.validate(
+        testLogEntry, 7, testSchemas(testLogEntry.eventType)
+      ) must beRight(expecterRow)
     }
-    // invalid
     "invalid LogEntry with wrong datatype, it must return Either.Left with ParserError" >> {
-
-      val res = validator.validate(
-        wrongQueryStringDataTypeTLE,
-        7,
-        testSchemas(wrongQueryStringDataTypeTLE.eventType)
-      ).left.get
-
-      res.errorType must_== ParserError
+      validator.validate(
+        wrongQueryStringDataTypeTLE, 7, testSchemas(wrongQueryStringDataTypeTLE.eventType)
+      ).left.get.errorType must_== ParserError
     }
   }
 }
+

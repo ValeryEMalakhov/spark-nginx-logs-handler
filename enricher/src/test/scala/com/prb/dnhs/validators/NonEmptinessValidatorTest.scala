@@ -1,42 +1,37 @@
 package com.prb.dnhs.validators
 
-import com.prb.dnhs.constants.TestConst
 import com.prb.dnhs.exceptions.ErrorType.ParserError
 import org.specs2.mutable
 
-class NonEmptinessValidatorTest extends mutable.Specification
-  with TestConst {
+class NonEmptinessValidatorTest extends mutable.Specification {
+
+  ///////////////////////////////////////////////////////////////////////////
+  // Test values
+  ///////////////////////////////////////////////////////////////////////////
+
+  private val TAB = "\t"
+
+  private val testLogString: String =
+    s"01/Jan/2000:00:00:01${TAB}clk${TAB}01234567890123456789012345678901${TAB}001" +
+      s"${TAB}127.0.0.1${TAB}127.0.0.1${TAB}Mozilla/5.0 (Windows NT 10.0; Win64; x64)" +
+      s"${TAB}AdId=100&SomeId=012345"
 
   ///////////////////////////////////////////////////////////////////////////
   // An objects of the test classes.
   ///////////////////////////////////////////////////////////////////////////
 
-  private val validarot = new NonEmptinessValidator()
+  private def validator = new NonEmptinessValidator()
 
   ///////////////////////////////////////////////////////////////////////////
   // Test body
   ///////////////////////////////////////////////////////////////////////////
 
   "If the `nonEmptinessValidator` gets" >> {
-    // valid
-    "the correct entry line, it must return it." >> {
-
-      val res = validarot.validate(testLogString) match {
-        case Left(err) => null
-        case Right(value) => value
-      }
-
-      res must_== testLogString
+    "the correct entry line, it must return it" >> {
+      validator.validate(testLogString) must beRight(testLogString)
     }
-    // invalid
     "an invalid entry string, it must return Either.Left with ParserError" >> {
-
-      val res = validarot.validate(emptyTLS) match {
-        case Left(err) => err.errorType
-        case Right(value) => null
-      }
-
-      res must_== ParserError
+      validator.validate("").left.get.errorType must_== ParserError
     }
   }
 }

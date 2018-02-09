@@ -17,11 +17,11 @@ trait TestSparkSession {
   // Test spark config
   ///////////////////////////////////////////////////////////////////////////
 
-  lazy val spark: SparkSession = SparkSession
+  lazy val sparkSession: SparkSession = SparkSession
     .builder()
     .appName(appName)
     .master(sparkMaster)
-    .config("spark.driver.memory", "500mb")
+    // .config("spark.driver.memory", "500mb")
     // .config("spark.sql.warehouse.dir", warehouseLocation)
     // .enableHiveSupport()
     .getOrCreate()

@@ -38,6 +38,19 @@ class SchemaRepositoryTestImpl extends SchemaRepositoryImpl {
     )
   )
 
+  lazy val genericSchema = StructType(
+    StructField("dateTime", StringType, false) ::
+      StructField("eventType", StringType, false) ::
+      StructField("requesrId", StringType, false) ::
+      StructField("userCookie", StringType, false) ::
+      StructField("site", StringType, false) ::
+      StructField("ipAddress", StringType, false) ::
+      StructField("useragent", StringType, false) ::
+      StructField("segments", ArrayType(StringType, false), false) ::
+      StructField("AdId", IntegerType, true) ::
+      StructField("SomeId", StringType, true) :: Nil
+  )
+
   override private[entities] def readParquetSchema(schemaName: String) = {
 
     testSchemas(schemaName)

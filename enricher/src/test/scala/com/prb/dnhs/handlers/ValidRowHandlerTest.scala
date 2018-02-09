@@ -1,34 +1,46 @@
 package com.prb.dnhs.handlers
 
-import com.prb.dnhs.constants.{TestConst, TestSparkSession}
+import com.prb.dnhs.constants.TestSparkSession
 import com.prb.dnhs.exceptions.ErrorDetails
+import com.prb.dnhs.exceptions.ErrorType.ParserError
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.specs2.mutable
 
 class ValidRowHandlerTest extends mutable.Specification
-  with TestSparkSession
-  with TestConst {
+  with TestSparkSession {
 
   ///////////////////////////////////////////////////////////////////////////
   // Test values
   ///////////////////////////////////////////////////////////////////////////
 
+  private val testSimpleLogRowSeq: Seq[Either[ErrorDetails, Row]] = Seq(
+    Left(ErrorDetails(errorType = ParserError, errorMessage = "testInvalid", line = "")),
+    Right(Row("testValid")),
+    Left(ErrorDetails(errorType = ParserError, errorMessage = "testInvalid", line = ""))
+  )
+
+  private val testInvalidSimpleLogRowSeq: Seq[Either[ErrorDetails, Row]] = Seq(
+    Left(ErrorDetails(errorType = ParserError, errorMessage = "testInvalid", line = "")),
+    Left(ErrorDetails(errorType = ParserError, errorMessage = "testInvalid", line = ""))
+  )
+
   private val testRowSeqRes: Seq[Row] = Seq(Row("testValid"))
 
-  private val testRddLogString: RDD[Either[ErrorDetails, Row]] =
-    spark.sparkContext.parallelize(testSimpleLogRowSeq)
+  private def testRddLogString: RDD[Either[ErrorDetails, Row]] =
+    sparkSession.sparkContext.parallelize(testSimpleLogRowSeq)
 
-  private val testInvalidRddLogString: RDD[Either[ErrorDetails, Row]] =
-    spark.sparkContext.parallelize(testInvalidSimpleLogRowSeq)
+  private def testInvalidRddLogString: RDD[Either[ErrorDetails, Row]] =
+    sparkSession.sparkContext.parallelize(testInvalidSimpleLogRowSeq)
 
-  private val testRddLogStringRes: RDD[Row] = spark.sparkContext.parallelize(testRowSeqRes)
+  private def testRddLogStringRes: RDD[Row] =
+    sparkSession.sparkContext.parallelize(testRowSeqRes)
 
   ///////////////////////////////////////////////////////////////////////////
   // An objects of the test classes.
   ///////////////////////////////////////////////////////////////////////////
 
-  private val validRowHandler
+  private def validRowHandler
   : RowHandler[RDD[Either[ErrorDetails, Row]], RDD[Row]] =
     new ValidRowHandler()
 
@@ -36,20 +48,12 @@ class ValidRowHandlerTest extends mutable.Specification
   // Test body
   ///////////////////////////////////////////////////////////////////////////
 
-  "If the `ValidRowHandler` gets test RDD with " >> {
-    // valid
-    "valid rows, handler must return it" >> {
-
-      val res = validRowHandler.handle(testRddLogString)
-
-      res.collect must_== testRddLogStringRes.collect
+  "If the `ValidRowHandler` gets RDD with " >> {
+    "valid rows, handler must return RDD with correct rows" >> {
+      validRowHandler.handle(testRddLogString).collect must_== testRowSeqRes.toArray
     }
-    // invalid
     "invalid rows, handler must return nothing" >> {
-
-      val res = validRowHandler.handle(testInvalidRddLogString)
-
-      res.collect must_== Array.empty[Row]
+      validRowHandler.handle(testInvalidRddLogString).collect must_== Array.empty[Row]
     }
   }
 }
