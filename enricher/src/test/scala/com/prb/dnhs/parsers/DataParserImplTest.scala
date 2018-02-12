@@ -5,6 +5,7 @@ import com.prb.dnhs.entities.SerializableContainer
 import com.prb.dnhs.exceptions._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
+import org.mockito.Mockito
 import org.mockito.Mockito._
 import org.specs2.mutable
 
@@ -46,7 +47,10 @@ class DataParserImplTest extends mutable.Specification
   // An objects of the test classes.
   ///////////////////////////////////////////////////////////////////////////
 
-  private val dataParserImpl = mock(classOf[DataParserImpl], withSettings().serializable())
+  private val dataParserImpl = mock(
+    classOf[DataParserImpl],
+    withSettings().serializable()
+  )
 
   when(dataParserImpl.parse(testLogStringSeq(0)))
     .thenReturn(Right(testLogRowSeq(0)))
@@ -76,6 +80,14 @@ class DataParserImplTest extends mutable.Specification
   // Test body
   ///////////////////////////////////////////////////////////////////////////
 
+  /*
+    "data parser mock test" >> {
+      verify(testParserContainer, Mockito.times(4))
+      verify(testParserContainer, Mockito.atLeastOnce())
+      verify(testParserContainer, Mockito.never())
+    }
+  */
+
   private def parsedLogString: RDD[Either[ErrorDetails, Row]] = parse(testRddLogString)
 
   private def validParsedLogString: RDD[Row] = parsedLogString.map(_.right.get)
@@ -94,9 +106,6 @@ class DataParserImplTest extends mutable.Specification
       "SomeId must be null" >> {
         validParsedLogString.collect.head(9) must beNull
       }
-    }
-    "data parser mock must be called only one time" >> {
-      //verify(dataParserImpl, atMost(4))
     }
   }
 }

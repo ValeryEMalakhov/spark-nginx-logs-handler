@@ -5,12 +5,13 @@ import com.prb.dnhs.entities.SerializableContainer
 import com.prb.dnhs.exceptions.ErrorDetails
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
+import org.mockito.Mockito
 import org.mockito.Mockito._
 import org.specs2.mutable
 
 class MainParserTest extends mutable.Specification
   with TestSparkSession {
-  
+
   ///////////////////////////////////////////////////////////////////////////
   // Test values
   ///////////////////////////////////////////////////////////////////////////
@@ -70,6 +71,14 @@ class MainParserTest extends mutable.Specification
   ///////////////////////////////////////////////////////////////////////////
   // Test body
   ///////////////////////////////////////////////////////////////////////////
+
+  /*
+    "data parser mock test" >> {
+      verify(testParserContainer, Mockito.times(4))
+      verify(testParserContainer, Mockito.atLeastOnce())
+      verify(testParserContainer, Mockito.never())
+    }
+  */
 
   // get all parsed rows, including rows with errors
   def parsedLogString: RDD[Either[ErrorDetails, Row]] = mainParser.parse(testRddLogString)
