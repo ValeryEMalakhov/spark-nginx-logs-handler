@@ -12,12 +12,10 @@ class RddStringParserTest extends mutable.Specification {
   // Test values
   ///////////////////////////////////////////////////////////////////////////
 
-  private val TAB = "\t"
-
   private val testLogString: String =
-    s"01/Jan/2000:00:00:01${TAB}clk${TAB}01234567890123456789012345678901${TAB}001" +
-      s"${TAB}127.0.0.1${TAB}127.0.0.1${TAB}Mozilla/5.0 (Windows NT 10.0; Win64; x64)" +
-      s"${TAB}AdId=100&SomeId=012345"
+    s"01/Jan/2000:00:00:01\tclk\t01234567890123456789012345678901\t001" +
+      s"\t127.0.0.1\t127.0.0.1\tMozilla/5.0 (Windows NT 10.0; Win64; x64)" +
+      s"\tAdId=100&SomeId=012345"
 
   private val testLogEntry =
     LogEntry("01/Jan/2000:00:00:01", "clk", "01234567890123456789012345678901", "001",
@@ -26,9 +24,9 @@ class RddStringParserTest extends mutable.Specification {
     )
 
   private val emptyGeneralFieldTLS: String =
-    s"01/Jan/2000:00:00:01${TAB}-${TAB}01234567890123456789012345678901${TAB}001" +
-      s"${TAB}127.0.0.1${TAB}127.0.0.1${TAB}Mozilla/5.0 (Windows NT 10.0; Win64; x64)" +
-      s"${TAB}AdId=100&SomeId=012345"
+    s"01/Jan/2000:00:00:01\t-\t01234567890123456789012345678901\t001" +
+      s"\t127.0.0.1\t127.0.0.1\tMozilla/5.0 (Windows NT 10.0; Win64; x64)" +
+      s"\tAdId=100&SomeId=012345"
 
   ///////////////////////////////////////////////////////////////////////////
   // An objects of the test classes

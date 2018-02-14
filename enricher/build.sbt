@@ -20,7 +20,7 @@ libraryDependencies ++= Seq(
   scalazStream, scalazCore,
   parquetColumn,
   configType, scopt,
-  specs2, specs2Mock,
+  specs2, specs2Mock, scalatest,
   slf4j, cats
 )
 
