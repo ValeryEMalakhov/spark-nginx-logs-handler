@@ -14,27 +14,16 @@ class ValidRowHandlerTest extends mutable.Specification
   // Test values
   ///////////////////////////////////////////////////////////////////////////
 
-  private val testSimpleLogRowSeq: Seq[Either[ErrorDetails, Row]] = Seq(
-    Left(ErrorDetails(errorType = ParserError, errorMessage = "testInvalid", line = "")),
-    Right(Row("testValid")),
-    Left(ErrorDetails(errorType = ParserError, errorMessage = "testInvalid", line = ""))
-  )
-
-  private val testInvalidSimpleLogRowSeq: Seq[Either[ErrorDetails, Row]] = Seq(
-    Left(ErrorDetails(errorType = ParserError, errorMessage = "testInvalid", line = "")),
-    Left(ErrorDetails(errorType = ParserError, errorMessage = "testInvalid", line = ""))
-  )
-
-  private val testRowSeqRes: Seq[Row] = Seq(Row("testValid"))
-
   private def testRddLogString: RDD[Either[ErrorDetails, Row]] =
-    sparkSession.sparkContext.parallelize(testSimpleLogRowSeq)
+    sparkSession.sparkContext.parallelize(Seq(Right(Row("testValid"))))
 
   private def testInvalidRddLogString: RDD[Either[ErrorDetails, Row]] =
-    sparkSession.sparkContext.parallelize(testInvalidSimpleLogRowSeq)
+    sparkSession.sparkContext.parallelize(Seq(
+      Left(ErrorDetails(errorType = ParserError, errorMessage = "testInvalid", line = ""))
+    ))
 
   private def testRddLogStringRes: RDD[Row] =
-    sparkSession.sparkContext.parallelize(testRowSeqRes)
+    sparkSession.sparkContext.parallelize(Seq(Row("testValid")))
 
   ///////////////////////////////////////////////////////////////////////////
   // An objects of the test classes.
@@ -50,7 +39,7 @@ class ValidRowHandlerTest extends mutable.Specification
 
   "If the `ValidRowHandler` gets RDD with " >> {
     "valid rows, handler must return RDD with correct rows" >> {
-      validRowHandler.handle(testRddLogString).collect must_== testRowSeqRes.toArray
+      validRowHandler.handle(testRddLogString).collect must_== Seq(Row("testValid")).toArray
     }
     "invalid rows, handler must return nothing" >> {
       validRowHandler.handle(testInvalidRddLogString).collect must_== Array.empty[Row]

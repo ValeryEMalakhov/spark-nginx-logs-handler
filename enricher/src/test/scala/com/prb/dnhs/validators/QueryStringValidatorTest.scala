@@ -12,30 +12,8 @@ class QueryStringValidatorTest extends mutable.Specification {
   // Test values
   ///////////////////////////////////////////////////////////////////////////
 
-  private val testSchemas: Map[String, StructType] = Map(
-    "rt" -> StructType(
-      StructField("dateTime", StringType, false) ::
-        StructField("eventType", StringType, false) ::
-        StructField("requesrId", StringType, false) ::
-        StructField("userCookie", StringType, false) ::
-        StructField("site", StringType, false) ::
-        StructField("ipAddress", StringType, false) ::
-        StructField("useragent", StringType, false) ::
-        StructField("segments", ArrayType(StringType, false), false) ::
-        Nil
-    ),
-    "impr" -> StructType(
-      StructField("dateTime", StringType, false) ::
-        StructField("eventType", StringType, false) ::
-        StructField("requesrId", StringType, false) ::
-        StructField("userCookie", StringType, false) ::
-        StructField("site", StringType, false) ::
-        StructField("ipAddress", StringType, false) ::
-        StructField("useragent", StringType, false) ::
-        StructField("AdId", IntegerType, true) ::
-        Nil
-    ),
-    "clk" -> StructType(
+  private val schema =
+    StructType(
       StructField("dateTime", StringType, false) ::
         StructField("eventType", StringType, false) ::
         StructField("requesrId", StringType, false) ::
@@ -47,7 +25,6 @@ class QueryStringValidatorTest extends mutable.Specification {
         StructField("SomeId", StringType, true) ::
         Nil
     )
-  )
 
   private val testLogEntry =
     LogEntry("01/Jan/2000:00:00:01", "clk", "01234567890123456789012345678901", "001",
@@ -60,8 +37,6 @@ class QueryStringValidatorTest extends mutable.Specification {
       "127.0.0.1", "127.0.0.1", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
       Map("AdId" -> "err", "SomeId" -> "012345")
     )
-
-  private val expecterRow = Seq(Row(100), Row("012345"))
 
   ///////////////////////////////////////////////////////////////////////////
   // An objects of the test classes.
@@ -76,12 +51,12 @@ class QueryStringValidatorTest extends mutable.Specification {
   "If the `QueryStringValidator` gets" >> {
     "valid LogEntry, it must return Either.Right with Seq of query string's Rows" >> {
       validator.validate(
-        testLogEntry, 7, testSchemas(testLogEntry.eventType)
-      ) must beRight(expecterRow)
+        testLogEntry, 7, schema
+      ) must beRight(Seq(Row(100), Row("012345")))
     }
     "invalid LogEntry with wrong datatype, it must return Either.Left with ParserError" >> {
       validator.validate(
-        wrongQueryStringDataTypeTLE, 7, testSchemas(wrongQueryStringDataTypeTLE.eventType)
+        wrongQueryStringDataTypeTLE, 7, schema
       ).left.get.errorType must_== ParserError
     }
   }
