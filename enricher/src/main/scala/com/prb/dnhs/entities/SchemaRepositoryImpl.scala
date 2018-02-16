@@ -7,9 +7,9 @@ import org.apache.parquet.schema.{MessageType, MessageTypeParser}
 import org.apache.spark.sql.execution.datasources.parquet.PublicParquetSchemaConverter
 import org.apache.spark.sql.types.StructType
 
-class SchemaRepositoryImpl extends SchemaRepositorу with ConfigHelper {
+class SchemaRepositoryImpl extends SchemaRepositorу {
 
-  val GENERIC_EVENT = config.getString("schemas.event.generic.name")
+  val GENERIC_EVENT = "generic-event"
 
   val DEFAULT_SCHEMAS = Map(
     "rt" -> "rt.parquet",

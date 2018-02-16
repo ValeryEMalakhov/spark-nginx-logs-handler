@@ -6,20 +6,10 @@ import org.specs2.mutable
 class SchemaRepositoryImplTest extends mutable.Specification {
 
   ///////////////////////////////////////////////////////////////////////////
-  // Test values
-  ///////////////////////////////////////////////////////////////////////////
-
-  private val testLogEntry =
-    LogEntry("01/Jan/2000:00:00:01", "clk", "01234567890123456789012345678901", "001",
-      "127.0.0.1", "127.0.0.1", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-      Map("AdId" -> "100", "SomeId" -> "012345")
-    )
-
-  ///////////////////////////////////////////////////////////////////////////
   // An objects of the test classes
   ///////////////////////////////////////////////////////////////////////////
 
-  private def schemaRepository = new SchemaRepositoryTestImpl()
+  private def schemaRepository = new SchemaRepositoryTest()
 
   ///////////////////////////////////////////////////////////////////////////
   // Test body
@@ -28,8 +18,8 @@ class SchemaRepositoryImplTest extends mutable.Specification {
   "When an application requests" >> {
     "specific event scheme, SchemaRepository must get and return StructType with that schema" >> {
       schemaRepository
-        .getSchema(testLogEntry.eventType)
-        .must(beSome(schemaRepository.testSchemas(testLogEntry.eventType + ".parquet")))
+        .getSchema("clk")
+        .must(beSome(schemaRepository.schemas("clk.parquet")))
     }
     "generic event schema, SchemaRepository must build and return StructType with generic schema" >> {
       schemaRepository
@@ -42,59 +32,35 @@ class SchemaRepositoryImplTest extends mutable.Specification {
   }
 }
 
-class SchemaRepositoryTestImpl extends SchemaRepositoryImpl {
+class SchemaRepositoryTest extends SchemaRepositoryImpl {
 
-  lazy val testSchemas: Map[String, StructType] = Map(
+  lazy val schemas: Map[String, StructType] = Map(
     "rt.parquet" -> StructType(
-      StructField("dateTime",   StringType, false) ::
-      StructField("eventType",  StringType, false) ::
-      StructField("requesrId",  StringType, false) ::
-      StructField("userCookie", StringType, false) ::
-      StructField("site",       StringType, false) ::
-      StructField("ipAddress",  StringType, false) ::
-      StructField("useragent",  StringType, false) ::
-      StructField("segments",   ArrayType(StringType, false), false) ::
+      StructField("val_0", StringType, false) ::
+      StructField("val_1", IntegerType, false) ::
       Nil
     ),
     "impr.parquet" -> StructType(
-      StructField("dateTime",   StringType, false) ::
-      StructField("eventType",  StringType, false) ::
-      StructField("requesrId",  StringType, false) ::
-      StructField("userCookie", StringType, false) ::
-      StructField("site",       StringType, false) ::
-      StructField("ipAddress",  StringType, false) ::
-      StructField("useragent",  StringType, false) ::
-      StructField("AdId",       IntegerType, true) ::
+      StructField("val_1", IntegerType, false) ::
+      StructField("val_2", StringType, false) ::
       Nil
     ),
     "clk.parquet" -> StructType(
-      StructField("dateTime",   StringType, false) ::
-      StructField("eventType",  StringType, false) ::
-      StructField("requesrId",  StringType, false) ::
-      StructField("userCookie", StringType, false) ::
-      StructField("site",       StringType, false) ::
-      StructField("ipAddress",  StringType, false) ::
-      StructField("useragent",  StringType, false) ::
-      StructField("AdId",       IntegerType, true) ::
-      StructField("SomeId",     StringType, true) ::
+      StructField("val_1", IntegerType, false) ::
+      StructField("val_2", StringType, false) ::
+      StructField("val_3", StringType, false) ::
       Nil
     )
   )
 
   lazy val genericSchema = StructType(
-    StructField("dateTime",   StringType, false) ::
-    StructField("eventType",  StringType, false) ::
-    StructField("requesrId",  StringType, false) ::
-    StructField("userCookie", StringType, false) ::
-    StructField("site",       StringType, false) ::
-    StructField("ipAddress",  StringType, false) ::
-    StructField("useragent",  StringType, false) ::
-    StructField("segments",   ArrayType(StringType, false), false) ::
-    StructField("AdId",       IntegerType, true) ::
-    StructField("SomeId",     StringType, true) ::
+    StructField("val_0", StringType, false) ::
+    StructField("val_1", IntegerType, false) ::
+    StructField("val_2", StringType, false) ::
+    StructField("val_3", StringType, false) ::
     Nil
   )
 
-  override private[entities] def readParquetSchema(schemaName: String) = testSchemas(schemaName)
-
+  override private[entities] def readParquetSchema(schemaName: String) = schemas(schemaName)
 }
+
