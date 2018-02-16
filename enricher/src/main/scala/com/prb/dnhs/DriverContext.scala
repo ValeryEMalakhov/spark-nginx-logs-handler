@@ -4,6 +4,7 @@ import java.io.File
 import java.time.Instant
 
 import com.prb.dnhs.entities._
+import com.prb.dnhs.entities.SchemaRepositorу._
 import com.prb.dnhs.exceptions._
 import com.prb.dnhs.handlers._
 import com.prb.dnhs.helpers._
@@ -84,7 +85,7 @@ object DriverContext extends ConfigHelper with LoggerHelper {
 
       lazy val spark = sparkSession
       lazy val tableName = config.getString("app.name")
-      lazy val schema = schemasImpl.getSchema(schemasImpl.GENERIC_EVENT).get
+      lazy val schema = schemasImpl.getSchema(GENERIC_EVENT).get
       lazy val batchId = globalBatchId
     }
 

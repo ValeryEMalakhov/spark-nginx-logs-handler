@@ -6,33 +6,8 @@ import org.specs2.mutable
 class SchemaRepositoryImplTest extends mutable.Specification {
 
   ///////////////////////////////////////////////////////////////////////////
-  // An objects of the test classes
+  // Test values
   ///////////////////////////////////////////////////////////////////////////
-
-  private def schemaRepository = new SchemaRepositoryTest()
-
-  ///////////////////////////////////////////////////////////////////////////
-  // Test body
-  ///////////////////////////////////////////////////////////////////////////
-
-  "When an application requests" >> {
-    "specific event scheme, SchemaRepository must get and return StructType with that schema" >> {
-      schemaRepository
-        .getSchema("clk")
-        .must(beSome(schemaRepository.schemas("clk.parquet")))
-    }
-    "generic event schema, SchemaRepository must build and return StructType with generic schema" >> {
-      schemaRepository
-        .getSchema(schemaRepository.GENERIC_EVENT)
-        .must(beSome(schemaRepository.genericSchema))
-    }
-    "wrong event schema, SchemaRepository must return `None`" >> {
-      schemaRepository.getSchema("err") must beNone
-    }
-  }
-}
-
-class SchemaRepositoryTest extends SchemaRepositoryImpl {
 
   lazy val schemas: Map[String, StructType] = Map(
     "rt.parquet" -> StructType(
@@ -61,6 +36,32 @@ class SchemaRepositoryTest extends SchemaRepositoryImpl {
     Nil
   )
 
-  override private[entities] def readParquetSchema(schemaName: String) = schemas(schemaName)
+  ///////////////////////////////////////////////////////////////////////////
+  // An objects of the test classes
+  ///////////////////////////////////////////////////////////////////////////
+
+  private def schemaRepository = new SchemaRepositoryImpl() {
+    override private[entities] def readParquetSchema(schemaName: String) = schemas(schemaName)
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
+  // Test body
+  ///////////////////////////////////////////////////////////////////////////
+
+  "When an application requests" >> {
+    "specific event scheme, SchemaRepository must get and return StructType with that schema" >> {
+      schemaRepository
+        .getSchema("clk")
+        .must(beSome(schemas("clk.parquet")))
+    }
+    "generic event schema, SchemaRepository must build and return StructType with generic schema" >> {
+      schemaRepository
+        .getSchema(SchemaRepositorу.GENERIC_EVENT)
+        .must(beSome(genericSchema))
+    }
+    "wrong event schema, SchemaRepository must return `None`" >> {
+      schemaRepository.getSchema("err") must beNone
+    }
+  }
 }
 

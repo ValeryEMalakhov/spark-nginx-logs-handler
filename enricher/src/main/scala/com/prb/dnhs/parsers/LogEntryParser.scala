@@ -3,7 +3,8 @@ package com.prb.dnhs.parsers
 import scala.language.implicitConversions
 import scala.util.control.NonFatal
 
-import com.prb.dnhs.entities.{LogEntry, SchemaRepositorу}
+import com.prb.dnhs.entities._
+import com.prb.dnhs.entities.SchemaRepositorу._
 import com.prb.dnhs.exceptions.ErrorType._
 import com.prb.dnhs.exceptions._
 import com.prb.dnhs.helpers.LoggerHelper
@@ -39,7 +40,7 @@ abstract class LogEntryParser
       // get the generic scheme
       genericSchema <- getEventSchemaStructure(
         logEntry,
-        schemas.GENERIC_EVENT).right
+        GENERIC_EVENT).right
 
       // get validated query string as a Seq of Row
       validatedRow <- queryStringValidator.validate(

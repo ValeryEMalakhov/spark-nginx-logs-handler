@@ -4,8 +4,16 @@ import org.apache.spark.sql.types.StructType
 
 trait SchemaRepositorу {
 
-  val GENERIC_EVENT: String
-
   def getSchema(schemaName: String): Option[StructType]
 }
 
+object SchemaRepositorу {
+
+  val GENERIC_EVENT = "generic-event"
+
+  val DEFAULT_SCHEMAS = Map(
+    "rt" -> "rt.parquet",
+    "impr" -> "impr.parquet",
+    "clk" -> "clk.parquet"
+  )
+}
