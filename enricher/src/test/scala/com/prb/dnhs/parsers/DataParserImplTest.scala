@@ -72,7 +72,7 @@ class DataParserImplTest extends mutable.Specification {
     }
   }
   "If the parser has completed successfully, and rows is invalid then" >> {
-    "result exception message must be equal to `empty` excemtion" >> {
+    "result exception message must be equal to `empty` exception" >> {
       dataParserImpl.parse("").left.get.errorMessage must_== "Log-string is empty!"
     }
   }

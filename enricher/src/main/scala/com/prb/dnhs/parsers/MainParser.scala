@@ -9,11 +9,11 @@ abstract class MainParser extends DataParser[RDD[String], RDD[Either[ErrorDetail
 
   val parser: SerializableContainer[DataParser[String, Either[ErrorDetails, Row]]]
 
-  override def parse(logRDD: RDD[String]): RDD[Either[ErrorDetails, Row]] = {
+  override def parse(inputLog: RDD[String]): RDD[Either[ErrorDetails, Row]] = {
 
     val _parser = parser
 
     // get all parsed rows, including rows with errors
-    logRDD.map(_parser.value.parse)
+    inputLog.map(_parser.value.parse)
   }
 }

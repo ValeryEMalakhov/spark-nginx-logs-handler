@@ -25,38 +25,38 @@ abstract class LogEntryParser
   /**
     * Parse and validate the incoming LogEntry, in particular the queryString field
     *
-    * @param logEntry the current parsing string
+    * @param inputLogEntry the current parsing string
     */
-  override def parse(logEntry: LogEntry): Either[ErrorDetails, Row] = {
+  override def parse(inputLogEntry: LogEntry): Either[ErrorDetails, Row] = {
 
-    val logEntryRow = buildLogEntryRow(logEntry)
+    val logEntryRow = buildLogEntryRow(inputLogEntry)
 
     for {
       // get the current event scheme
       eventSchema <- getEventSchemaStructure(
-        logEntry,
-        logEntry.eventType).right
+        inputLogEntry,
+        inputLogEntry.eventType).right
 
       // get the generic scheme
       genericSchema <- getEventSchemaStructure(
-        logEntry,
+        inputLogEntry,
         GENERIC_EVENT).right
 
       // get validated query string as a Seq of Row
       validatedRow <- queryStringValidator.validate(
-        logEntry,
+        inputLogEntry,
         logEntryRow.length,
         eventSchema).right
 
       // get the parsed and convert the query string as a Seq of Row
       queryStringRowSeq <- buildQueryStringRowSeq(
-        logEntry,
+        inputLogEntry,
         logEntryRow.length,
         genericSchema).right
 
       // concat general and mutable fields
       concatRow <- buildConcatenatedRow(
-        logEntry,
+        inputLogEntry,
         logEntryRow,
         queryStringRowSeq,
         genericSchema).right

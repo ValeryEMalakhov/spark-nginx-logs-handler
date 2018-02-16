@@ -41,9 +41,9 @@ class SchemaRepositoryImpl extends SchemaRepositorу {
   private val schemas = {
 
     val pixelSchemas = readPixelSchemas()
-    val generic = getGenericEvent(pixelSchemas)
+    val genericSchema = getGenericEvent(pixelSchemas)
 
-    pixelSchemas ++ Map(GENERIC_EVENT -> generic)
+    pixelSchemas ++ Map(GENERIC_EVENT -> genericSchema)
   }
 }
 

@@ -10,11 +10,11 @@ abstract class DataParserImpl
   val rddStringParser: DataParser[String, Either[ErrorDetails, LogEntry]]
   val logEntryParser: DataParser[LogEntry, Either[ErrorDetails, Row]]
 
-  override def parse(row: String): Either[ErrorDetails, Row] = {
+  override def parse(inputLog: String): Either[ErrorDetails, Row] = {
 
     for {
       // getting LogEntry (or one of exceptions) by parsing string
-      logEnitry <- rddStringParser.parse(row).right
+      logEnitry <- rddStringParser.parse(inputLog).right
       // getting Row (or one of exceptions) by parsing LogEntry
       row <- logEntryParser.parse(logEnitry).right
     } yield row

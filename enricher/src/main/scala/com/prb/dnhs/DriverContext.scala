@@ -83,9 +83,9 @@ object DriverContext extends ConfigHelper with LoggerHelper {
   : DataRecorder[RDD[Row]] =
     new HiveRecorderImpl() {
 
-      lazy val spark = sparkSession
-      lazy val tableName = config.getString("app.name")
-      lazy val schema = schemasImpl.getSchema(GENERIC_EVENT).get
+      lazy val sparkSession = sparkSession
+      lazy val hiveTableName = config.getString("app.name")
+      lazy val dataFrameGenericSchema = schemasImpl.getSchema(GENERIC_EVENT).get
       lazy val batchId = globalBatchId
     }
 
@@ -94,7 +94,7 @@ object DriverContext extends ConfigHelper with LoggerHelper {
   : DataRecorder[RDD[String]] =
     new FileRecorderImpl() {
 
-      lazy val filePath = pathToFile + "DEFAULT/"
+      lazy val fileSaveDirPath = pathToFile + "DEFAULT/"
       lazy val batchId = globalBatchId
     }
 
