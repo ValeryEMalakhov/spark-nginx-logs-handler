@@ -1,31 +1,31 @@
 import sbt.Keys._
 import sbt._
 
-object ArtifactoryPlugin extends AutoPlugin {
+object Nexus extends AutoPlugin {
 
-  // Artifactory resolving
-  val artifactoryUser = "admin"
-  val artifactoryPassword = "admin123"
+  // Nexus resolving
+  val nexusUser = "admin"
+  val nexusPassword = "admin123"
 
-  val artifactoryUrl = System.getProperty("artifactoryUrl", "http://192.168.80.132:8083/nexus")
-  val artifactoryContextUrl = System.getProperty("artifactoryContextUrl", "192.168.80.132")
-  val artifactoryPublishRepo = System.getProperty("artifactoryPublishRepo", "content/groups/public")
+  val nexusUrl = System.getProperty("artifactoryUrl", "http://192.168.80.132:8083/nexus")
+  val nexusContextUrl = System.getProperty("artifactoryContextUrl", "192.168.80.132")
+  val nexusPublishRepo = System.getProperty("artifactoryPublishRepo", "content/groups/public")
 
-  val creds = Credentials("Sonatype Nexus Repository Manager", artifactoryContextUrl, artifactoryUser, artifactoryPassword)
+  val creds = Credentials("Sonatype Nexus Repository Manager", nexusContextUrl, nexusUser, nexusPassword)
 
-  // Settings to push artifacts to artifactory (jars, zip, etc)
+  // Settings to push artifacts to nexus (jars, zip, etc)
   override lazy val projectSettings = Seq(
     resolvers := Seq(
       Resolver.defaultLocal,
       Resolver.mavenLocal,
-      "Nexus" at s"$artifactoryUrl/$artifactoryPublishRepo"
+      "Nexus" at s"$nexusUrl/$nexusPublishRepo"
     ),
     credentials += creds,
     publishTo := {
       if (isSnapshot.value)
-        Some("maven-snapshots" at s"$artifactoryUrl/content/repositories/snapshots")
+        Some("maven-snapshots" at s"$nexusUrl/content/repositories/snapshots")
       else
-        Some("maven-releases" at s"$artifactoryUrl/content/repositories/releases")
+        Some("maven-releases" at s"$nexusUrl/content/repositories/releases")
     },
 
     publishMavenStyle := true // Enables publishing to maven repo

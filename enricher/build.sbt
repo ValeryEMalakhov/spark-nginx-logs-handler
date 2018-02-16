@@ -2,7 +2,7 @@ import Dependencies._
 import sbt.Keys._
 
 lazy val enricher = project.in(file("."))
-  .enablePlugins(ArtifactoryPlugin)
+  .enablePlugins(Nexus)
   .settings(
     name := "LogsEnricher",
     version := "1.0.0.f3",
@@ -14,18 +14,15 @@ lazy val enricher = project.in(file("."))
   )
   .settings(
     libraryDependencies ++=
-      Seq(
-        sparkCore,
-        sparkSQL,
-        sparkStreaming,
-        sparkHive,
-        scalazStream,
-        scalazCore,
-        parquetColumn,
-        configType,
-        scopt,
-        slf4j,
-        cats
-      )
+      spark ++
+        Seq(
+            scalazStream
+          , scalazCore
+          , parquetColumn
+          , configType
+          , scopt
+          , slf4j
+          , cats
+        )
   )
 
