@@ -33,20 +33,20 @@ class DataParserImplTest extends mutable.Specification {
   // An objects of the test classes
   ///////////////////////////////////////////////////////////////////////////
 
-  private val schemasImpl: SchemaRepositorу = new SchemaRepositoryImpl()
+  private def schemasImpl: SchemaRepositorу = new SchemaRepositoryImpl()
 
-  private val queryStringValidatorImpl = new QueryStringValidator()
+  private def queryStringValidatorImpl = new QueryStringValidator()
 
-  private val nonEmptinessValidatorImpl = new NonEmptinessValidator()
+  private def nonEmptinessValidatorImpl = new NonEmptinessValidator()
 
-  private val rddStringParserImpl
+  private def rddStringParserImpl
   : DataParser[String, Either[ErrorDetails, LogEntry]] =
     new RddStringParser() {
 
       lazy val nonEmptinessValidator = nonEmptinessValidatorImpl
     }
 
-  private val logEntryParserImpl
+  private def logEntryParserImpl
   : DataParser[LogEntry, Either[ErrorDetails, Row]] =
     new LogEntryParser() {
 
@@ -54,7 +54,7 @@ class DataParserImplTest extends mutable.Specification {
       lazy val queryStringValidator = queryStringValidatorImpl
     }
 
-  private val dataParserImpl
+  private def dataParserImpl
   : DataParser[String, Either[ErrorDetails, Row]] =
     new DataParserImpl() {
 
