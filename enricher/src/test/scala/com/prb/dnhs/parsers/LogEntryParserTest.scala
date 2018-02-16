@@ -13,19 +13,19 @@ class LogEntryParserTest extends mutable.Specification {
   // Test values
   ///////////////////////////////////////////////////////////////////////////
 
-  private val testLogEntry =
+  private val logEntry =
     LogEntry("01/Jan/2000:00:00:01", "clk", "01234567890123456789012345678901", "001",
       "127.0.0.1", "127.0.0.1", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
       Map("AdId" -> "100", "SomeId" -> "012345")
     )
 
-  private val testLogRow =
+  private val logRow =
     Row("01/Jan/2000:00:00:01", "clk", "01234567890123456789012345678901", "001",
       "127.0.0.1", "127.0.0.1", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
       null, 100, "012345"
     )
 
-  private val wrongQueryStringDataTypeTLE =
+  private val wrongDataTypeString =
     LogEntry("01/Jan/2000:00:00:01", "clk", "01234567890123456789012345678901", "001",
       "127.0.0.1", "127.0.0.1", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
       Map("AdId" -> "err", "SomeId" -> "012345")
@@ -53,10 +53,10 @@ class LogEntryParserTest extends mutable.Specification {
 
   "If the `LogEntryParser` gets" >> {
     "correct string, it must return Either.Right with Row" >> {
-      logEntryParser.parse(testLogEntry) must beRight(testLogRow)
+      logEntryParser.parse(logEntry) must beRight(logRow)
     }
     "incorrect string, it must return Either.Left with ParserError" >> {
-      logEntryParser.parse(wrongQueryStringDataTypeTLE)
+      logEntryParser.parse(wrongDataTypeString)
         .left.get.errorType must_== ParserError
     }
   }

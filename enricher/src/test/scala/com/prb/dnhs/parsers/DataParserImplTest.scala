@@ -1,72 +1,79 @@
 package com.prb.dnhs.parsers
 
-import com.prb.dnhs.constants.TestSparkSession
-import com.prb.dnhs.entities.{LogEntry, SerializableContainer}
-import com.prb.dnhs.exceptions.ErrorType.ParserError
+import com.prb.dnhs.entities.{LogEntry, SchemaRepositoryImpl, SchemaRepositorу}
 import com.prb.dnhs.exceptions._
-import org.apache.spark.rdd.RDD
+import com.prb.dnhs.validators.{NonEmptinessValidator, QueryStringValidator}
 import org.apache.spark.sql.Row
-import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
 import org.specs2.mutable
 
-class DataParserImplTest extends mutable.Specification
-  with TestSparkSession
-  with MockitoSugar {
+class DataParserImplTest extends mutable.Specification {
 
   ///////////////////////////////////////////////////////////////////////////
   // Test values
   ///////////////////////////////////////////////////////////////////////////
 
-  private def validRddLogString: RDD[String] =
-    sparkSession.sparkContext.parallelize(Seq("test"))
+  private val logString =
+    s"01/Jan/2000:00:00:01\tclk\t01234567890123456789012345678901\t001" +
+      s"\t127.0.0.1\t127.0.0.1\tMozilla/5.0 (Windows NT 10.0; Win64; x64)" +
+      s"\tAdId=100&SomeId=012345"
 
-  private def invalidRddLogString: RDD[String] =
-    sparkSession.sparkContext.parallelize(Seq(""))
+  private val logEntry =
+    LogEntry("01/Jan/2000:00:00:01", "clk", "01234567890123456789012345678901", "001",
+      "127.0.0.1", "127.0.0.1", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+      Map("AdId" -> "100", "SomeId" -> "012345")
+    )
+
+  private val logRow =
+    Row("01/Jan/2000:00:00:01", "clk", "01234567890123456789012345678901", "001",
+      "127.0.0.1", "127.0.0.1", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+      null, 100, "012345"
+    )
 
   ///////////////////////////////////////////////////////////////////////////
   // An objects of the test classes
   ///////////////////////////////////////////////////////////////////////////
 
-  private val dataParserImpl = mock[DataParserImpl](withSettings.serializable)
+  private val schemasImpl: SchemaRepositorу = new SchemaRepositoryImpl()
 
-  when(dataParserImpl.parse(""))
-    .thenReturn(Left(ErrorDetails(1, ParserError, "Log-string is empty!", "")))
+  private val queryStringValidatorImpl = new QueryStringValidator()
 
-  when(dataParserImpl.parse("test"))
-    .thenReturn(Seq(Right(Row("test"))).head)
+  private val nonEmptinessValidatorImpl = new NonEmptinessValidator()
 
-  private val testParserContainer =
-    mock[SerializableContainer[DataParser[String, Either[ErrorDetails, Row]]]](withSettings.serializable)
+  private val rddStringParserImpl
+  : DataParser[String, Either[ErrorDetails, LogEntry]] =
+    new RddStringParser() {
 
-  when(testParserContainer.value)
-    .thenReturn(dataParserImpl)
+      lazy val nonEmptinessValidator = nonEmptinessValidatorImpl
+    }
 
-  def parse(logRDD: RDD[String]): RDD[Either[ErrorDetails, Row]] = {
+  private val logEntryParserImpl
+  : DataParser[LogEntry, Either[ErrorDetails, Row]] =
+    new LogEntryParser() {
 
-    val _parser = testParserContainer
+      lazy val schemas = schemasImpl
+      lazy val queryStringValidator = queryStringValidatorImpl
+    }
 
-    // get all parsed rows, including rows with errors
-    logRDD.map(_parser.value.parse)
-  }
+  private val dataParserImpl
+  : DataParser[String, Either[ErrorDetails, Row]] =
+    new DataParserImpl() {
+
+      lazy val rddStringParser = rddStringParserImpl
+      lazy val logEntryParser = logEntryParserImpl
+    }
 
   ///////////////////////////////////////////////////////////////////////////
   // Test body
   ///////////////////////////////////////////////////////////////////////////
 
-  private def parsedLogString: RDD[Either[ErrorDetails, Row]] = parse(validRddLogString)
-
-  private def invalidParsedLogString: RDD[Either[ErrorDetails, Row]] = parse(invalidRddLogString)
-
   "If the parser has completed successfully, and rows is valid then" >> {
-    "result seq must be equal to `validLogRowSeq`" >> {
-      parsedLogString.collect() must_== Seq(Right(Row("test"))).toArray
+    "result Row must be equal to `logRow`" >> {
+      dataParserImpl.parse(logString) must beRight(logRow)
     }
   }
   "If the parser has completed successfully, and rows is invalid then" >> {
-    "result seq must be equal to `invalidLogRowSeq`" >> {
-      invalidParsedLogString.collect
-        .must_==(Seq(Left(ErrorDetails(1, ParserError, "Log-string is empty!", ""))).toArray)
+    "result exception message must be equal to `empty` excemtion" >> {
+      dataParserImpl.parse("").left.get.errorMessage must_== "Log-string is empty!"
     }
   }
 }

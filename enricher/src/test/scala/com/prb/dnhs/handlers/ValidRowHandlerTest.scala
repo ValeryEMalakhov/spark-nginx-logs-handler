@@ -22,9 +22,6 @@ class ValidRowHandlerTest extends mutable.Specification
       Left(ErrorDetails(errorType = ParserError, errorMessage = "testInvalid", line = ""))
     ))
 
-  private def testRddLogStringRes: RDD[Row] =
-    sparkSession.sparkContext.parallelize(Seq(Row("testValid")))
-
   ///////////////////////////////////////////////////////////////////////////
   // An objects of the test classes.
   ///////////////////////////////////////////////////////////////////////////
