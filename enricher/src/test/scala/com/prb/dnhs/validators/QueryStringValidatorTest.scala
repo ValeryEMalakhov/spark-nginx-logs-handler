@@ -12,19 +12,18 @@ class QueryStringValidatorTest extends mutable.Specification {
   // Test values
   ///////////////////////////////////////////////////////////////////////////
 
-  private val schema =
-    StructType(
-      StructField("dateTime", StringType, false) ::
-        StructField("eventType", StringType, false) ::
-        StructField("requesrId", StringType, false) ::
-        StructField("userCookie", StringType, false) ::
-        StructField("site", StringType, false) ::
-        StructField("ipAddress", StringType, false) ::
-        StructField("useragent", StringType, false) ::
-        StructField("AdId", IntegerType, true) ::
-        StructField("SomeId", StringType, true) ::
-        Nil
-    )
+  private val schema = StructType(
+    StructField("dateTime",   StringType, false) ::
+    StructField("eventType",  StringType, false) ::
+    StructField("requesrId",  StringType, false) ::
+    StructField("userCookie", StringType, false) ::
+    StructField("site",       StringType, false) ::
+    StructField("ipAddress",  StringType, false) ::
+    StructField("useragent",  StringType, false) ::
+    StructField("AdId",       IntegerType, true) ::
+    StructField("SomeId",     StringType, true) ::
+    Nil
+  )
 
   private val testLogEntry =
     LogEntry("01/Jan/2000:00:00:01", "clk", "01234567890123456789012345678901", "001",

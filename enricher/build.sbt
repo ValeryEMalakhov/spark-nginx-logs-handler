@@ -4,19 +4,21 @@ import sbt.Keys._
 lazy val enricher = project.in(file("."))
   .settings(
     name := "LogsEnricher",
-    version := "1.0.0.f3",
+    version := "1.0.0.f4",
     scalaVersion := "2.11.11"
   )
   .settings(
     mainClass in(Compile, run) := Some("com.prb.dnhs.MainApp"),
-    fullClasspath in Runtime := (fullClasspath in Compile).value
+    fullClasspath in Runtime := (fullClasspath in Compile).value,
+    exportJars := true,
+    fork := true
   )
   .settings(
     libraryDependencies ++=
       spark ++
       sTest ++
       Seq(
-        scalazStream
+          scalazStream
         , scalazCore
         , parquetColumn
         , configType

@@ -27,11 +27,13 @@ class SchemaRepositoryImplTest extends mutable.Specification {
 
   "When an application requests" >> {
     "specific event scheme, SchemaRepository must get and return StructType with that schema" >> {
-      schemaRepository.getSchema(testLogEntry.eventType)
+      schemaRepository
+        .getSchema(testLogEntry.eventType)
         .must(beSome(schemaRepository.testSchemas(testLogEntry.eventType + ".parquet")))
     }
     "generic event schema, SchemaRepository must build and return StructType with generic schema" >> {
-      schemaRepository.getSchema(schemaRepository.GENERIC_EVENT)
+      schemaRepository
+        .getSchema(schemaRepository.GENERIC_EVENT)
         .must(beSome(schemaRepository.genericSchema))
     }
     "wrong event schema, SchemaRepository must return `None`" >> {
@@ -44,49 +46,53 @@ class SchemaRepositoryTestImpl extends SchemaRepositoryImpl {
 
   lazy val testSchemas: Map[String, StructType] = Map(
     "rt.parquet" -> StructType(
-      StructField("dateTime", StringType, false) ::
-        StructField("eventType", StringType, false) ::
-        StructField("requesrId", StringType, false) ::
-        StructField("userCookie", StringType, false) ::
-        StructField("site", StringType, false) ::
-        StructField("ipAddress", StringType, false) ::
-        StructField("useragent", StringType, false) ::
-        StructField("segments", ArrayType(StringType, false), false) :: Nil
+      StructField("dateTime",   StringType, false) ::
+      StructField("eventType",  StringType, false) ::
+      StructField("requesrId",  StringType, false) ::
+      StructField("userCookie", StringType, false) ::
+      StructField("site",       StringType, false) ::
+      StructField("ipAddress",  StringType, false) ::
+      StructField("useragent",  StringType, false) ::
+      StructField("segments",   ArrayType(StringType, false), false) ::
+      Nil
     ),
     "impr.parquet" -> StructType(
-      StructField("dateTime", StringType, false) ::
-        StructField("eventType", StringType, false) ::
-        StructField("requesrId", StringType, false) ::
-        StructField("userCookie", StringType, false) ::
-        StructField("site", StringType, false) ::
-        StructField("ipAddress", StringType, false) ::
-        StructField("useragent", StringType, false) ::
-        StructField("AdId", IntegerType, true) :: Nil
+      StructField("dateTime",   StringType, false) ::
+      StructField("eventType",  StringType, false) ::
+      StructField("requesrId",  StringType, false) ::
+      StructField("userCookie", StringType, false) ::
+      StructField("site",       StringType, false) ::
+      StructField("ipAddress",  StringType, false) ::
+      StructField("useragent",  StringType, false) ::
+      StructField("AdId",       IntegerType, true) ::
+      Nil
     ),
     "clk.parquet" -> StructType(
-      StructField("dateTime", StringType, false) ::
-        StructField("eventType", StringType, false) ::
-        StructField("requesrId", StringType, false) ::
-        StructField("userCookie", StringType, false) ::
-        StructField("site", StringType, false) ::
-        StructField("ipAddress", StringType, false) ::
-        StructField("useragent", StringType, false) ::
-        StructField("AdId", IntegerType, true) ::
-        StructField("SomeId", StringType, true) :: Nil
+      StructField("dateTime",   StringType, false) ::
+      StructField("eventType",  StringType, false) ::
+      StructField("requesrId",  StringType, false) ::
+      StructField("userCookie", StringType, false) ::
+      StructField("site",       StringType, false) ::
+      StructField("ipAddress",  StringType, false) ::
+      StructField("useragent",  StringType, false) ::
+      StructField("AdId",       IntegerType, true) ::
+      StructField("SomeId",     StringType, true) ::
+      Nil
     )
   )
 
   lazy val genericSchema = StructType(
-    StructField("dateTime", StringType, false) ::
-      StructField("eventType", StringType, false) ::
-      StructField("requesrId", StringType, false) ::
-      StructField("userCookie", StringType, false) ::
-      StructField("site", StringType, false) ::
-      StructField("ipAddress", StringType, false) ::
-      StructField("useragent", StringType, false) ::
-      StructField("segments", ArrayType(StringType, false), false) ::
-      StructField("AdId", IntegerType, true) ::
-      StructField("SomeId", StringType, true) :: Nil
+    StructField("dateTime",   StringType, false) ::
+    StructField("eventType",  StringType, false) ::
+    StructField("requesrId",  StringType, false) ::
+    StructField("userCookie", StringType, false) ::
+    StructField("site",       StringType, false) ::
+    StructField("ipAddress",  StringType, false) ::
+    StructField("useragent",  StringType, false) ::
+    StructField("segments",   ArrayType(StringType, false), false) ::
+    StructField("AdId",       IntegerType, true) ::
+    StructField("SomeId",     StringType, true) ::
+    Nil
   )
 
   override private[entities] def readParquetSchema(schemaName: String) = testSchemas(schemaName)
