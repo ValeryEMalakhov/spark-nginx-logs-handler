@@ -1,12 +1,15 @@
 package com.prb.dnhs.parsers
 
-import com.prb.dnhs.entities.{LogEntry, SchemaRepositoryImpl, SchemaRepositorу}
+import com.prb.dnhs.entities.LogEntry
+import com.prb.dnhs.exceptions.ErrorType.ParserError
 import com.prb.dnhs.exceptions._
-import com.prb.dnhs.validators.{NonEmptinessValidator, QueryStringValidator}
 import org.apache.spark.sql.Row
+import org.mockito.Mockito._
+import org.scalatest.mockito.MockitoSugar
 import org.specs2.mutable
 
-class DataParserImplTest extends mutable.Specification {
+class DataParserImplTest extends mutable.Specification
+  with MockitoSugar {
 
   ///////////////////////////////////////////////////////////////////////////
   // Test values
@@ -33,26 +36,18 @@ class DataParserImplTest extends mutable.Specification {
   // An objects of the test classes
   ///////////////////////////////////////////////////////////////////////////
 
-  private def schemasImpl: SchemaRepositorу = new SchemaRepositoryImpl()
+  private val rddStringParserImpl = mock[RddStringParser]
 
-  private def queryStringValidatorImpl = new QueryStringValidator()
+  when(rddStringParserImpl.parse(logString))
+    .thenReturn(Right(logEntry))
 
-  private def nonEmptinessValidatorImpl = new NonEmptinessValidator()
+  when(rddStringParserImpl.parse(""))
+    .thenReturn(Left(ErrorDetails(1, ParserError, "Log-string is empty!", "")))
 
-  private def rddStringParserImpl
-  : DataParser[String, Either[ErrorDetails, LogEntry]] =
-    new RddStringParser() {
+  private val logEntryParserImpl = mock[LogEntryParser]
 
-      lazy val nonEmptinessValidator = nonEmptinessValidatorImpl
-    }
-
-  private def logEntryParserImpl
-  : DataParser[LogEntry, Either[ErrorDetails, Row]] =
-    new LogEntryParser() {
-
-      lazy val schemas = schemasImpl
-      lazy val queryStringValidator = queryStringValidatorImpl
-    }
+  when(logEntryParserImpl.parse(logEntry))
+    .thenReturn(Right(logRow))
 
   private def dataParserImpl
   : DataParser[String, Either[ErrorDetails, Row]] =

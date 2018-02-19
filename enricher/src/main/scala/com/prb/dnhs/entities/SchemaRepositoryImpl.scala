@@ -5,9 +5,9 @@ import scala.io.Source
 import org.apache.parquet.schema.{MessageType, MessageTypeParser}
 import org.apache.spark.sql.execution.datasources.parquet.PublicParquetSchemaConverter
 import org.apache.spark.sql.types.StructType
-import SchemaRepositorу._
+import SchemaRepository._
 
-class SchemaRepositoryImpl extends SchemaRepositorу {
+class SchemaRepositoryImpl extends SchemaRepository {
 
   // the spark.sql private class instance that containing
   //  all the necessary methods for converting parquet schemes

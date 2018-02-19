@@ -10,18 +10,18 @@ abstract class SaveAbilityValidatorImpl extends Validator[Row, Either[ErrorDetai
   // val clearTable: Seq[Row]
   val userCookies: String
 
-  override def validate(row: Row): Either[ErrorDetails, Row] = {
+  override def validate(inputRow: Row): Either[ErrorDetails, Row] = {
 
     // if row with `rt`-event existed and have the same userCookie - save data
-    val rowUserCookie = row.getAs[String]("userCookie")
+    val rowUserCookie = inputRow.getAs[String]("userCookie")
 
     if (userCookies.contains(rowUserCookie))
-      Right(row)
+      Right(inputRow)
     else
       Left(ErrorDetails(
         errorType = OtherError,
-        errorMessage = s"Row ${row.getAs[String]("requestId")} can not be written now.",
-        line = row.mkString("\t"))
+        errorMessage = s"Row ${inputRow.getAs[String]("requestId")} can not be written now.",
+        line = inputRow.mkString("\t"))
       )
 
     // if table is empty (or not existed) we can save only `rt` events

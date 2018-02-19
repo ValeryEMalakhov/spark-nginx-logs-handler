@@ -8,9 +8,9 @@ import org.apache.spark.sql.Row
 
 abstract class MainHandler extends RowHandler[RDD[Either[ErrorDetails, Row]], RDD[Row]] {
 
+  val saveValidator: SerializableContainer[Validator[Row, Either[ErrorDetails, Row]]]
   val validRowHandler: RowHandler[RDD[Either[ErrorDetails, Row]], RDD[Row]]
   val invalidRowHandler: RowHandler[RDD[Either[ErrorDetails, Row]], Unit]
-  val saveValidator: SerializableContainer[Validator[Row, Either[ErrorDetails, Row]]]
 
   override def handle(
       data: RDD[Either[ErrorDetails, Row]],

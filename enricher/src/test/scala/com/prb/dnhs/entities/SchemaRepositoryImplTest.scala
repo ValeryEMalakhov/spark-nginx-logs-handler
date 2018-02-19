@@ -56,7 +56,7 @@ class SchemaRepositoryImplTest extends mutable.Specification {
     }
     "generic event schema, SchemaRepository must build and return StructType with generic schema" >> {
       schemaRepository
-        .getSchema(SchemaRepositorу.GENERIC_EVENT)
+        .getSchema(SchemaRepository.GENERIC_EVENT)
         .must(beSome(genericSchema))
     }
     "wrong event schema, SchemaRepository must return `None`" >> {

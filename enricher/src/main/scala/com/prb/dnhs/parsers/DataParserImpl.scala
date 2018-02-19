@@ -14,9 +14,9 @@ abstract class DataParserImpl
 
     for {
       // getting LogEntry (or one of exceptions) by parsing string
-      logEnitry <- rddStringParser.parse(inputLog).right
+      logEntry <- rddStringParser.parse(inputLog).right
       // getting Row (or one of exceptions) by parsing LogEntry
-      row <- logEntryParser.parse(logEnitry).right
+      row <- logEntryParser.parse(logEntry).right
     } yield row
   }
 }

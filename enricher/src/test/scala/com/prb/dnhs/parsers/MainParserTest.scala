@@ -21,7 +21,7 @@ class MainParserTest extends mutable.Specification
     mock[DataParserImpl](withSettings.serializable)
 
   when(dataParserImpl.parse("test"))
-    .thenReturn(Seq(Right(Row("test"))).head)
+    .thenReturn(Right(Row("test")))
 
   when(dataParserImpl.parse(""))
     .thenReturn(Left(ErrorDetails(1, ParserError, "Log-string is empty!", "")))

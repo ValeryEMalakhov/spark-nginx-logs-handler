@@ -4,9 +4,12 @@ import com.prb.dnhs.entities.LogEntry
 import com.prb.dnhs.exceptions.ErrorDetails
 import com.prb.dnhs.exceptions.ErrorType._
 import com.prb.dnhs.validators.{NonEmptinessValidator, Validator}
+import org.mockito.Mockito._
+import org.scalatest.mockito.MockitoSugar
 import org.specs2._
 
-class RddStringParserTest extends mutable.Specification {
+class RddStringParserTest extends mutable.Specification
+  with MockitoSugar {
 
   ///////////////////////////////////////////////////////////////////////////
   // Test values
@@ -32,7 +35,16 @@ class RddStringParserTest extends mutable.Specification {
   // An objects of the test classes
   ///////////////////////////////////////////////////////////////////////////
 
-  private def nonEmptinessValidatorImpl = new NonEmptinessValidator()
+  private val nonEmptinessValidatorImpl = mock[NonEmptinessValidator]
+
+  when(nonEmptinessValidatorImpl.validate(logString))
+    .thenReturn(Right(logString))
+
+  when(nonEmptinessValidatorImpl.validate(emptyGeneralFieldString))
+    .thenReturn(Right(emptyGeneralFieldString))
+
+  when(nonEmptinessValidatorImpl.validate(""))
+    .thenReturn(Left(ErrorDetails(1, ParserError, "Log-string is empty!", "")))
 
   private def rddStringParser
   : DataParser[String, Either[ErrorDetails, LogEntry]] =

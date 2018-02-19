@@ -2,12 +2,12 @@ package com.prb.dnhs.entities
 
 import org.apache.spark.sql.types.StructType
 
-trait SchemaRepositorу {
+trait SchemaRepository {
 
   def getSchema(schemaName: String): Option[StructType]
 }
 
-object SchemaRepositorу {
+object SchemaRepository {
 
   val GENERIC_EVENT = "generic-event"
 

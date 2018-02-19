@@ -4,7 +4,7 @@ import scala.language.implicitConversions
 import scala.util.control.NonFatal
 
 import com.prb.dnhs.entities._
-import com.prb.dnhs.entities.SchemaRepositorу._
+import com.prb.dnhs.entities.SchemaRepository._
 import com.prb.dnhs.exceptions.ErrorType._
 import com.prb.dnhs.exceptions._
 import com.prb.dnhs.helpers.LoggerHelper
@@ -17,7 +17,7 @@ abstract class LogEntryParser
   extends DataParser[LogEntry, Either[ErrorDetails, Row]]
     with LoggerHelper {
 
-  val schemas: SchemaRepositorу
+  val schemas: SchemaRepository
   val queryStringValidator: QueryStringValidator
 
   val TAB = "\t"

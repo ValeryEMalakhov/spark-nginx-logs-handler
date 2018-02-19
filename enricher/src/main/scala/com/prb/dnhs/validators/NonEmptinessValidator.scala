@@ -5,14 +5,14 @@ import com.prb.dnhs.exceptions.ErrorType.ParserError
 
 class NonEmptinessValidator extends Validator[String, Either[ErrorDetails, String]] {
 
-  override def validate(row: String) = {
+  override def validate(inputLog: String) = {
     Either.cond(
-      row != "" && row.nonEmpty,
-      row,
+      inputLog != "" && inputLog.nonEmpty,
+      inputLog,
       ErrorDetails(
         errorType = ParserError,
         errorMessage = s"Log-string is empty!",
-        line = row
+        line = inputLog
       )
     )
   }
