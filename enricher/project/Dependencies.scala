@@ -13,6 +13,7 @@ object V {
   lazy val scoptVersion         = "3.7.0"
   lazy val slf4jVersion         = "3.7.2"
   lazy val catsVersion          = "1.0.1"
+  //  Tests  //
   lazy val specs2Version        = "4.0.2"
   lazy val scalatestVersion     = "3.0.5"
 }

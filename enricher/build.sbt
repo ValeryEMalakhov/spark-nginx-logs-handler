@@ -2,6 +2,7 @@ import Dependencies._
 import sbt.Keys._
 
 lazy val enricher = project.in(file("."))
+  .enablePlugins(Nexus)
   .settings(
     name := "LogsEnricher",
     version := "1.0.0.f4",
