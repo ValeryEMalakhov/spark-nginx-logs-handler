@@ -13,6 +13,8 @@ import com.prb.dnhs.processor.Processor
 import com.prb.dnhs.readers._
 import com.prb.dnhs.recorders._
 import com.prb.dnhs.validators._
+import org.apache.hadoop.conf.Configuration
+import org.apache.hadoop.fs.FileSystem
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
 
@@ -33,13 +35,19 @@ object DriverContext extends ConfigHelper with LoggerHelper {
     config.getString("hdfs.node") + config.getString("hdfs.files")
 
   // SparkSession for Spark 2.*.*
-  lazy val dcSparkSession = SparkSession
+  private lazy val dcSparkSession = SparkSession
     .builder()
     .appName(config.getString("app.name"))
     .master(config.getString("spark.master"))
     .config("spark.sql.warehouse.dir", warehouseLocation)
     .enableHiveSupport()
     .getOrCreate()
+
+  private lazy val dcHadoopConf = new Configuration()
+  dcHadoopConf.set("fs.defaultFS", config.getString("hdfs.node"))
+  dcHadoopConf.set("hadoop.job.ugi", config.getString("hdfs.user"))
+
+  private lazy val dcFS = FileSystem.get(dcHadoopConf)
 
   ///////////////////////////////////////////////////////////////////////////
   // Parsers
@@ -169,6 +177,7 @@ object DriverContext extends ConfigHelper with LoggerHelper {
 
   // scopt object for app coordination
   val processor = new Processor() {
+    val log = logger
     val gzReader = dcArchiveReader
     val parser = mainParser
     val handler = dcMainHandler
