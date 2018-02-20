@@ -13,7 +13,7 @@ import org.apache.spark.sql.Row
   */
 object ExecutorContext extends ConfigHelper {
 
-  private val schemasImpl: SchemaRepositorу = new SchemaRepositoryImpl()
+  private val schemasImpl: SchemaRepository = new SchemaRepositoryImpl()
 
   private val queryStringValidatorImpl = new QueryStringValidator()
 

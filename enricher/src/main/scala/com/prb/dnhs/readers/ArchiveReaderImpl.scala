@@ -5,7 +5,7 @@ import org.apache.spark.sql.SparkSession
 
 abstract class ArchiveReaderImpl extends DataReader[RDD[String]] {
 
-  val spark: SparkSession
+  val sparkSession: SparkSession
   val defInputPath: String
 
   /**
@@ -13,7 +13,7 @@ abstract class ArchiveReaderImpl extends DataReader[RDD[String]] {
     * from the directory specified in the command-line arguments.
     */
   override def read(inputDir: String): RDD[String] = {
-    spark
+    sparkSession
       .sparkContext
       .textFile {
         if (inputDir == "") s"$defInputPath/READY/*.gz"

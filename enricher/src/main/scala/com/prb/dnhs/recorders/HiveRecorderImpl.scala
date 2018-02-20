@@ -7,14 +7,14 @@ import org.apache.spark.sql.{Row, SparkSession}
 
 abstract class HiveRecorderImpl extends DataRecorder[RDD[Row]] {
 
-  val spark: SparkSession
-  val tableName: String
-  val schema: StructType
+  val sparkSession: SparkSession
+  val hiveTableName: String
+  val dataFrameGenericSchema: StructType
   val batchId: Long
 
   override def save(logRow: RDD[Row], path: String): Unit = {
 
-    val logDF = spark.createDataFrame(logRow, schema)
+    val logDF = sparkSession.createDataFrame(logRow, dataFrameGenericSchema)
 
     createTableIfNotExists()
 
@@ -26,23 +26,23 @@ abstract class HiveRecorderImpl extends DataRecorder[RDD[Row]] {
       .withColumn("batchId", lit(batchId))
       .write
       .format("parquet")
-      .insertInto(tableName)
+      .insertInto(hiveTableName)
   }
 
   // will be commented out, if there is no need to create a table
   private def createTableIfNotExists(): Unit = {
-    if (!spark.catalog.tableExists(tableName)) {
+    if (!sparkSession.catalog.tableExists(hiveTableName)) {
       // create new table if not exists
-      spark
+      sparkSession
         .createDataFrame(
-          spark.sparkContext.emptyRDD[Row],
-          schema
+          sparkSession.sparkContext.emptyRDD[Row],
+          dataFrameGenericSchema
         )
         .withColumn("batchId", lit(batchId))
         .write
         .format("parquet")
         .partitionBy("batchId")
-        .saveAsTable(tableName)
+        .saveAsTable(hiveTableName)
     }
   }
 }

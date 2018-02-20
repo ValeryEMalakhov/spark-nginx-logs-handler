@@ -30,7 +30,7 @@ abstract class Processor {
     if (args.debug) log(validRow)
 
     // save valid rows with DB updating
-    hiveRecorder.save(validRow)
+    // hiveRecorder.save(validRow)
   }
 
   private def log[T](data: RDD[T]) = {

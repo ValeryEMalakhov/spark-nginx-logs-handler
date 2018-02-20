@@ -2,20 +2,12 @@ package com.prb.dnhs.entities
 
 import scala.io.Source
 
-import com.prb.dnhs.helpers.ConfigHelper
 import org.apache.parquet.schema.{MessageType, MessageTypeParser}
 import org.apache.spark.sql.execution.datasources.parquet.PublicParquetSchemaConverter
 import org.apache.spark.sql.types.StructType
+import SchemaRepository._
 
-class SchemaRepositoryImpl extends SchemaRepositorу with ConfigHelper {
-
-  val GENERIC_EVENT = config.getString("schemas.event.generic.name")
-
-  val DEFAULT_SCHEMAS = Map(
-    "rt" -> "rt.parquet",
-    "impr" -> "impr.parquet",
-    "clk" -> "clk.parquet"
-  )
+class SchemaRepositoryImpl extends SchemaRepository {
 
   // the spark.sql private class instance that containing
   //  all the necessary methods for converting parquet schemes
@@ -49,9 +41,9 @@ class SchemaRepositoryImpl extends SchemaRepositorу with ConfigHelper {
   private val schemas = {
 
     val pixelSchemas = readPixelSchemas()
-    val generic = getGenericEvent(pixelSchemas)
+    val genericSchema = getGenericEvent(pixelSchemas)
 
-    pixelSchemas ++ Map(GENERIC_EVENT -> generic)
+    pixelSchemas ++ Map(GENERIC_EVENT -> genericSchema)
   }
 }
 

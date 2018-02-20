@@ -20,16 +20,16 @@ abstract class RddStringParser
 
   val TAB = "\t"
 
-  override def parse(logRDD: String): Either[ErrorDetails, LogEntry] = {
+  override def parse(inputLog: String): Either[ErrorDetails, LogEntry] = {
 
     for {
-      notEmptyString <- nonEmptinessValidator.validate(logRDD).right
+      notEmptyString <- nonEmptinessValidator.validate(inputLog).right
       // breaks the inputDir string into tabs
-      parsedLog <- parseRddString(logRDD).right
+      parsedLog <- parseRddString(inputLog).right
       // if the mutable field does not contain a hyphen, parse it and store in a Map
       queryString <- buildSegmentsMap(parsedLog(7)).right
       // build `LogEntry` using parsed string
-      logEntry <- buildLogEntry(logRDD, parsedLog, queryString).right
+      logEntry <- buildLogEntry(inputLog, parsedLog, queryString).right
     } yield logEntry
   }
 
@@ -55,11 +55,11 @@ abstract class RddStringParser
     * Build a LogEntry object based on the parsed original log line,
     * if it does not contain a hyphen (the null equivalent in the logs)
     *
-    * @param logRDD      original log string
+    * @param inputLog    original log string
     * @param parsedLog   log string after parsing (by '\t')
     * @param queryString Map based on http query string (@args)
     */
-  private def buildLogEntry(logRDD: String, parsedLog: Seq[String], queryString: Map[String, String]) = {
+  private def buildLogEntry(inputLog: String, parsedLog: Seq[String], queryString: Map[String, String]) = {
 
     Either.cond(
       // if
@@ -68,7 +68,7 @@ abstract class RddStringParser
       LogEntry(parsedLog(0), parsedLog(1), parsedLog(2), parsedLog(3),
         parsedLog(4), parsedLog(5), parsedLog(6), queryString),
       // invalid
-      ErrorDetails(errorType = ParserError, errorMessage = "General field's value is empty", line = logRDD)
+      ErrorDetails(errorType = ParserError, errorMessage = "General field's value is empty", line = inputLog)
     )
   }
 }
