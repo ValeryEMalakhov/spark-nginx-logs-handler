@@ -33,7 +33,7 @@ object DriverContext extends ConfigHelper with LoggerHelper {
     config.getString("hdfs.node") + config.getString("hdfs.files")
 
   // SparkSession for Spark 2.*.*
-  private lazy val dcSparkSession = SparkSession
+  lazy val dcSparkSession = SparkSession
     .builder()
     .appName(config.getString("app.name"))
     .master(config.getString("spark.master"))

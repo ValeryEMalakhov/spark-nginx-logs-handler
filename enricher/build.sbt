@@ -20,6 +20,7 @@ lazy val enricher = project.in(file("."))
       Seq(
           scalazStream
         , scalazCore
+        , hadoopCommon
         , parquetColumn
         , configType
         , scopt
