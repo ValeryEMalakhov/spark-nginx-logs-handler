@@ -39,12 +39,12 @@ abstract class Processor {
     log.debug("The selection of successful results is over")
     if (args.debug) printData(validRow)
 
-    // log.debug("Record of results in the file system started")
-    // hiveRecorder.save(validRow, batchId)
-    // log.debug("Record of results in the file system is over")
+    log.debug("Record of results in the file system started")
+    hiveRecorder.save(validRow, batchId)
+    log.debug("Record of results in the file system is over")
 
-    // log.debug("End of processing - cleaning up the working folder")
-    // fsCleaner.handle()
+    log.debug("End of processing - cleaning up the working folder")
+    fsCleaner.handle()
   }
 
   private def printData[T](data: RDD[T]) = {
