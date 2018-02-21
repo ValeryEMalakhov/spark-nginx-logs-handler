@@ -4,5 +4,6 @@ trait RowHandler[T, O] {
 
   def handle(
       data: T,
+      batchId: String = "",
       outputDir: String = ""): O
 }

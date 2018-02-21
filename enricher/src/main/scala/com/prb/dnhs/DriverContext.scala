@@ -1,12 +1,12 @@
 package com.prb.dnhs
 
 import java.io.File
-import java.time.Instant
+import java.net.URI
 
-import com.prb.dnhs.entities._
 import com.prb.dnhs.entities.SchemaRepository._
+import com.prb.dnhs.entities._
 import com.prb.dnhs.exceptions._
-import com.prb.dnhs.handlers._
+import com.prb.dnhs.handlers.{FileSystemHandler, _}
 import com.prb.dnhs.helpers._
 import com.prb.dnhs.parsers._
 import com.prb.dnhs.processor.Processor
@@ -31,11 +31,11 @@ object DriverContext extends ConfigHelper with LoggerHelper {
   private val warehouseLocation = new File("sparkSession-warehouse").getAbsolutePath
 
   // default path to hdfs data folder
-  private val pathToFile =
-    config.getString("hdfs.node") + config.getString("hdfs.files")
+  private val pathToFiles =
+    s"${config.getString("hdfs.node")}/${config.getString("hdfs.files")}"
 
   // SparkSession for Spark 2.*.*
-  private lazy val dcSparkSession = SparkSession
+  private val dcSparkSession = SparkSession
     .builder()
     .appName(config.getString("app.name"))
     .master(config.getString("spark.master"))
@@ -43,11 +43,11 @@ object DriverContext extends ConfigHelper with LoggerHelper {
     .enableHiveSupport()
     .getOrCreate()
 
-  private lazy val dcHadoopConf = new Configuration()
-  dcHadoopConf.set("fs.defaultFS", config.getString("hdfs.node"))
-  dcHadoopConf.set("hadoop.job.ugi", config.getString("hdfs.user"))
-
-  private lazy val dcFS = FileSystem.get(dcHadoopConf)
+  private val dcFS = FileSystem.get(
+    new URI(config.getString("hdfs.node")),
+    new Configuration(),
+    config.getString("hdfs.user")
+  )
 
   ///////////////////////////////////////////////////////////////////////////
   // Parsers
@@ -77,15 +77,14 @@ object DriverContext extends ConfigHelper with LoggerHelper {
     new ArchiveReaderImpl() {
 
       lazy val sparkSession = dcSparkSession
-      lazy val defInputPath = pathToFile
+      lazy val defInputPath = s"$pathToFiles/READY"
     }
 
   ///////////////////////////////////////////////////////////////////////////
   // Data recorders
   ///////////////////////////////////////////////////////////////////////////
 
-  //TODO: change on MAX log row ID
-  private lazy val globalBatchId = Instant.now.toEpochMilli
+  // private lazy val globalBatchId = Instant.now.toEpochMilli
 
   // a recorder for storing the processed data and adding it to the database
   private val dcHiveRecorder
@@ -95,7 +94,6 @@ object DriverContext extends ConfigHelper with LoggerHelper {
       lazy val sparkSession = dcSparkSession
       lazy val hiveTableName = config.getString("app.name")
       lazy val dataFrameGenericSchema = dcSchemaRepos.getSchema(GENERIC_EVENT).get
-      lazy val batchId = globalBatchId
     }
 
   // a recorder for storing the invalid data
@@ -103,8 +101,7 @@ object DriverContext extends ConfigHelper with LoggerHelper {
   : DataRecorder[RDD[String]] =
     new FileRecorderImpl() {
 
-      lazy val fileSaveDirPath = pathToFile + "DEFAULT/"
-      lazy val batchId = globalBatchId
+      lazy val fileSaveDirPath = pathToFiles + "/DEFAULT"
     }
 
   ///////////////////////////////////////////////////////////////////////////
@@ -130,6 +127,24 @@ object DriverContext extends ConfigHelper with LoggerHelper {
 
       lazy val validRowHandler = dcValidRowHandler
       lazy val invalidRowHandler = dcInvalidRowHandler
+    }
+
+  private val dcWorkingFolderHandler
+  : FileSystemHandler[String] =
+    new WorkingFolderHandlerImpl() {
+
+      lazy val log = logger
+      lazy val fs = dcFS
+      lazy val mainPath = s"$pathToFiles/READY"
+    }
+
+  private val dcFileSystemCleaner
+  : FileSystemHandler[Unit] =
+    new FileSystemCleanerImpl() {
+
+      lazy val log = logger
+      lazy val fs = dcFS
+      lazy val mainPath = s"$pathToFiles/READY"
     }
 
   ///////////////////////////////////////////////////////////////////////////
@@ -178,10 +193,12 @@ object DriverContext extends ConfigHelper with LoggerHelper {
   // scopt object for app coordination
   val processor = new Processor() {
     val log = logger
+    val fsHandler = dcWorkingFolderHandler
     val gzReader = dcArchiveReader
     val parser = mainParser
     val handler = dcMainHandler
     val hiveRecorder = dcHiveRecorder
+    val fsCleaner = dcFileSystemCleaner
   }
 
   ///////////////////////////////////////////////////////////////////////////

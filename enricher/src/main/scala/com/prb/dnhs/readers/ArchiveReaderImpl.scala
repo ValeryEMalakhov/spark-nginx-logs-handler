@@ -16,7 +16,7 @@ abstract class ArchiveReaderImpl extends DataReader[RDD[String]] {
     sparkSession
       .sparkContext
       .textFile {
-        if (inputDir == "") s"$defInputPath/READY/*.gz"
+        if (inputDir == "") s"$defInputPath/processing/*.gz"
         else s"$inputDir/*.gz"
       }
 }

@@ -5,7 +5,7 @@ import sbt._
 object V {
   lazy val sparkVersion         = "2.2.0"
   lazy val hiveVersion          = "2.3.2"
-  lazy val hadoopVersion        = "3.0.0"
+  lazy val hadoopVersion        = "2.9.0"
   lazy val parquetVersion       = "1.9.0"
   lazy val scalazStreamVersion  = "0.8.6"
   lazy val scalazCoreVersion    = "7.2.18"
@@ -31,7 +31,15 @@ object Dependencies {
     , sparkHive
   )
 
-  lazy val hadoopCommon  = "org.apache.hadoop" % "hadoop-common"   % V.hadoopVersion
+  lazy val hadoopCommon  = "org.apache.hadoop" % "hadoop-common"    % V.hadoopVersion
+  lazy val hadoopClient  = "org.apache.hadoop" % "hadoop-client"    % V.hadoopVersion
+  lazy val hadoopHdfs    = "org.apache.hadoop" % "hadoop-hdfs"      % V.hadoopVersion
+
+  lazy val hadoop = Seq(
+      hadoopCommon
+    , hadoopClient
+    , hadoopHdfs
+  )
 
   lazy val parquetColumn = "org.apache.parquet" % "parquet-column" % V.parquetVersion
 

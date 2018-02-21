@@ -17,11 +17,11 @@ lazy val enricher = project.in(file("."))
   .settings(
     libraryDependencies ++=
       spark ++
+      hadoop ++
       sTest ++
       Seq(
           scalazStream
         , scalazCore
-        , hadoopCommon
         , parquetColumn
         , configType
         , scopt

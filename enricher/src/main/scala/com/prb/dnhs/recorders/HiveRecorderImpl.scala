@@ -10,13 +10,12 @@ abstract class HiveRecorderImpl extends DataRecorder[RDD[Row]] {
   val sparkSession: SparkSession
   val hiveTableName: String
   val dataFrameGenericSchema: StructType
-  val batchId: Long
 
-  override def save(logRow: RDD[Row], path: String): Unit = {
+  override def save(logRow: RDD[Row], batchId: String, path: String): Unit = {
 
     val logDF = sparkSession.createDataFrame(logRow, dataFrameGenericSchema)
 
-    createTableIfNotExists()
+    createTableIfNotExists(batchId)
 
     /**
       * The way in which a column with the value of the current PARTITION is added to the data first,
@@ -30,7 +29,7 @@ abstract class HiveRecorderImpl extends DataRecorder[RDD[Row]] {
   }
 
   // will be commented out, if there is no need to create a table
-  private def createTableIfNotExists(): Unit = {
+  private def createTableIfNotExists(batchId: String): Unit = {
     if (!sparkSession.catalog.tableExists(hiveTableName)) {
       // create new table if not exists
       sparkSession
