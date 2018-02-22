@@ -6,6 +6,7 @@ lazy val enricher = project.in(file("."))
   .settings(
     name := "LogsEnricher",
     version := "1.0.0.f4",
+    autoScalaLibrary := false,
     scalaVersion := "2.11.11"
   )
   .settings(
