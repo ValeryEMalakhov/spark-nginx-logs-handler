@@ -21,29 +21,29 @@ abstract class Processor {
 
   def process(args: ProcessorConfig): Unit = {
 
-    log.debug("Preliminary check of working folder")
+    log.info("Preliminary check of working folder")
     val batchId = fsHandler.handle()
 
-    log.debug("Reading of log-files from the file system started")
+    log.info("Reading of log-files from the file system started")
     val logRDD = gzReader.read(args.inputDir)
-    log.debug("Reading of log-files from the file system is over")
+    log.info("Reading of log-files from the file system is over")
     if (args.debug) printData(logRDD)
 
-    log.debug("Parsing of log files started")
+    log.info("Parsing of log files started")
     val logRow = parser.parse(logRDD)
-    log.debug("Parsing of log files is over")
+    log.info("Parsing of log files is over")
     if (args.debug) printData(logRow)
 
-    log.debug("The selection of successful results started")
+    log.info("The selection of successful results started")
     val validRow = handler.handle(logRow, batchId, args.outputDir)
-    log.debug("The selection of successful results is over")
+    log.info("The selection of successful results is over")
     if (args.debug) printData(validRow)
 
-    log.debug("Record of results in the file system started")
+    log.info("Record of results in the file system started")
     hiveRecorder.save(validRow, batchId)
-    log.debug("Record of results in the file system is over")
+    log.info("Record of results in the file system is over")
 
-    log.debug("End of processing - cleaning up the working folder")
+    log.info("End of processing - cleaning up the working folder")
     fsCleaner.handle()
   }
 

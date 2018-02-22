@@ -18,7 +18,7 @@ object Nexus extends AutoPlugin {
       "Nexus" at s"$nexusUrl/$nexusPublishRepo"
     ),
     credentials += creds,
-    publishTo in ThisBuild := {
+    publishTo := {
       if (isSnapshot.value)
         Some("maven-snapshots" at s"$nexusUrl/content/repositories/snapshots")
       else

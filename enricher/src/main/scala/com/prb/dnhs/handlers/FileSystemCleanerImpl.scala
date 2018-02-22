@@ -14,7 +14,7 @@ abstract class FileSystemCleanerImpl extends FileSystemHandler[Unit] {
     val procPath = new Path(s"$mainPath/processing")
 
     if (fs.exists(procPath)) {
-      log.debug("Clean up the working folder")
+      log.info("Clean up the working folder")
       fs.delete(procPath, true)
     } else {
       log.error("Missing working folder!")

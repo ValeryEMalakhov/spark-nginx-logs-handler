@@ -13,11 +13,18 @@ lazy val enricher = project.in(file("."))
     artifactName in (Compile, packageBin) := { (sv: ScalaVersion, module: ModuleID, artifact: Artifact) =>
       s"${artifact.name}.${artifact.extension}"
     },
-    fullClasspath in Runtime := (fullClasspath in Compile).value,
-    exportJars := true,
-    fork := true
+    fullClasspath in Runtime := (fullClasspath in Compile).value
   )
   .settings(
+    exportJars := true,
+    fork := true,
+    artifactName in Test := { (sv: ScalaVersion, module: ModuleID, artifact: Artifact) =>
+      s"${artifact.name}-tests.${artifact.extension}"
+    }
+  )
+  .settings(
+    dependencyOverrides ++=
+      json,
     libraryDependencies ++=
       spark ++
       hadoop ++
