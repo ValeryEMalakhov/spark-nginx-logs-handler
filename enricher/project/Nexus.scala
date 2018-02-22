@@ -17,7 +17,7 @@ object Nexus extends AutoPlugin {
       Resolver.mavenLocal,
       "Nexus" at s"$nexusUrl/$nexusPublishRepo"
     ),
-    credentials += creds.,
+    credentials += creds,
     publishTo := {
       if (isSnapshot.value)
         Some("maven-snapshots" at s"$nexusUrl/content/repositories/snapshots")
