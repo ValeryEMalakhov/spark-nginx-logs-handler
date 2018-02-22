@@ -10,6 +10,9 @@ lazy val enricher = project.in(file("."))
   )
   .settings(
     mainClass in(Compile, run) := Some("com.prb.dnhs.MainApp"),
+    artifactName in (Compile, packageBin) := { (sv: ScalaVersion, module: ModuleID, artifact: Artifact) =>
+      s"${artifact.name}.${artifact.extension}"
+    },
     fullClasspath in Runtime := (fullClasspath in Compile).value,
     exportJars := true,
     fork := true
