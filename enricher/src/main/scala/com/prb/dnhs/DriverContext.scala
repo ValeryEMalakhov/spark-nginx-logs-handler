@@ -35,7 +35,7 @@ object DriverContext extends ConfigHelper with LoggerHelper {
     s"${config.getString("hdfs.node")}/${config.getString("hdfs.files")}"
 
   // SparkSession for Spark 2.*.*
-  private val dcSparkSession = SparkSession
+  private lazy val dcSparkSession = SparkSession
     .builder()
     .appName(config.getString("app.name"))
     .master(config.getString("spark.master"))
@@ -43,7 +43,7 @@ object DriverContext extends ConfigHelper with LoggerHelper {
     .enableHiveSupport()
     .getOrCreate()
 
-  private val dcFS = FileSystem.get(
+  private lazy val dcFS = FileSystem.get(
     new URI(config.getString("hdfs.node")),
     new Configuration(),
     config.getString("hdfs.user")
