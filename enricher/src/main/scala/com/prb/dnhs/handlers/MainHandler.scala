@@ -14,7 +14,6 @@ abstract class MainHandler extends RowHandler[RDD[Either[ErrorDetails, Row]], RD
 
   override def handle(
       data: RDD[Either[ErrorDetails, Row]],
-      batchId: String,
       outputDir: String): RDD[Row] = {
 
     val _saveValidator = saveValidator
@@ -26,7 +25,7 @@ abstract class MainHandler extends RowHandler[RDD[Either[ErrorDetails, Row]], RD
     }
 
     // handle all invalid rows
-    // val invalidRows = invalidRowHandler.handle(logRow, batchId, outputDir)
+    // val invalidRows = invalidRowHandler.handle(logRow, outputDir)
 
     // get only valid rows, which ready for recording
     validRowHandler.handle(logRow)

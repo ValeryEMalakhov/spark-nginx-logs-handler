@@ -14,7 +14,6 @@ abstract class InvalidRowHandler extends RowHandler[RDD[Either[ErrorDetails, Row
 
   override def handle(
       data: RDD[Either[ErrorDetails, Row]],
-      batchId: String,
       outputDir: String): Unit = {
 
     // get only invalid rows
@@ -27,9 +26,9 @@ abstract class InvalidRowHandler extends RowHandler[RDD[Either[ErrorDetails, Row
     val logRowRepeatable = reparsableLogRowSeparator(data)
 
     // save invalid rows
-    saveInvalidRows(logRowDefective, batchId, outputDir, "DEFECTIVE")
+    saveInvalidRows(logRowDefective, outputDir, "DEFECTIVE")
 
-    saveInvalidRows(logRowRepeatable, batchId, outputDir, "REPARSE")
+    saveInvalidRows(logRowRepeatable, outputDir, "REPARSE")
   }
 
   private def reparsableLogRowSeparator(
@@ -47,10 +46,9 @@ abstract class InvalidRowHandler extends RowHandler[RDD[Either[ErrorDetails, Row
 
   private def saveInvalidRows(
       logRow: RDD[String],
-      batchId: String,
       outputDir: String,
       pathSpecification: String): Unit = {
 
-    fileRecorder.save(logRow, batchId, s"$outputDir/$pathSpecification")
+    fileRecorder.save(logRow, s"$outputDir/$pathSpecification")
   }
 }

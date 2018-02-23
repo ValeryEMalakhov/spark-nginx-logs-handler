@@ -7,6 +7,7 @@ abstract class ArchiveReaderImpl extends DataReader[RDD[String]] {
 
   val sparkSession: SparkSession
   val defInputPath: String
+  val batchId: String
 
   /**
     * Get the data from the default directory or, if exists,
@@ -16,7 +17,7 @@ abstract class ArchiveReaderImpl extends DataReader[RDD[String]] {
     sparkSession
       .sparkContext
       .textFile {
-        if (inputDir == "") s"$defInputPath/processing/*.gz"
+        if (inputDir == "") s"$defInputPath/processing/$batchId/*.gz"
         else s"$inputDir/*.gz"
       }
 }

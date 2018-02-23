@@ -8,7 +8,6 @@ class ValidRowHandler extends RowHandler[RDD[Either[ErrorDetails, Row]], RDD[Row
 
   override def handle(
       data: RDD[Either[ErrorDetails, Row]],
-      batchId: String,
       outputDir: String): RDD[Row] = {
 
     data.filter(_.isRight).map(_.right.getOrElse(throw new RuntimeException("500")))

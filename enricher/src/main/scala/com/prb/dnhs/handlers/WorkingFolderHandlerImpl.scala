@@ -1,74 +1,73 @@
 package com.prb.dnhs.handlers
 
 import org.apache.hadoop.fs._
+import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.slf4j.Logger
 
-abstract class WorkingFolderHandlerImpl extends FileSystemHandler[String] {
+abstract class WorkingFolderHandlerImpl extends FileSystemHandler[Unit] {
 
   val log: Logger
+  val sparkSession: SparkSession
   val fs: FileSystem
-  val mainPath: String
+  
+  val hdfsPath: String
+  val batchTableName: String
+  val batchId: String
 
-  override def handle(): String = {
+  override def handle(): Unit = {
 
-    val procPath = new Path(s"$mainPath/processing")
+    val mainPath = new Path(s"$hdfsPath/")
+    val batchPath = new Path(s"$hdfsPath/processing/$batchId")
 
-    if (!fs.exists(procPath)) {
-      log.info("No processing folder - create one and transfer files for processing")
+    val processedFolder = fs.listStatus(new Path(s"$hdfsPath/processing/"))
 
-      createWorkingFolder(procPath)
+    log.warn("The processing folder has remained from the previous processing - check folder data")
+
+    if (processedFolder.isEmpty) {
+      log.info("The processing folder is empty - re-create the working folder")
+
+      createFolder(mainPath, batchPath)
     } else {
-      log.warn("The processing folder has remained from the previous processing - check folder data")
+      log.info("The processing folder is not empty - try to find data among processed")
 
-      val processedFiles = fs.listStatus(new Path(s"$mainPath/processing/"))
+      val batchDefiningPath = processedFolder.map(_.getPath).head
+      val batchDefiningFile = batchDefiningPath.toString
+      val batchDefiningId = batchDefiningFile.substring(batchDefiningFile.lastIndexOf('/') + 1)
 
-      if (processedFiles.isEmpty) {
-        log.info("The processing folder is empty - re-create the working folder")
+      val batchTable: DataFrame = sparkSession.sql(
+        "SELECT batchId" +
+          s"FROM default.$batchTableName" +
+          s"WHERE batchId = $batchDefiningId"
+      )
 
-        fs.delete(procPath, true)
+      if (batchTable.collect.isEmpty) {
+        log.info("Data not processed - re-create the batch folder")
 
-        createWorkingFolder(procPath)
+        // fs.rename(batchDefiningPath, batchPath)
+        createFolder(batchDefiningPath, batchPath)
+
+        fs.delete(batchDefiningPath, true)
       } else {
-        log.info("The processing folder is not empty - try to find data among processed")
+        log.info("Data already processed - re-create the working folder")
 
-        val batchId = getBatchId(processedFiles)
+        fs.delete(batchDefiningPath, true)
 
-        if (!fs.exists(new Path(s"$mainPath/processed/$batchId"))) {
-          log.info("Data not processed yet - redefine batch id")
-
-          batchId
-        } else {
-          log.info("Data already processed - re-create the working folder")
-
-          fs.delete(procPath, true)
-
-          createWorkingFolder(procPath)
-        }
+        createFolder(mainPath, batchPath)
       }
     }
   }
 
-  private def createWorkingFolder(procPath: Path) = {
-    fs.mkdirs(procPath)
+  private def createFolder(from: Path, into: Path) = {
+    fs.mkdirs(into)
 
-    fileTransfer(procPath)
-
-    getBatchId(fs.listStatus(new Path(s"$mainPath/processing/")))
+    fileTransfer(from, into)
   }
 
-  private def fileTransfer(procPath: Path) = {
+  private def fileTransfer(from: Path, into: Path) = {
     val gzFilter = (path: Path) => path.getName.endsWith(".log.gz")
 
-    val logFilesPathSeq = fs.listStatus(new Path(s"$mainPath/")).map(_.getPath).filter(f => gzFilter(f))
+    val logFilesPathSeq = fs.listStatus(from).map(_.getPath).filter(f => gzFilter(f))
 
-    fs.moveFromLocalFile(logFilesPathSeq, procPath)
-  }
-
-  private def getBatchId(processedFiles: Seq[FileStatus]) = {
-    val batchDefiningFile = processedFiles.map(_.getPath.toString).head
-
-    val batchDefiningFileName = batchDefiningFile.substring(batchDefiningFile.lastIndexOf('/') + 1)
-
-    batchDefiningFileName.split("_").head
+    fs.moveFromLocalFile(logFilesPathSeq, into)
   }
 }

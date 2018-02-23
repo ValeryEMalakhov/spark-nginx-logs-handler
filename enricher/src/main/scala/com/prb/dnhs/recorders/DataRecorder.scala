@@ -4,6 +4,5 @@ trait DataRecorder[T] {
 
   def save(
       data: T,
-      batchId: String,
       path: String = ""): Unit
 }

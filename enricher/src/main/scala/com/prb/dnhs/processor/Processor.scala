@@ -12,12 +12,15 @@ import org.slf4j.Logger
 abstract class Processor {
 
   val log: Logger
+
   val fsHandler: FileSystemHandler[String]
+  val fsProcessedHandler: FileSystemHandler[Unit]
+
   val gzReader: DataReader[RDD[String]]
   val parser: DataParser[RDD[String], RDD[Either[ErrorDetails, Row]]]
   val handler: RowHandler[RDD[Either[ErrorDetails, Row]], RDD[Row]]
   val hiveRecorder: DataRecorder[RDD[Row]]
-  val fsCleaner: FileSystemHandler[Unit]
+
 
   def process(args: ProcessorConfig): Unit = {
 
@@ -35,16 +38,16 @@ abstract class Processor {
     if (args.debug) printData(logRow)
 
     log.info("The selection of successful results started")
-    val validRow = handler.handle(logRow, batchId, args.outputDir)
+    val validRow = handler.handle(logRow, args.outputDir)
     log.info("The selection of successful results is over")
     if (args.debug) printData(validRow)
 
     log.info("Record of results in the file system started")
-    hiveRecorder.save(validRow, batchId)
+    hiveRecorder.save(validRow)
     log.info("Record of results in the file system is over")
 
-    log.info("End of processing - cleaning up the working folder")
-    fsCleaner.handle()
+    log.info("End of processing - move processed files from working folder")
+    fsProcessedHandler.handle()
   }
 
   private def printData[T](data: RDD[T]) = {

@@ -2,6 +2,7 @@ package com.prb.dnhs
 
 import java.io.File
 import java.net.URI
+import java.time.Instant
 
 import com.prb.dnhs.entities.SchemaRepository._
 import com.prb.dnhs.entities._
@@ -78,22 +79,27 @@ object DriverContext extends ConfigHelper with LoggerHelper {
 
       lazy val sparkSession = dcSparkSession
       lazy val defInputPath = s"$pathToFiles/READY"
+      lazy val batchId = globalBatchId
     }
 
   ///////////////////////////////////////////////////////////////////////////
   // Data recorders
   ///////////////////////////////////////////////////////////////////////////
 
-  // private lazy val globalBatchId = Instant.now.toEpochMilli
+  private lazy val globalBatchId = Instant.now.toEpochMilli
 
   // a recorder for storing the processed data and adding it to the database
   private val dcHiveRecorder
   : DataRecorder[RDD[Row]] =
     new HiveRecorderImpl() {
 
+      lazy val log = logger
       lazy val sparkSession = dcSparkSession
-      lazy val hiveTableName = config.getString("app.name")
+      lazy val fs = dcFS
+      lazy val dataTableName = config.getString("hive.processed_data")
+      lazy val batchTableName = config.getString("hive.processed_batches")
       lazy val dataFrameGenericSchema = dcSchemaRepos.getSchema(GENERIC_EVENT).get
+      lazy val batchId = globalBatchId
     }
 
   // a recorder for storing the invalid data
@@ -102,6 +108,7 @@ object DriverContext extends ConfigHelper with LoggerHelper {
     new FileRecorderImpl() {
 
       lazy val fileSaveDirPath = pathToFiles + "/DEFAULT"
+      lazy val batchId = globalBatchId
     }
 
   ///////////////////////////////////////////////////////////////////////////
@@ -130,21 +137,27 @@ object DriverContext extends ConfigHelper with LoggerHelper {
     }
 
   private val dcWorkingFolderHandler
-  : FileSystemHandler[String] =
+  : FileSystemHandler[Unit] =
     new WorkingFolderHandlerImpl() {
 
       lazy val log = logger
+      lazy val sparkSession = dcSparkSession
       lazy val fs = dcFS
-      lazy val mainPath = s"$pathToFiles/READY"
+      lazy val hdfsPath = s"$pathToFiles/READY"
+      lazy val batchTableName = config.getString("hive.batchTable")
+      lazy val batchId = globalBatchId
     }
 
-  private val dcFileSystemCleaner
+  private val dcProcessedFolderHandler
   : FileSystemHandler[Unit] =
-    new FileSystemCleanerImpl() {
+    new ProcessedFolderHandlerImpl() {
 
       lazy val log = logger
+      lazy val sparkSession = dcSparkSession
       lazy val fs = dcFS
-      lazy val mainPath = s"$pathToFiles/READY"
+      lazy val hdfsPath = s"$pathToFiles/READY"
+      lazy val batchTableName = config.getString("hive.batchTable")
+      lazy val batchId = globalBatchId
     }
 
   ///////////////////////////////////////////////////////////////////////////
@@ -194,11 +207,11 @@ object DriverContext extends ConfigHelper with LoggerHelper {
   val processor = new Processor() {
     val log = logger
     val fsHandler = dcWorkingFolderHandler
+    val fsProcessedHandler = dcWorkingFolderHandler
     val gzReader = dcArchiveReader
     val parser = mainParser
     val handler = dcMainHandler
     val hiveRecorder = dcHiveRecorder
-    val fsCleaner = dcFileSystemCleaner
   }
 
   ///////////////////////////////////////////////////////////////////////////

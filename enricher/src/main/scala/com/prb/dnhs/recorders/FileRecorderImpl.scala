@@ -5,8 +5,9 @@ import org.apache.spark.rdd.RDD
 abstract class FileRecorderImpl extends DataRecorder[RDD[String]] {
 
   val fileSaveDirPath: String
+  val batchId: String
 
-  override def save(data: RDD[String], batchId: String, path: String): Unit = {
+  override def save(data: RDD[String], path: String): Unit = {
 
     if (path == "")
       data.saveAsTextFile(s"$fileSaveDirPath/$batchId/")
