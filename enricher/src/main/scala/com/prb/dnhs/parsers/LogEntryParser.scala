@@ -71,7 +71,7 @@ abstract class LogEntryParser
     */
   private def buildLogEntryRow(logEntry: LogEntry) = {
     Row(
-      logEntry.dateTime,
+      logEntry.logDateTime,
       logEntry.eventType,
       logEntry.requestId,
       logEntry.userCookie,
@@ -184,7 +184,7 @@ abstract class LogEntryParser
   private def buildErrString(logEntry: LogEntry) = {
 
     val generalFields =
-      Seq(logEntry.dateTime,
+      Seq(logEntry.logDateTime,
         logEntry.eventType,
         logEntry.requestId,
         logEntry.userCookie,

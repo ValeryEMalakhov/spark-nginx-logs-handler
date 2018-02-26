@@ -9,6 +9,7 @@ object Nexus extends AutoPlugin {
   val nexusPublishRepo = System.getProperty("nexusPublishRepo", "content/groups/public")
 
   val creds = Credentials(Path.userHome / ".sbt" / ".credentials")
+  // val creds = Credentials("Sonatype Nexus Repository Manager", "192.168.80.132", "admin", "admin123")
 
   // Settings to push artifacts to nexus (jars, zip, etc)
   override lazy val projectSettings = Seq(

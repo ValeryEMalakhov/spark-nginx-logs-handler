@@ -5,7 +5,7 @@ import sbt._
 object V {
   lazy val sparkVersion         = "2.2.0"
   lazy val hiveVersion          = "2.3.2"
-  lazy val hadoopVersion        = "3.0.0"
+  lazy val hadoopVersion        = "2.9.0"
   lazy val parquetVersion       = "1.9.0"
   lazy val scalazStreamVersion  = "0.8.6"
   lazy val scalazCoreVersion    = "7.2.18"
@@ -13,6 +13,7 @@ object V {
   lazy val scoptVersion         = "3.7.0"
   lazy val slf4jVersion         = "3.7.2"
   lazy val catsVersion          = "1.0.1"
+  lazy val jsonVersion          = "2.9.4"
   //  Tests  //
   lazy val specs2Version        = "4.0.2"
   lazy val scalatestVersion     = "3.0.5"
@@ -31,7 +32,15 @@ object Dependencies {
     , sparkHive
   )
 
-  lazy val hadoopCommon  = "org.apache.hadoop" % "hadoop-common"   % V.hadoopVersion
+  lazy val hadoopCommon  = "org.apache.hadoop" % "hadoop-common"    % V.hadoopVersion % "provided"
+  lazy val hadoopClient  = "org.apache.hadoop" % "hadoop-client"    % V.hadoopVersion % "provided"
+  lazy val hadoopHdfs    = "org.apache.hadoop" % "hadoop-hdfs"      % V.hadoopVersion % "provided"
+
+  lazy val hadoop = Seq(
+      hadoopCommon
+    , hadoopClient
+    , hadoopHdfs
+  )
 
   lazy val parquetColumn = "org.apache.parquet" % "parquet-column" % V.parquetVersion
 
@@ -45,10 +54,22 @@ object Dependencies {
 
   lazy val cats  = "org.typelevel" %% "cats-core" % V.catsVersion
 
+  lazy val jacksonDatabind    = "com.fasterxml.jackson.core" % "jackson-databind"        % V.jsonVersion
+  lazy val jacksonCore        = "com.fasterxml.jackson.core" % "jackson-core"            % V.jsonVersion
+  lazy val jacksonAnnotations = "com.fasterxml.jackson.core" % "jackson-annotations"     % V.jsonVersion
+  lazy val jacksonModule      = "com.fasterxml.jackson.module" %% "jackson-module-scala" % V.jsonVersion
+
+  lazy val json = Seq(
+      jacksonDatabind
+    , jacksonCore
+    , jacksonAnnotations
+    , jacksonModule
+  )
+
   //  Tests  //
-  lazy val specs2     = "org.specs2" %% "specs2-core"  % V.specs2Version    % "test"
-  lazy val specs2Mock = "org.specs2" %% "specs2-mock"  % V.specs2Version    % "test"
-  lazy val scalatest  = "org.scalatest" %% "scalatest" % V.scalatestVersion % "test"
+  lazy val specs2     = "org.specs2" %% "specs2-core"  % V.specs2Version    % Test
+  lazy val specs2Mock = "org.specs2" %% "specs2-mock"  % V.specs2Version    % Test
+  lazy val scalatest  = "org.scalatest" %% "scalatest" % V.scalatestVersion % Test
 
   lazy val sTest = Seq(
       specs2

@@ -25,7 +25,7 @@ abstract class MainHandler extends RowHandler[RDD[Either[ErrorDetails, Row]], RD
     }
 
     // handle all invalid rows
-    // val invalidRows = invalidRowHandler.handle(outputDir, logRow)
+    // val invalidRows = invalidRowHandler.handle(logRow, outputDir)
 
     // get only valid rows, which ready for recording
     validRowHandler.handle(logRow)
