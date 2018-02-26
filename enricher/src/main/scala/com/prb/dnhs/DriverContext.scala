@@ -40,7 +40,8 @@ object DriverContext extends ConfigHelper with LoggerHelper {
     .builder()
     .appName(config.getString("app.name"))
     .master(config.getString("spark.master"))
-    .config("spark.sql.warehouse.dir", warehouseLocation)
+    //.config("spark.sql.warehouse.dir", warehouseLocation)
+    .config("hive.metastore.uris", config.getString("hive.address"))
     .enableHiveSupport()
     .getOrCreate()
 

@@ -9,7 +9,7 @@ abstract class WorkingFolderHandlerImpl extends FileSystemHandler[Unit] {
   val log: Logger
   val sparkSession: SparkSession
   val fs: FileSystem
-  
+
   val hdfsPath: String
   val batchTableName: String
   val batchId: String
@@ -35,9 +35,9 @@ abstract class WorkingFolderHandlerImpl extends FileSystemHandler[Unit] {
       val batchDefiningId = batchDefiningFile.substring(batchDefiningFile.lastIndexOf('/') + 1)
 
       val batchTable: DataFrame = sparkSession.sql(
-        "SELECT batchId" +
-          s"FROM default.$batchTableName" +
-          s"WHERE batchId = $batchDefiningId"
+        "SELECT batchId " +
+          s"FROM default.$batchTableName " +
+          s"WHERE batchId = $batchDefiningId ;"
       )
 
       if (batchTable.collect.isEmpty) {

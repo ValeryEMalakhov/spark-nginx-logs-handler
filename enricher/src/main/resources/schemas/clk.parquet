@@ -1,5 +1,5 @@
 message spark_schema {
-  required binary dateTime (UTF8);
+  required binary logDateTime (UTF8);
   required binary eventType (UTF8);
   required binary requesrId (UTF8);
   required binary userCookie (UTF8);
@@ -7,6 +7,5 @@ message spark_schema {
   required binary ipAddress (UTF8);
   required binary useragent (UTF8);
   optional int32 AdId;
-  optional binary SomeId (UTF8);
 }
 

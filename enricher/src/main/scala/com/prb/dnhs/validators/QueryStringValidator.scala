@@ -94,7 +94,7 @@ class QueryStringValidator {
   private def buildErrString(logEntry: LogEntry) = {
 
     val generalFields =
-      Seq(logEntry.dateTime,
+      Seq(logEntry.logDateTime,
         logEntry.eventType,
         logEntry.requestId,
         logEntry.userCookie,

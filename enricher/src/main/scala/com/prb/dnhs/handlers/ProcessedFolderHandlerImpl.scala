@@ -19,7 +19,10 @@ abstract class ProcessedFolderHandlerImpl extends FileSystemHandler[Unit] {
     val batchPath = new Path(s"$hdfsPath/processing/$batchId")
     val processedPath = new Path(s"$hdfsPath/processed/$batchId")
 
-    sparkSession.sql(s"INSERT INTO TABLE default.$batchTableName VALUES $batchId")
+    sparkSession.sql(
+      s"INSERT INTO TABLE default.$batchTableName " +
+        s"VALUES $batchId ;"
+    )
 
     createFolder(batchPath, processedPath)
 
