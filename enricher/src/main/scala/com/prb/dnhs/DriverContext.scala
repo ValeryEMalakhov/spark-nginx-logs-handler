@@ -23,33 +23,36 @@ import org.apache.spark.sql._
   * The DriverContext object contains a number of parameters
   * that enable to work with Spark.
   */
-object DriverContext extends ConfigHelper with LoggerHelper {
+class DriverContext extends ConfigHelper with LoggerHelper {
 
   ///////////////////////////////////////////////////////////////////////////
   // Spark conf
   ///////////////////////////////////////////////////////////////////////////
 
-  private val warehouseLocation = new File("sparkSession-warehouse").getAbsolutePath
+  lazy val warehouseLocation: String =
+    new File("sparkSession-warehouse").getAbsolutePath
 
   // default path to hdfs data folder
-  private val pathToFiles =
+  lazy val pathToFiles: String =
     s"${config.getString("hdfs.node")}/${config.getString("hdfs.files")}"
 
   // SparkSession for Spark 2.*.*
-  private lazy val dcSparkSession = SparkSession
-    .builder()
-    .appName(config.getString("app.name"))
-    .master(config.getString("spark.master"))
-    //.config("spark.sql.warehouse.dir", warehouseLocation)
-    .config("hive.metastore.uris", config.getString("hive.address"))
-    .enableHiveSupport()
-    .getOrCreate()
+  lazy val dcSparkSession: SparkSession =
+    SparkSession
+      .builder()
+      .appName(config.getString("app.name"))
+      .master(config.getString("spark.master"))
+      //.config("spark.sql.warehouse.dir", warehouseLocation)
+      .config("hive.metastore.uris", config.getString("hive.address"))
+      .enableHiveSupport()
+      .getOrCreate()
 
-  private lazy val dcFS = FileSystem.get(
-    new URI(config.getString("hdfs.node")),
-    new Configuration(),
-    config.getString("hdfs.user")
-  )
+  lazy val dcFS: FileSystem =
+    FileSystem.get(
+      new URI(config.getString("hdfs.node")),
+      new Configuration(),
+      config.getString("hdfs.user")
+    )
 
   ///////////////////////////////////////////////////////////////////////////
   // Parsers
@@ -63,7 +66,7 @@ object DriverContext extends ConfigHelper with LoggerHelper {
       override def obj = ExecutorContext.dataParserImpl
     }
 
-  val mainParser
+  private val mainParser
   : DataParser[RDD[String], RDD[Either[ErrorDetails, Row]]] =
     new MainParser() {
 
@@ -219,4 +222,6 @@ object DriverContext extends ConfigHelper with LoggerHelper {
   // Other
   ///////////////////////////////////////////////////////////////////////////
 }
+
+object DriverContext extends DriverContext
 
