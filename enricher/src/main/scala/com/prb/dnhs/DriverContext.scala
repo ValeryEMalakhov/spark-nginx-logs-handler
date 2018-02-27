@@ -33,6 +33,7 @@ class DriverContext extends ConfigHelper with LoggerHelper {
     new File("sparkSession-warehouse").getAbsolutePath
 
   // default path to hdfs data folder
+
   lazy val pathToFiles: String =
     s"${config.getString("hdfs.node")}/${config.getString("hdfs.files")}"
 

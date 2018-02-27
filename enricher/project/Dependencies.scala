@@ -20,10 +20,10 @@ object V {
 }
 
 object Dependencies {
-  lazy val sparkCore      = "org.apache.spark" %% "spark-core"      % V.sparkVersion
-  lazy val sparkSQL       = "org.apache.spark" %% "spark-sql"       % V.sparkVersion
-  lazy val sparkStreaming = "org.apache.spark" %% "spark-streaming" % V.sparkVersion
-  lazy val sparkHive      = "org.apache.spark" %% "spark-hive"      % V.sparkVersion
+  lazy val sparkCore      = "org.apache.spark" %% "spark-core"      % V.sparkVersion// % "provided"
+  lazy val sparkSQL       = "org.apache.spark" %% "spark-sql"       % V.sparkVersion// % "provided"
+  lazy val sparkStreaming = "org.apache.spark" %% "spark-streaming" % V.sparkVersion// % "provided"
+  lazy val sparkHive      = "org.apache.spark" %% "spark-hive"      % V.sparkVersion// % "provided"
 
   lazy val spark = Seq(
       sparkCore
