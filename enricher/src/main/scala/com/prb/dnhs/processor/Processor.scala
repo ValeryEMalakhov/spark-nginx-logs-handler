@@ -13,7 +13,7 @@ abstract class Processor {
 
   val log: Logger
 
-  val fsHandler: FileSystemHandler[String]
+  val fsHandler: FileSystemHandler[Unit]
   val fsProcessedHandler: FileSystemHandler[Unit]
 
   val gzReader: DataReader[RDD[String]]
