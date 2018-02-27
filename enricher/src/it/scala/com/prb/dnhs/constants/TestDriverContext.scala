@@ -11,7 +11,7 @@ object TestDriverContext extends DriverContext {
       .appName("LogsEnricherIT")
       .master("local[*]")
       //.config("spark.sql.warehouse.dir", warehouseLocation)
-      .config("hive.metastore.uris", config.getString("hive.address"))
+      .config("hive.metastore.uris", "thrift://quickstart.cloudera:9083")
       .enableHiveSupport()
       .getOrCreate()
 }

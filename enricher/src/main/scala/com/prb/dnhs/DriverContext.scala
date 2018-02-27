@@ -84,7 +84,7 @@ class DriverContext extends ConfigHelper with LoggerHelper {
 
       lazy val sparkSession = dcSparkSession
       lazy val defInputPath = s"$pathToFiles/READY"
-      lazy val batchId = globalBatchId
+      lazy val batchId = globalBatchId.toString
     }
 
   ///////////////////////////////////////////////////////////////////////////
@@ -104,7 +104,7 @@ class DriverContext extends ConfigHelper with LoggerHelper {
       lazy val dataTableName = config.getString("hive.processed_data")
       lazy val batchTableName = config.getString("hive.processed_batches")
       lazy val dataFrameGenericSchema = dcSchemaRepos.getSchema(GENERIC_EVENT).get
-      lazy val batchId = globalBatchId
+      lazy val batchId = globalBatchId.toString
     }
 
   // a recorder for storing the invalid data
@@ -113,7 +113,7 @@ class DriverContext extends ConfigHelper with LoggerHelper {
     new FileRecorderImpl() {
 
       lazy val fileSaveDirPath = pathToFiles + "/DEFAULT"
-      lazy val batchId = globalBatchId
+      lazy val batchId = globalBatchId.toString
     }
 
   ///////////////////////////////////////////////////////////////////////////
@@ -150,7 +150,7 @@ class DriverContext extends ConfigHelper with LoggerHelper {
       lazy val fs = dcFS
       lazy val hdfsPath = s"$pathToFiles/READY"
       lazy val batchTableName = config.getString("hive.batchTable")
-      lazy val batchId = globalBatchId
+      lazy val batchId = globalBatchId.toString
     }
 
   private val dcProcessedFolderHandler
@@ -162,7 +162,7 @@ class DriverContext extends ConfigHelper with LoggerHelper {
       lazy val fs = dcFS
       lazy val hdfsPath = s"$pathToFiles/READY"
       lazy val batchTableName = config.getString("hive.batchTable")
-      lazy val batchId = globalBatchId
+      lazy val batchId = globalBatchId.toString
     }
 
   ///////////////////////////////////////////////////////////////////////////
@@ -212,7 +212,7 @@ class DriverContext extends ConfigHelper with LoggerHelper {
   val processor = new Processor() {
     val log = logger
     val fsHandler = dcWorkingFolderHandler
-    val fsProcessedHandler = dcWorkingFolderHandler
+    val fsProcessedHandler = dcProcessedFolderHandler
     val gzReader = dcArchiveReader
     val parser = mainParser
     val handler = dcMainHandler

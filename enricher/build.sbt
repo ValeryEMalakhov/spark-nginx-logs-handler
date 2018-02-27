@@ -9,12 +9,13 @@ lazy val commonSettings = Seq(
 )
 
 lazy val enricher = project.in(file("."))
-  .enablePlugins(Nexus)
+  //.enablePlugins(Nexus)
   .enablePlugins(AssemblyPlugin)
   .settings(commonSettings)
   .settings(artifactSettings)
   .settings(assemblySettings)
   .settings(testSettings)
+  .settings(itSettings)
   .settings(dependencySettings)
 
 addArtifact(artifact in (Compile, assembly), assembly)
@@ -49,6 +50,12 @@ lazy val testSettings = Seq(
     s"${artifact.name}-tests.${artifact.extension}"
   }
 )
+
+lazy val itSettings = Seq(
+    fork in IntegrationTest := false,
+    parallelExecution in IntegrationTest := false,
+    scalaSource in IntegrationTest := baseDirectory.value / "src/it/scala"
+  )
 
 lazy val dependencySettings = Seq(
   dependencyOverrides ++=
