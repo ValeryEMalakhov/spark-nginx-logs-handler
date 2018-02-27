@@ -67,4 +67,3 @@ lazy val dependencySettings = Seq(
       , cats
     )
 )
-
