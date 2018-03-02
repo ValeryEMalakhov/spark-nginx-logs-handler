@@ -67,7 +67,7 @@ object Dependencies {
   )
 
   //  Tests  //
-  lazy val specs2     = "org.specs2" %% "specs2-core"  % V.specs2Version    % Test
+  lazy val specs2     = "org.specs2" %% "specs2-core"  % V.specs2Version    % "it,test"
   lazy val specs2Mock = "org.specs2" %% "specs2-mock"  % V.specs2Version    % Test
   lazy val scalatest  = "org.scalatest" %% "scalatest" % V.scalatestVersion % Test
 

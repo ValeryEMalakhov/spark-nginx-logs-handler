@@ -11,14 +11,17 @@ lazy val commonSettings = Seq(
 lazy val enricher = project.in(file("."))
   //.enablePlugins(Nexus)
   .enablePlugins(AssemblyPlugin)
+  //.enablePlugins(DockerPlugin, DockerComposePlugin)
   .settings(commonSettings)
   .settings(artifactSettings)
   .settings(assemblySettings)
   .settings(testSettings)
+  .configs(IntegrationTest)
+  .settings(Defaults.itSettings)
   .settings(itSettings)
   .settings(dependencySettings)
 
-addArtifact(artifact in (Compile, assembly), assembly)
+addArtifact(artifact in(Compile, assembly), assembly)
 
 lazy val artifactSettings = Seq(
   mainClass in(Compile, run) := Some("com.prb.dnhs.MainApp"),
@@ -28,7 +31,7 @@ lazy val artifactSettings = Seq(
   fullClasspath in Runtime := (fullClasspath in Compile).value
 )
 
-lazy val assemblySettings = Seq (
+lazy val assemblySettings = Seq(
   test in assembly := {},
   mainClass in assembly := Some("com.prb.dnhs.MainApp"),
   assemblyJarName in assembly := "logsenricher.jar",
@@ -37,8 +40,8 @@ lazy val assemblySettings = Seq (
     case n if n.endsWith(".conf") => MergeStrategy.concat
     case x => MergeStrategy.last
   },
-  artifact in (Compile, assembly) := {
-    val art = (artifact in (Compile, assembly)).value
+  artifact in(Compile, assembly) := {
+    val art = (artifact in(Compile, assembly)).value
     art.withClassifier(Some("assembly"))
   }
 )
@@ -52,25 +55,25 @@ lazy val testSettings = Seq(
 )
 
 lazy val itSettings = Seq(
-    fork in IntegrationTest := false,
-    parallelExecution in IntegrationTest := false,
-    scalaSource in IntegrationTest := baseDirectory.value / "src/it/scala"
-  )
+  fork in IntegrationTest := false,
+  parallelExecution in IntegrationTest := false,
+  scalaSource in IntegrationTest := baseDirectory.value / "src/it/scala"
+)
 
 lazy val dependencySettings = Seq(
   dependencyOverrides ++=
     json,
   libraryDependencies ++=
     spark ++
-    hadoop ++
-    sTest ++
-    Seq(
+      hadoop ++
+      sTest ++
+      Seq(
         scalazStream
-      , scalazCore
-      , parquetColumn
-      , configType
-      , scopt
-      , slf4j
-      , cats
-    )
+        , scalazCore
+        , parquetColumn
+        , configType
+        , scopt
+        , slf4j
+        , cats
+      )
 )
