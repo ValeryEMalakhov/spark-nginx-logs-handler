@@ -43,7 +43,6 @@ class DriverContext extends ConfigHelper with LoggerHelper {
       .builder()
       .appName(config.getString("app.name"))
       .master(config.getString("spark.master"))
-      //.config("spark.sql.warehouse.dir", warehouseLocation)
       .config("hive.metastore.uris", config.getString("hive.address"))
       .enableHiveSupport()
       .getOrCreate()
@@ -59,7 +58,7 @@ class DriverContext extends ConfigHelper with LoggerHelper {
   // Parsers
   ///////////////////////////////////////////////////////////////////////////
 
-  private val dcSchemaRepos = new SchemaRepositoryImpl()
+  val dcSchemaRepos = new SchemaRepositoryImpl()
 
   // string to row log parser in serializable container
   private lazy val dcDataParser =
@@ -91,7 +90,7 @@ class DriverContext extends ConfigHelper with LoggerHelper {
   // Data recorders
   ///////////////////////////////////////////////////////////////////////////
 
-  private lazy val globalBatchId = Instant.now.toEpochMilli
+  lazy val globalBatchId = Instant.now.toEpochMilli
 
   // a recorder for storing the processed data and adding it to the database
   private val dcHiveRecorder
@@ -101,8 +100,8 @@ class DriverContext extends ConfigHelper with LoggerHelper {
       lazy val log = logger
       lazy val sparkSession = dcSparkSession
       lazy val fs = dcFS
-      lazy val dataTableName = config.getString("hive.processed_data")
-      lazy val batchTableName = config.getString("hive.processed_batches")
+      lazy val dataTableName = config.getString("hive.logTable")
+      lazy val batchTableName = config.getString("hive.batchTable")
       lazy val dataFrameGenericSchema = dcSchemaRepos.getSchema(GENERIC_EVENT).get
       lazy val batchId = globalBatchId.toString
     }

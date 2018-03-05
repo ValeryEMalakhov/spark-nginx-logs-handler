@@ -1,6 +1,7 @@
-package com.prb.dnhs.constants
+package com.prb.dnhs
 
-import com.prb.dnhs.DriverContext
+import java.io.File
+
 import org.apache.spark.sql.SparkSession
 
 object TestDriverContext extends DriverContext {
@@ -10,7 +11,7 @@ object TestDriverContext extends DriverContext {
       .builder()
       .appName("LogsEnricherIT")
       .master("local[*]")
-      .config("spark.sql.warehouse.dir", warehouseLocation)
+      .config("spark.sql.warehouse.dir", new File("ITest").getAbsolutePath)
       .enableHiveSupport()
       .getOrCreate()
 }
