@@ -1,6 +1,6 @@
 package com.prb.dnhs.processor
 
-import com.prb.dnhs.TestDriverContext
+import com.prb.dnhs.DriverContextIT
 import com.prb.dnhs.utils.TestUtils._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
@@ -60,16 +60,16 @@ class ProcessorIT extends mutable.Specification with Serializable {
 
   "If the log handler operation succeeded" >> {
     "the current batch should have been added to the table of processed batches" >> {
-      TestDriverContext.dcSparkSession.sql(
+      DriverContextIT.dcSparkSession.sql(
         "SELECT batchId " +
           s"FROM default.processed_batches " +
-          s"WHERE batchId = ${TestDriverContext.globalBatchId} ;"
+          s"WHERE batchId = ${DriverContextIT.globalBatchId}"
       ) must not beNull
     }
   }
 
   println("Delete")
-  cleanFolders()
+  //cleanFolders()
 
   println("Done")
 }

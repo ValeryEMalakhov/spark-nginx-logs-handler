@@ -37,7 +37,7 @@ abstract class WorkingFolderHandlerImpl extends FileSystemHandler[Unit] {
       val batchTable: DataFrame = sparkSession.sql(
         "SELECT batchId " +
           s"FROM default.$batchTableName " +
-          s"WHERE batchId = $batchDefiningId ;"
+          s"WHERE batchId = $batchDefiningId"
       )
 
       if (batchTable.collect.isEmpty) {

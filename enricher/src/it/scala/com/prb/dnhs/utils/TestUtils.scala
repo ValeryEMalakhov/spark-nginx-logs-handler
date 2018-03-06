@@ -4,7 +4,7 @@ import java.io.{File, FileOutputStream, PrintWriter}
 import java.time.Instant
 import java.util.zip.GZIPOutputStream
 
-import com.prb.dnhs.TestDriverContext
+import com.prb.dnhs.DriverContextIT
 import org.apache.commons.io.FileUtils
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
@@ -15,17 +15,17 @@ import scala.language.implicitConversions
 
 object TestUtils {
 
-  private val sparkSession = TestDriverContext.dcSparkSession
+  private val sparkSession = DriverContextIT.dcSparkSession
 
-  private val schemas = TestDriverContext.dcSchemaRepos
+  private val schemas = DriverContextIT.dcSchemaRepos
   private val GENERIC_EVENT = "generic-event"
 
   def implFolders(): Unit = {
     val testDir = Seq(
       new File("ITest")
       , new File("ITest/READY")
-      , new File("ITest/READY/processed_data")
-      , new File("ITest/READY/processed_batches")
+      , new File("ITest/READY/processing")
+      , new File("ITest/READY/processed")
     )
 
     testDir.foreach(f => f.mkdir())
@@ -34,9 +34,9 @@ object TestUtils {
   def createBaseDB(input: Seq[Row]): Unit = {
     // lazy val batchId: Long = Instant.now.toEpochMilli
 
-    createDataTable(sparkSession.sparkContext.parallelize(input), TestDriverContext.globalBatchId)
+    createDataTable(sparkSession.sparkContext.parallelize(input), DriverContextIT.globalBatchId)
 
-    createBatchesTable(sparkSession.sparkContext.parallelize(Seq(Row(TestDriverContext.globalBatchId))))
+    createBatchesTable(sparkSession.sparkContext.parallelize(Seq(Row(DriverContextIT.globalBatchId))))
   }
 
   def cleanFolders(path: String = "ITest"): Unit = {
@@ -50,7 +50,7 @@ object TestUtils {
   }
 
   private def createDataTable(input: RDD[Row], batchId: Long): Unit = {
-    val genericSchema = schemas.getSchema("GENERIC_EVENT").get
+    val genericSchema = schemas.getSchema(GENERIC_EVENT).get
 
     sparkSession
       .createDataFrame(

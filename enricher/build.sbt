@@ -16,8 +16,8 @@ lazy val enricher = project.in(file("."))
   .settings(artifactSettings)
   .settings(assemblySettings)
   .settings(testSettings)
-  .configs(IntegrationTest)
-  .settings(Defaults.itSettings)
+  .configs(FunTest)
+  .settings(inConfig(FunTest)(Defaults.testSettings) : _*)
   .settings(itSettings)
   .settings(dependencySettings)
 
@@ -48,32 +48,42 @@ lazy val assemblySettings = Seq(
 
 lazy val testSettings = Seq(
   exportJars := true,
-  fork := true,
+  fork in Test := true,
   artifactName in Test := { (sv: ScalaVersion, module: ModuleID, artifact: Artifact) =>
     s"${artifact.name}-tests.${artifact.extension}"
-  }
+  },
+  scalaSource in Test := baseDirectory.value / "src/test/scala",
+  resourceDirectory in Test := baseDirectory.value / "src/test/resources"
 )
 
-lazy val itSettings = Seq(
-  fork in IntegrationTest := false,
-  parallelExecution in IntegrationTest := false,
-  scalaSource in IntegrationTest := baseDirectory.value / "src/it/scala"
-)
+lazy val FunTest = config("it").extend(Test)
+
+lazy val itSettings =
+  //inConfig(IntegrationTest)(Defaults.testSettings) ++
+  Seq(
+    fork in IntegrationTest := false,
+    parallelExecution in IntegrationTest := false,
+    artifactName in IntegrationTest := { (sv: ScalaVersion, module: ModuleID, artifact: Artifact) =>
+      s"${artifact.name}-it.${artifact.extension}"
+    },
+    scalaSource in IntegrationTest := baseDirectory.value / "src/it/scala",
+    resourceDirectory in IntegrationTest := baseDirectory.value / "src/it/resources"
+  )
 
 lazy val dependencySettings = Seq(
   dependencyOverrides ++=
     json,
   libraryDependencies ++=
     spark ++
-      hadoop ++
-      sTest ++
-      Seq(
-        scalazStream
-        , scalazCore
-        , parquetColumn
-        , configType
-        , scopt
-        , slf4j
-        , cats
-      )
+    hadoop ++
+    sTest ++
+    Seq(
+      scalazStream
+      , scalazCore
+      , parquetColumn
+      , configType
+      , scopt
+      , slf4j
+      , cats
+    )
 )

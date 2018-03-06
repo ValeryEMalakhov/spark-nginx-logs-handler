@@ -21,7 +21,7 @@ abstract class ProcessedFolderHandlerImpl extends FileSystemHandler[Unit] {
 
     sparkSession.sql(
       s"INSERT INTO TABLE default.$batchTableName " +
-        s"VALUES $batchId ;"
+        s"VALUES $batchId"
     )
 
     createFolder(batchPath, processedPath)
