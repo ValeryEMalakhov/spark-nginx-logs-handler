@@ -61,7 +61,7 @@ lazy val FunTest = config("it").extend(Test)
 lazy val itSettings =
   //inConfig(IntegrationTest)(Defaults.testSettings) ++
   Seq(
-    fork in IntegrationTest := false,
+    fork in IntegrationTest := true,
     parallelExecution in IntegrationTest := false,
     artifactName in IntegrationTest := { (sv: ScalaVersion, module: ModuleID, artifact: Artifact) =>
       s"${artifact.name}-it.${artifact.extension}"

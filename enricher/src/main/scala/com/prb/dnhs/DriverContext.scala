@@ -23,7 +23,9 @@ import org.apache.spark.sql._
   * The DriverContext object contains a number of parameters
   * that enable to work with Spark.
   */
-class DriverContext extends ConfigHelper with LoggerHelper {
+trait DriverContext extends ConfigHelper
+  with LoggerHelper
+  with Serializable {
 
   ///////////////////////////////////////////////////////////////////////////
   // Spark conf
@@ -61,12 +63,12 @@ class DriverContext extends ConfigHelper with LoggerHelper {
   val dcSchemaRepos = new SchemaRepositoryImpl()
 
   // string to row log parser in serializable container
-  private lazy val dcDataParser =
+   lazy val dcDataParser =
     new SerializableContainer[DataParser[String, Either[ErrorDetails, Row]]] {
       override def obj = ExecutorContext.dataParserImpl
     }
 
-  private val mainParser
+  val mainParser
   : DataParser[RDD[String], RDD[Either[ErrorDetails, Row]]] =
     new MainParser() {
 
@@ -77,7 +79,7 @@ class DriverContext extends ConfigHelper with LoggerHelper {
   // Data readers
   ///////////////////////////////////////////////////////////////////////////
 
-  private val dcArchiveReader
+  val dcArchiveReader
   : DataReader[RDD[String]] =
     new ArchiveReaderImpl() {
 
@@ -93,7 +95,7 @@ class DriverContext extends ConfigHelper with LoggerHelper {
   lazy val globalBatchId = Instant.now.toEpochMilli
 
   // a recorder for storing the processed data and adding it to the database
-  private val dcHiveRecorder
+  val dcHiveRecorder
   : DataRecorder[RDD[Row]] =
     new HiveRecorderImpl() {
 
@@ -107,7 +109,7 @@ class DriverContext extends ConfigHelper with LoggerHelper {
     }
 
   // a recorder for storing the invalid data
-  private val dcFileRecorder
+  val dcFileRecorder
   : DataRecorder[RDD[String]] =
     new FileRecorderImpl() {
 
@@ -119,18 +121,18 @@ class DriverContext extends ConfigHelper with LoggerHelper {
   // Data handlers
   ///////////////////////////////////////////////////////////////////////////
 
-  private val dcValidRowHandler
+  val dcValidRowHandler
   : RowHandler[RDD[Either[ErrorDetails, Row]], RDD[Row]] =
     new ValidRowHandler()
 
-  private val dcInvalidRowHandler
+  val dcInvalidRowHandler
   : RowHandler[RDD[Either[ErrorDetails, Row]], Unit] =
     new InvalidRowHandler() {
 
       lazy val fileRecorder = dcFileRecorder
     }
 
-  private val dcMainHandler
+  val dcMainHandler
   : RowHandler[RDD[Either[ErrorDetails, Row]], RDD[Row]] =
     new MainHandler {
 
@@ -140,7 +142,7 @@ class DriverContext extends ConfigHelper with LoggerHelper {
       lazy val invalidRowHandler = dcInvalidRowHandler
     }
 
-  private val dcWorkingFolderHandler
+  val dcWorkingFolderHandler
   : FileSystemHandler[Unit] =
     new WorkingFolderHandlerImpl() {
 
@@ -152,7 +154,7 @@ class DriverContext extends ConfigHelper with LoggerHelper {
       lazy val batchId = globalBatchId.toString
     }
 
-  private val dcProcessedFolderHandler
+  val dcProcessedFolderHandler
   : FileSystemHandler[Unit] =
     new ProcessedFolderHandlerImpl() {
 
@@ -170,7 +172,7 @@ class DriverContext extends ConfigHelper with LoggerHelper {
 
   // stores data from the database at the time of application execution
   // this implementation assumes the existence of required table
-  private lazy val dbData = dcSparkSession.sql(
+  lazy val dbData = dcSparkSession.sql(
     s"SELECT userCookie FROM ${config.getString("app.name")} " +
       "WHERE eventType = \"rt\""
   )
@@ -189,7 +191,7 @@ class DriverContext extends ConfigHelper with LoggerHelper {
   // Validators
   ///////////////////////////////////////////////////////////////////////////
 
-  private val dcSaveValidator
+  val dcSaveValidator
   : Validator[Row, Either[ErrorDetails, Row]] =
     new SaveAbilityValidatorImpl() {
 
@@ -198,7 +200,7 @@ class DriverContext extends ConfigHelper with LoggerHelper {
       lazy val userCookies = dbData.collect.mkString("\t")
     }
 
-  private lazy val dcSaveValidatorImpl =
+  lazy val dcSaveValidatorImpl =
     new SerializableContainer[Validator[Row, Either[ErrorDetails, Row]]] {
       override def obj = dcSaveValidator
     }

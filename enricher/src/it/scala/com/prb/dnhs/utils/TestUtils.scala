@@ -15,14 +15,18 @@ import scala.language.implicitConversions
 
 object TestUtils {
 
-  private val sparkSession = DriverContextIT.dcSparkSession
+  private lazy val sparkSession = DriverContextIT.dcSparkSession
 
-  private val schemas = DriverContextIT.dcSchemaRepos
-  private val GENERIC_EVENT = "generic-event"
+  private lazy val schemas = DriverContextIT.dcSchemaRepos
+  private lazy val GENERIC_EVENT = "generic-event"
 
   def implFolders(): Unit = {
+
+    println("Cleaning folders before testing")
+    preCleaningFolders()
+
     val testDir = Seq(
-      new File("ITest")
+        new File("ITest")
       , new File("ITest/READY")
       , new File("ITest/READY/processing")
       , new File("ITest/READY/processed")
@@ -32,21 +36,36 @@ object TestUtils {
   }
 
   def createBaseDB(input: Seq[Row]): Unit = {
-    // lazy val batchId: Long = Instant.now.toEpochMilli
+    lazy val batchId: Long = Instant.now.toEpochMilli
 
-    createDataTable(sparkSession.sparkContext.parallelize(input), DriverContextIT.globalBatchId)
+    createDataTable(sparkSession.sparkContext.parallelize(input), batchId)
 
-    createBatchesTable(sparkSession.sparkContext.parallelize(Seq(Row(DriverContextIT.globalBatchId))))
+    createBatchesTable(sparkSession.sparkContext.parallelize(Seq(Row(batchId))))
   }
 
-  def cleanFolders(path: String = "ITest"): Unit = {
-    val derby = new File("derby.log")
-    val metastore = new File("metastore_db")
+  def preCleaningFolders(path: String = "ITest"): Unit = {
     val testDir = new File(path)
+    val metastore = new File("metastore_db")
+    val derby = new File("derby.log")
 
-    FileUtils.forceDelete(derby)
-    FileUtils.deleteDirectory(metastore)
-    FileUtils.deleteDirectory(testDir)
+    if (testDir.exists)   FileUtils.forceDelete(testDir)
+    if (metastore.exists) FileUtils.forceDelete(metastore)
+    if (derby.exists)     FileUtils.forceDelete(derby)
+  }
+
+  def cleaningFolders(path: String = "ITest"): Unit = {
+    Runtime.getRuntime.addShutdownHook(new Thread() {
+      override def run(): Unit = {
+        val testDir = new File(path)
+        val metastore = new File("metastore_db")
+        val derby = new File("derby.log")
+
+        //        FileUtils.forceDeleteOnExit(testDir)
+        FileUtils.forceDelete(testDir)
+        FileUtils.forceDelete(metastore)
+        FileUtils.forceDelete(derby)
+      }
+    })
   }
 
   private def createDataTable(input: RDD[Row], batchId: Long): Unit = {

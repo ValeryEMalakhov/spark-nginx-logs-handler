@@ -1,8 +1,9 @@
 package com.prb.dnhs.processor
 
+import java.io.File
+
 import com.prb.dnhs.DriverContextIT
 import com.prb.dnhs.utils.TestUtils._
-import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.specs2._
 
@@ -26,7 +27,7 @@ class ProcessorIT extends mutable.Specification with Serializable {
     Row("20/Feb/2018:17:01:48 +0000", "rt", "67d5a56d15ca093a16b0a9706f40ba63",
       "100", "192.168.80.132", "192.168.80.1",
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0",
-      List("121", "true", "some info", "1"), null),
+      List("{121", "true", "some info", "1}"), null),
     Row("20/Feb/2018:17:01:57 +0000", "impr", "ef9237b744f404a53aa54acfef0e4f7d",
       "100", "192.168.80.132", "192.168.80.1",
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0",
@@ -42,7 +43,7 @@ class ProcessorIT extends mutable.Specification with Serializable {
     Row("20/Feb/2018:17:02:24 +0000", "rt", "14cee1544a7048880e4dffee0e4b3e5a",
       "101", "192.168.80.132", "192.168.80.1",
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0",
-      List("121", "true", "some info", "1"), null)
+      List("{121", "true", "some info", "1}"), null)
   )
 
   //Preparing the environment
@@ -58,6 +59,8 @@ class ProcessorIT extends mutable.Specification with Serializable {
 
   //Testing
 
+  DriverContextIT.processor.process(ProcessorConfig(debug = true))
+
   "If the log handler operation succeeded" >> {
     "the current batch should have been added to the table of processed batches" >> {
       DriverContextIT.dcSparkSession.sql(
@@ -68,8 +71,8 @@ class ProcessorIT extends mutable.Specification with Serializable {
     }
   }
 
-  println("Delete")
-  //cleanFolders()
+  //println("Cleaning folders after testing")
+  //cleaningFolders()
 
   println("Done")
 }

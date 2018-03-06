@@ -24,30 +24,39 @@ abstract class Processor {
 
   def process(args: ProcessorConfig): Unit = {
 
+    println(args.inputDir)
+    println(fsHandler)
+
     log.info("Preliminary check of working folder")
-    val batchId = fsHandler.handle()
+    fsHandler.handle()
 
     log.info("Reading of log-files from the file system started")
     val logRDD = gzReader.read(args.inputDir)
     log.info("Reading of log-files from the file system is over")
+    println()
     if (args.debug) printData(logRDD)
+    println()
 
     log.info("Parsing of log files started")
     val logRow = parser.parse(logRDD)
     log.info("Parsing of log files is over")
+    println()
     if (args.debug) printData(logRow)
+    println()
 
     log.info("The selection of successful results started")
     val validRow = handler.handle(logRow, args.outputDir)
     log.info("The selection of successful results is over")
+    println()
     if (args.debug) printData(validRow)
+    println()
 
     log.info("Record of results in the file system started")
-    hiveRecorder.save(validRow)
+    //hiveRecorder.save(validRow)
     log.info("Record of results in the file system is over")
 
     log.info("End of processing - move processed files from working folder")
-    fsProcessedHandler.handle()
+    //fsProcessedHandler.handle()
   }
 
   private def printData[T](data: RDD[T]) = {
