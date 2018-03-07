@@ -13,7 +13,6 @@ import com.prb.dnhs.parsers._
 import com.prb.dnhs.processor.Processor
 import com.prb.dnhs.readers._
 import com.prb.dnhs.recorders._
-import com.prb.dnhs.validators._
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.FileSystem
 import org.apache.spark.rdd.RDD
@@ -23,7 +22,7 @@ import org.apache.spark.sql._
   * The DriverContext object contains a number of parameters
   * that enable to work with Spark.
   */
-trait DriverContext extends ConfigHelper
+class DriverContext extends ConfigHelper
   with LoggerHelper
   with Serializable {
 
@@ -45,8 +44,8 @@ trait DriverContext extends ConfigHelper
       .builder()
       .appName(config.getString("app.name"))
       .master(config.getString("spark.master"))
-      .config("hive.metastore.uris", config.getString("hive.address"))
-      .enableHiveSupport()
+      //.config("hive.metastore.uris", config.getString("hive.address"))
+      //.enableHiveSupport()
       .getOrCreate()
 
   lazy val dcFS: FileSystem =
@@ -63,7 +62,7 @@ trait DriverContext extends ConfigHelper
   val dcSchemaRepos = new SchemaRepositoryImpl()
 
   // string to row log parser in serializable container
-   lazy val dcDataParser =
+  val dcDataParser =
     new SerializableContainer[DataParser[String, Either[ErrorDetails, Row]]] {
       override def obj = ExecutorContext.dataParserImpl
     }
@@ -136,8 +135,6 @@ trait DriverContext extends ConfigHelper
   : RowHandler[RDD[Either[ErrorDetails, Row]], RDD[Row]] =
     new MainHandler {
 
-      lazy val saveValidator = dcSaveValidatorImpl
-
       lazy val validRowHandler = dcValidRowHandler
       lazy val invalidRowHandler = dcInvalidRowHandler
     }
@@ -164,45 +161,6 @@ trait DriverContext extends ConfigHelper
       lazy val hdfsPath = s"$pathToFiles/READY"
       lazy val batchTableName = config.getString("hive.batchTable")
       lazy val batchId = globalBatchId.toString
-    }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // DB requests
-  ///////////////////////////////////////////////////////////////////////////
-
-  // stores data from the database at the time of application execution
-  // this implementation assumes the existence of required table
-  lazy val dbData = dcSparkSession.sql(
-    s"SELECT userCookie FROM ${config.getString("app.name")} " +
-      "WHERE eventType = \"rt\""
-  )
-  // this one can be used even if the table not exists
-  /*
-    if (sparkSession.catalog.tableExists(config.getString("sparkSession.name"))) {
-        Some(sparkSession.sql(
-          "SELECT dateTime, eventType, requesrId, userCookie " +
-            s"FROM ${config.getString("sparkSession.name")} " +
-            "WHERE eventType = \"rt\""
-        ))
-    } else None
-  */
-
-  ///////////////////////////////////////////////////////////////////////////
-  // Validators
-  ///////////////////////////////////////////////////////////////////////////
-
-  val dcSaveValidator
-  : Validator[Row, Either[ErrorDetails, Row]] =
-    new SaveAbilityValidatorImpl() {
-
-      // lazy val table = dbData
-      // lazy val clearTable = dbData.drop("batchId").collect.toSeq
-      lazy val userCookies = dbData.collect.mkString("\t")
-    }
-
-  lazy val dcSaveValidatorImpl =
-    new SerializableContainer[Validator[Row, Either[ErrorDetails, Row]]] {
-      override def obj = dcSaveValidator
     }
 
   ///////////////////////////////////////////////////////////////////////////

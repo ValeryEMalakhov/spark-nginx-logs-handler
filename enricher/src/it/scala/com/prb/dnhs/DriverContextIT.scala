@@ -33,57 +33,6 @@ object DriverContextIT extends DriverContext {
       new Configuration(),
       FileSystem.FS_DEFAULT_NAME_KEY
     )
-/*
-  override val dcArchiveReader
-  : DataReader[RDD[String]] =
-    new ArchiveReaderImpl() {
-
-      lazy val sparkSession = dcSparkSession
-      lazy val defInputPath = s"$pathToFiles/READY"
-      lazy val batchId = globalBatchId.toString
-    }
-
-  override val dcHiveRecorder
-  : DataRecorder[RDD[Row]] =
-    new HiveRecorderImpl() {
-
-      lazy val log = logger
-      lazy val sparkSession = dcSparkSession
-      lazy val fs = dcFS
-      lazy val dataTableName = config.getString("hive.logTable")
-      lazy val batchTableName = config.getString("hive.batchTable")
-      lazy val dataFrameGenericSchema = dcSchemaRepos.getSchema(GENERIC_EVENT).get
-      lazy val batchId = globalBatchId.toString
-    }
-
-  override val dcWorkingFolderHandler
-  : FileSystemHandler[Unit] =
-    new WorkingFolderHandlerImpl() {
-
-      lazy val log = logger
-      lazy val sparkSession = dcSparkSession
-      lazy val fs = dcFS
-      lazy val hdfsPath = s"$pathToFiles/READY"
-      lazy val batchTableName = config.getString("hive.batchTable")
-      lazy val batchId = globalBatchId.toString
-    }
-
-  override val dcProcessedFolderHandler
-  : FileSystemHandler[Unit] =
-    new ProcessedFolderHandlerImpl() {
-
-      lazy val log = logger
-      lazy val sparkSession = dcSparkSession
-      lazy val fs = dcFS
-      lazy val hdfsPath = s"$pathToFiles/READY"
-      lazy val batchTableName = config.getString("hive.batchTable")
-      lazy val batchId = globalBatchId.toString
-    }
-
-  override lazy val dbData = dcSparkSession.sql(
-    s"SELECT userCookie FROM ${config.getString("app.name")} " +
-      "WHERE eventType = \"rt\""
-  )
 
   override val processor = new Processor() {
     val log = logger
@@ -93,5 +42,5 @@ object DriverContextIT extends DriverContext {
     val parser = mainParser
     val handler = dcMainHandler
     val hiveRecorder = dcHiveRecorder
-  }*/
+  }
 }
