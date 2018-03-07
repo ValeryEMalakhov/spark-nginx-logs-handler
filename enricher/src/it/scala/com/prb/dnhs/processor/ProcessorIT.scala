@@ -1,7 +1,5 @@
 package com.prb.dnhs.processor
 
-import java.io.File
-
 import com.prb.dnhs.DriverContextIT
 import com.prb.dnhs.utils.TestUtils._
 import org.apache.spark.sql.Row
@@ -21,8 +19,20 @@ class ProcessorIT extends mutable.Specification with Serializable {
 
   //Preparing variables
 
-  private val validSrc = "20/Feb/2018:17:03:26 +0000\timpr\t4276eef079760f85665bceeaa015567d\t101\t192.168.80.132\t192.168.80.1\tMozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0\tAdId=101\n20/Feb/2018:17:03:38 +0000\tclk\t6a460ba62095b69625a71b07b141ad99\t100\t192.168.80.132\t192.168.80.1\tMozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0\tAdId=103\n20/Feb/2018:17:03:55 +0000\trt\td83dc4abc50ed3a0df86ea95a90e6efe\t102\t192.168.80.132\t192.168.80.1\tMozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0\tsegments={121,true,some%20info,1}"
-  private val invalidSrc = "20/Feb/2018:17:07:18 +0000\timpr\t50064af250c05b50039118f1de157923\t106\t192.168.80.132\t192.168.80.1\tMozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0\tAdId=112\n20/Feb/2018:17:07:28 +0000\tclk\t131b415f76bfc79e4f1aa603c15e9125\t106\t192.168.80.132\t192.168.80.1\tMozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0\tAdId=err"
+  private val validSrc =
+  "20/Feb/2018:17:03:26 +0000\timpr\t4276eef079760f85665bceeaa015567d\t" +
+    "101\t192.168.80.132\t192.168.80.1\t" +
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0\t" +
+    "AdId=101\n" +
+    "20/Feb/2018:17:03:38 +0000\tclk\t6a460ba62095b69625a71b07b141ad99\t" +
+    "100\t192.168.80.132\t192.168.80.1\t" +
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0\t" +
+    "AdId=103\n" +
+    "20/Feb/2018:17:03:55 +0000\trt\td83dc4abc50ed3a0df86ea95a90e6efe\t" +
+    "102\t192.168.80.132\t192.168.80.1\t" +
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0\t" +
+    "segments={121,true,some%20info,1}"
+
   private val processedSrc = Seq[Row](
     Row("20/Feb/2018:17:01:48 +0000", "rt", "67d5a56d15ca093a16b0a9706f40ba63",
       "100", "192.168.80.132", "192.168.80.1",
@@ -71,8 +81,8 @@ class ProcessorIT extends mutable.Specification with Serializable {
     }
   }
 
-  //println("Cleaning folders after testing")
-  //cleaningFolders()
+  println("Cleaning folders after testing")
+  cleaningFolders()
 
   println("Done")
 }
