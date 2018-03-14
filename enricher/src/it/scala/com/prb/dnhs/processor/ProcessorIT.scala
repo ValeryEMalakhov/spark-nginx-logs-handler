@@ -62,7 +62,7 @@ class ProcessorIT extends mutable.Specification with Serializable {
   implFolders()
 
   println("Write data")
-  validSrc.writeFile("valid.log.gz")
+  writeFile(validSrc, "valid.log.gz")
 
   println("Write processed data")
   createBaseDB(processedSrc)

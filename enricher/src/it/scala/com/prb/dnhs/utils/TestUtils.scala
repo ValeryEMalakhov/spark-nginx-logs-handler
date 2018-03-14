@@ -35,6 +35,19 @@ object TestUtils {
     testDir.foreach(f => f.mkdir())
   }
 
+  def writeFile(input: String, name: String, path: String = "ITest/READY"): Unit = {
+
+    val fos = new FileOutputStream(s"$path/$name")
+    val gzos = new GZIPOutputStream(fos)
+    val w = new PrintWriter(gzos)
+
+    w.write(input)
+
+    w.close()
+    gzos.close()
+    fos.close()
+  }
+
   def createBaseDB(input: Seq[Row]): Unit = {
     lazy val batchId: Long = Instant.now.toEpochMilli
 
@@ -93,21 +106,4 @@ object TestUtils {
       .format("parquet")
       .saveAsTable("processed_batches")
   }
-
-  implicit class TestOps[T](val input: String) extends AnyVal {
-
-    def writeFile(name: String, path: String = "ITest/READY"): Unit = {
-
-      val fos = new FileOutputStream(s"$path/$name")
-      val gzos = new GZIPOutputStream(fos)
-      val w = new PrintWriter(gzos)
-
-      w.write(input)
-
-      w.close()
-      gzos.close()
-      fos.close()
-    }
-  }
-
 }
