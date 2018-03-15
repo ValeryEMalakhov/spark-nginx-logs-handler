@@ -2,24 +2,17 @@ package com.prb.dnhs.processor
 
 import com.prb.dnhs.DriverContextIT
 import com.prb.dnhs.utils.TestUtils._
-import org.apache.spark.sql.Row
+import com.prb.dnhs.utils.ResultVerifier._
 import org.specs2._
 
 import scala.language.implicitConversions
 
 class ProcessorIT extends mutable.Specification with Serializable {
 
-  /**
-    * Create FS folders /ITest /ITest/READY
-    * /ITest/READY/processing /ITest/READY/processed
-    * Write in folder /ITest/READY itest text file
-    * Crete local metastore + db itest
-    * Write in folder /ITest/READY/processed itest fin
-    */
+  val log = DriverContextIT.logger
 
-  //Preparing variables
-
-  private val validSrc =
+  log.debug("Preparing the test variables")
+  private val testData =
   "20/Feb/2018:17:03:26 +0000\timpr\t4276eef079760f85665bceeaa015567d\t" +
     "101\t192.168.80.132\t192.168.80.1\t" +
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0\t" +
@@ -33,57 +26,19 @@ class ProcessorIT extends mutable.Specification with Serializable {
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0\t" +
     "segments={121,true,some%20info,1}"
 
-  private val processedSrc = Seq[Row](
-    Row("20/Feb/2018:17:01:48 +0000", "rt", "67d5a56d15ca093a16b0a9706f40ba63",
-      "100", "192.168.80.132", "192.168.80.1",
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0",
-      List("{121", "true", "some info", "1}"), null),
-    Row("20/Feb/2018:17:01:57 +0000", "impr", "ef9237b744f404a53aa54acfef0e4f7d",
-      "100", "192.168.80.132", "192.168.80.1",
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0",
-      null, 100),
-    Row("20/Feb/2018:17:02:09 +0000", "impr", "17c8beb0d1dab1cb6d7c4fe8dc22fe56",
-      "100", "192.168.80.132", "192.168.80.1",
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0",
-      null, 101),
-    Row("20/Feb/2018:17:02:13 +0000", "impr", "8c1d43221121cbcf2eecc4afc696980c",
-      "100", "192.168.80.132", "192.168.80.1",
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0",
-      null, 102),
-    Row("20/Feb/2018:17:02:24 +0000", "rt", "14cee1544a7048880e4dffee0e4b3e5a",
-      "101", "192.168.80.132", "192.168.80.1",
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0",
-      List("{121", "true", "some info", "1}"), null)
-  )
+  log.debug("Preparing the environment")
+  prepareEnv()
 
-  //Preparing the environment
+  log.debug("Preparing the test dataset")
+  prepareFile(data = testData, name = "valid.log.gz")
 
-  println("Create folders")
-  implFolders()
-
-  println("Write data")
-  writeFile(validSrc, "valid.log.gz")
-
-  println("Write processed data")
-  createBaseDB(processedSrc)
-
-  //Testing
-
-  DriverContextIT.processor.process(ProcessorConfig(debug = true))
-
+  log.debug("Test execution started")
   "If the log handler operation succeeded" >> {
+    DriverContextIT.processor.process(ProcessorConfig(debug = true))
+
     "the current batch should have been added to the table of processed batches" >> {
-      DriverContextIT.dcSparkSession.sql(
-        "SELECT batchId " +
-          s"FROM default.processed_batches " +
-          s"WHERE batchId = ${DriverContextIT.globalBatchId}"
-      ) must not beNull
+      checkBatchAvailability(DriverContextIT.globalBatchId) must beTrue
     }
   }
-
-  println("Cleaning folders after testing")
-  cleaningFolders()
-
-  println("Done")
 }
 

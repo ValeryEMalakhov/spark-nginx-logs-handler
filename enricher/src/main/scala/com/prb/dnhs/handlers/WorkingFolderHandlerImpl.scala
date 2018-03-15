@@ -4,7 +4,7 @@ import org.apache.hadoop.fs._
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.slf4j.Logger
 
-abstract class WorkingFolderHandlerImpl extends FileSystemHandler[Unit] {
+abstract class WorkingFolderHandlerImpl {
 
   val log: Logger
   val sparkSession: SparkSession
@@ -14,7 +14,7 @@ abstract class WorkingFolderHandlerImpl extends FileSystemHandler[Unit] {
   val batchTableName: String
   val batchId: String
 
-  override def handle(): Unit = {
+  def handle(): Unit = {
 
     val mainPath = new Path(s"$hdfsPath/")
     val batchPath = new Path(s"$hdfsPath/processing/$batchId")
@@ -34,25 +34,21 @@ abstract class WorkingFolderHandlerImpl extends FileSystemHandler[Unit] {
       val batchDefiningFile = batchDefiningPath.toString
       val batchDefiningId = batchDefiningFile.substring(batchDefiningFile.lastIndexOf('/') + 1)
 
-      val batchTable: DataFrame = sparkSession.sql(
-        "SELECT batchId " +
-          s"FROM default.$batchTableName " +
-          s"WHERE batchId = $batchDefiningId"
-      )
+      if (sparkSession.sql(s"SHOW PARTITIONS default.$batchTableName")
+        .collect
+        .exists(_.toString.contains(batchDefiningId))) {
+        log.info("Data already processed - re-create the working folder")
 
-      if (batchTable.collect.isEmpty) {
+        fs.delete(batchDefiningPath, true)
+
+        createFolder(mainPath, batchPath)
+      } else {
         log.info("Data not processed - re-create the batch folder")
 
         // fs.rename(batchDefiningPath, batchPath)
         createFolder(batchDefiningPath, batchPath)
 
         fs.delete(batchDefiningPath, true)
-      } else {
-        log.info("Data already processed - re-create the working folder")
-
-        fs.delete(batchDefiningPath, true)
-
-        createFolder(mainPath, batchPath)
       }
     }
   }

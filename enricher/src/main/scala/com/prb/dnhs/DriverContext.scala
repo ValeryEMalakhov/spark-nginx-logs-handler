@@ -7,7 +7,7 @@ import java.time.Instant
 import com.prb.dnhs.entities.SchemaRepository._
 import com.prb.dnhs.entities._
 import com.prb.dnhs.exceptions._
-import com.prb.dnhs.handlers.{FileSystemHandler, _}
+import com.prb.dnhs.handlers.{_}
 import com.prb.dnhs.helpers._
 import com.prb.dnhs.parsers._
 import com.prb.dnhs.processor.Processor
@@ -140,7 +140,7 @@ class DriverContext extends ConfigHelper
     }
 
   val dcWorkingFolderHandler
-  : FileSystemHandler[Unit] =
+  : WorkingFolderHandlerImpl =
     new WorkingFolderHandlerImpl() {
 
       lazy val log = logger
@@ -152,7 +152,7 @@ class DriverContext extends ConfigHelper
     }
 
   val dcProcessedFolderHandler
-  : FileSystemHandler[Unit] =
+  : ProcessedFolderHandlerImpl =
     new ProcessedFolderHandlerImpl() {
 
       lazy val log = logger

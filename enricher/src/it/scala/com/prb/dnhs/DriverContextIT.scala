@@ -3,7 +3,7 @@ package com.prb.dnhs
 import java.io.File
 import java.net.URI
 
-import com.prb.dnhs.handlers.{FileSystemHandler, ProcessedFolderHandlerImpl, WorkingFolderHandlerImpl}
+import com.prb.dnhs.handlers.{ProcessedFolderHandlerImpl, WorkingFolderHandlerImpl}
 import com.prb.dnhs.readers.{ArchiveReaderImpl, DataReader}
 import com.prb.dnhs.recorders.{DataRecorder, HiveRecorderImpl}
 import org.apache.spark.rdd.RDD

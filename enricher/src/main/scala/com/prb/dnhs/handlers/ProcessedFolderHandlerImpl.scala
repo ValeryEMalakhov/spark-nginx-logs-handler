@@ -4,7 +4,7 @@ import org.apache.hadoop.fs._
 import org.apache.spark.sql.SparkSession
 import org.slf4j.Logger
 
-abstract class ProcessedFolderHandlerImpl extends FileSystemHandler[Unit] {
+abstract class ProcessedFolderHandlerImpl {
 
   val log: Logger
   val sparkSession: SparkSession
@@ -14,15 +14,10 @@ abstract class ProcessedFolderHandlerImpl extends FileSystemHandler[Unit] {
   val batchTableName: String
   val batchId: String
 
-  override def handle(): Unit = {
+  def handle(): Unit = {
 
     val batchPath = new Path(s"$hdfsPath/processing/$batchId")
     val processedPath = new Path(s"$hdfsPath/processed/$batchId")
-
-    sparkSession.sql(
-      s"INSERT INTO TABLE default.$batchTableName " +
-        s"VALUES $batchId"
-    )
 
     createFolder(batchPath, processedPath)
 

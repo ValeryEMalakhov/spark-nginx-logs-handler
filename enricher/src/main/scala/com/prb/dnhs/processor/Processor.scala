@@ -1,7 +1,7 @@
 package com.prb.dnhs.processor
 
 import com.prb.dnhs.exceptions.ErrorDetails
-import com.prb.dnhs.handlers.{FileSystemHandler, RowHandler}
+import com.prb.dnhs.handlers.{ProcessedFolderHandlerImpl, RowHandler, WorkingFolderHandlerImpl}
 import com.prb.dnhs.parsers.DataParser
 import com.prb.dnhs.readers.DataReader
 import com.prb.dnhs.recorders.DataRecorder
@@ -13,8 +13,8 @@ abstract class Processor {
 
   val log: Logger
 
-  val fsHandler: FileSystemHandler[Unit]
-  val fsProcessedHandler: FileSystemHandler[Unit]
+  val fsHandler: WorkingFolderHandlerImpl
+  val fsProcessedHandler: ProcessedFolderHandlerImpl
 
   val gzReader: DataReader[RDD[String]]
   val parser: DataParser[RDD[String], RDD[Either[ErrorDetails, Row]]]

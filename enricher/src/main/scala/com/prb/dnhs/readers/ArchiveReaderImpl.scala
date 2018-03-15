@@ -17,6 +17,7 @@ abstract class ArchiveReaderImpl extends DataReader[RDD[String]] {
     sparkSession
       .sparkContext
       .textFile {
+        //TODO: to handler dir
         if (inputDir == "") s"$defInputPath/processing/$batchId/*.gz"
         else s"$inputDir/*.gz"
       }
