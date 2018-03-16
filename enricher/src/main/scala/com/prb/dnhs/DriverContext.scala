@@ -171,8 +171,8 @@ class DriverContext extends ConfigHelper
   // scopt object for app coordination
   val processor = new Processor() {
     val log = logger
-    val fsHandler = dcWorkingFolderHandler
-    val fsProcessedHandler = dcProcessedFolderHandler
+    val fsPreparator = dcWorkingFolderHandler
+    val fsCleaner = dcProcessedFolderHandler
     val gzReader = dcArchiveReader
     val parser = mainParser
     val handler = dcMainHandler

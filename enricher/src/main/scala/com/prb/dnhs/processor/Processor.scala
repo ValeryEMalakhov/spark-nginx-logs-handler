@@ -14,19 +14,18 @@ abstract class Processor {
 
   val log: Logger
 
-  val fsHandler: FileSystemEnvPreparator
-  val fsProcessedHandler: FileSystemEnvCleaner
+  val fsPreparator: FileSystemEnvPreparator
+  val fsCleaner: FileSystemEnvCleaner
 
   val gzReader: DataReader[RDD[String]]
   val parser: DataParser[RDD[String], RDD[Either[ErrorDetails, Row]]]
   val handler: RowHandler[RDD[Either[ErrorDetails, Row]], RDD[Row]]
   val hiveRecorder: DataRecorder[RDD[Row]]
 
-
   def process(args: ProcessorConfig): Unit = {
 
     log.info("Preliminary check of working folder")
-    val pathToFiles = fsHandler.prepareEnv(args.inputDir)
+    val pathToFiles = fsPreparator.prepareEnv(args.inputDir)
 
     log.info("Reading of log-files from the file system started")
     println(pathToFiles.toString)
@@ -49,7 +48,7 @@ abstract class Processor {
     log.info("Record of results in the file system is over")
 
     log.info("End of processing - move processed files from working folder")
-    fsProcessedHandler.cleanup(pathToFiles)
+    fsCleaner.cleanup(pathToFiles)
   }
 
   private def printData[T](data: RDD[T]) = {
