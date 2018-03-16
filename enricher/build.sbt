@@ -48,6 +48,7 @@ lazy val assemblySettings = Seq(
 lazy val testSettings = Seq(
   exportJars := true
   , fork in Test := true
+  , parallelExecution in Test := false
   , artifactName in Test := { (sv: ScalaVersion, module: ModuleID, artifact: Artifact) =>
     s"${artifact.name}-tests.${artifact.extension}"
   }

@@ -5,7 +5,6 @@ import java.time.Instant
 import java.util.zip.GZIPOutputStream
 
 import com.prb.dnhs.DriverContextIT
-//import org.apache.commons.io.FileUtils
 import org.apache.hadoop.fs.Path
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.functions.lit
@@ -19,8 +18,12 @@ object TestUtils {
 
   private lazy val schemas = DriverContextIT.dcSchemaRepos
   private lazy val log = DriverContextIT.logger
+
   private lazy val GENERIC_EVENT = "generic-event"
   private lazy val PROC_TABLE = "processed_data"
+  private lazy val TEST_DATA_FOLDER = "ITest/READY"
+
+  private lazy val batchId: Long = Instant.now.toEpochMilli
 
   private val defaultPreviousData = Seq[Row](
     Row("20/Feb/2018:17:01:48 +0000", "rt", "67d5a56d15ca093a16b0a9706f40ba63",
@@ -49,55 +52,49 @@ object TestUtils {
     log.debug("Cleaning up folders before creating new ones")
     cleaningFolders()
 
+    log.debug("Cleaning up database before creating new one")
+    cleaningDatabase()
+
     log.debug("File system preparation")
     prepareFolders()
 
-    log.debug("File system preparation")
+    log.debug("Files preparation")
+    prepareFile(
+      data = defaultPreviousData.map(_.mkString("\t")).mkString("\n"),
+      name = "pre_processed.log.gz",
+      path = s"$TEST_DATA_FOLDER/processed/$batchId"
+    )
+
+    log.debug("Database preparation")
     prepareDatabase(inputPreData)
   }
 
-  def cleaningFolders(path: String = "ITest"): Unit = {
-
-    fs.delete(new Path(path), true)
-    fs.delete(new Path("metastore_db"), true)
-    fs.delete(new Path("derby.log"), true)
-
-    log.debug("Folders deleted")
-    //    val testDir = new File(path)
-    //    val metastore = new File("metastore_db")
-    //    val derby = new File("derby.log")
-
-    //    if (testDir.exists) FileUtils.forceDelete(testDir)
-    //    if (metastore.exists) FileUtils.forceDelete(metastore)
-    //    if (derby.exists) FileUtils.forceDelete(derby)
-  }
-
   def prepareFolders(): Unit = {
-    fs.mkdirs(new Path("ITest/READY/processing"))
-    fs.mkdirs(new Path("ITest/READY/processed"))
-    log.debug("Folders created")
+    fs.mkdirs(new Path(s"$TEST_DATA_FOLDER/processing"))
+    fs.mkdirs(new Path(s"$TEST_DATA_FOLDER/processed"))
+    fs.mkdirs(new Path(s"$TEST_DATA_FOLDER/processed/$batchId"))
+    log.debug("Test folders created")
   }
 
-  def prepareDatabase(input: Seq[Row]): Unit = {
-    lazy val batchId: Long = Instant.now.toEpochMilli
-
+  def prepareDatabase(input: Seq[Row], name: String = PROC_TABLE): Unit = {
     val genericSchema = schemas.getSchema(GENERIC_EVENT).get
 
-    sparkSession
-      .createDataFrame(
-        sparkSession.sparkContext.parallelize(input),
-        genericSchema
-      )
-      .withColumn("batchId", lit(batchId))
-      .write
-      .format("parquet")
-      .partitionBy("batchId")
-      .saveAsTable(PROC_TABLE)
+    if (!sparkSession.catalog.tableExists(name))
+      sparkSession
+        .createDataFrame(
+          sparkSession.sparkContext.parallelize(input),
+          genericSchema
+        )
+        .withColumn("batchId", lit(batchId))
+        .write
+        .format("parquet")
+        .partitionBy("batchId")
+        .saveAsTable(name)
 
-    log.debug("Database created")
+    log.debug("Test database created")
   }
 
-  def prepareFile(data: String, name: String, path: String = "ITest/READY"): Unit = {
+  def prepareFile(data: String, name: String, path: String = TEST_DATA_FOLDER): Unit = {
 
     val fos = new FileOutputStream(s"$path/$name")
     val gzos = new GZIPOutputStream(fos)
@@ -110,5 +107,17 @@ object TestUtils {
     fos.close()
 
     log.debug("File saved")
+  }
+
+  def cleaningFolders(path: String = "ITest"): Unit = {
+    fs.delete(new Path(path), true)
+    //fs.delete(new Path("metastore_db"), true)
+    //fs.delete(new Path("derby.log"), true)
+
+    log.debug("Test folders deleted")
+  }
+
+  def cleaningDatabase(name: String = PROC_TABLE): Unit = {
+    sparkSession.sql(s"DROP TABLE IF EXISTS $name PURGE")
   }
 }
