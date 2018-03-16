@@ -1,7 +1,8 @@
 package com.prb.dnhs.processor
 
 import com.prb.dnhs.exceptions.ErrorDetails
-import com.prb.dnhs.handlers.{ProcessedFolderHandlerImpl, RowHandler, WorkingFolderHandlerImpl}
+import com.prb.dnhs.fs.{FileSystemEnvCleaner, FileSystemEnvPreparator}
+import com.prb.dnhs.handlers.RowHandler
 import com.prb.dnhs.parsers.DataParser
 import com.prb.dnhs.readers.DataReader
 import com.prb.dnhs.recorders.DataRecorder
@@ -13,8 +14,8 @@ abstract class Processor {
 
   val log: Logger
 
-  val fsHandler: WorkingFolderHandlerImpl
-  val fsProcessedHandler: ProcessedFolderHandlerImpl
+  val fsHandler: FileSystemEnvPreparator
+  val fsProcessedHandler: FileSystemEnvCleaner
 
   val gzReader: DataReader[RDD[String]]
   val parser: DataParser[RDD[String], RDD[Either[ErrorDetails, Row]]]
@@ -25,10 +26,11 @@ abstract class Processor {
   def process(args: ProcessorConfig): Unit = {
 
     log.info("Preliminary check of working folder")
-    fsHandler.handle()
+    val pathToFiles = fsHandler.prepareEnv(args.inputDir)
 
     log.info("Reading of log-files from the file system started")
-    val logRDD = gzReader.read(args.inputDir)
+    println(pathToFiles.toString)
+    val logRDD = gzReader.read(pathToFiles.toString)
     log.info("Reading of log-files from the file system is over")
     if (args.debug) printData(logRDD)
 
@@ -47,7 +49,7 @@ abstract class Processor {
     log.info("Record of results in the file system is over")
 
     log.info("End of processing - move processed files from working folder")
-    fsProcessedHandler.handle()
+    fsProcessedHandler.cleanup(pathToFiles)
   }
 
   private def printData[T](data: RDD[T]) = {

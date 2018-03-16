@@ -7,7 +7,8 @@ import java.time.Instant
 import com.prb.dnhs.entities.SchemaRepository._
 import com.prb.dnhs.entities._
 import com.prb.dnhs.exceptions._
-import com.prb.dnhs.handlers.{_}
+import com.prb.dnhs.fs.{FileSystemEnvCleaner, FileSystemEnvPreparator}
+import com.prb.dnhs.handlers._
 import com.prb.dnhs.helpers._
 import com.prb.dnhs.parsers._
 import com.prb.dnhs.processor.Processor
@@ -140,8 +141,8 @@ class DriverContext extends ConfigHelper
     }
 
   val dcWorkingFolderHandler
-  : WorkingFolderHandlerImpl =
-    new WorkingFolderHandlerImpl() {
+  : FileSystemEnvPreparator =
+    new FileSystemEnvPreparator() {
 
       lazy val log = logger
       lazy val sparkSession = dcSparkSession
@@ -152,8 +153,8 @@ class DriverContext extends ConfigHelper
     }
 
   val dcProcessedFolderHandler
-  : ProcessedFolderHandlerImpl =
-    new ProcessedFolderHandlerImpl() {
+  : FileSystemEnvCleaner =
+    new FileSystemEnvCleaner() {
 
       lazy val log = logger
       lazy val sparkSession = dcSparkSession
