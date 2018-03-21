@@ -7,13 +7,13 @@ import java.time.Instant
 import com.prb.dnhs.entities.SchemaRepository._
 import com.prb.dnhs.entities._
 import com.prb.dnhs.exceptions._
-import com.prb.dnhs.handlers.{FileSystemHandler, _}
+import com.prb.dnhs.fs.{FileSystemEnvCleaner, FileSystemEnvPreparator}
+import com.prb.dnhs.handlers._
 import com.prb.dnhs.helpers._
 import com.prb.dnhs.parsers._
 import com.prb.dnhs.processor.Processor
 import com.prb.dnhs.readers._
 import com.prb.dnhs.recorders._
-import com.prb.dnhs.validators._
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.FileSystem
 import org.apache.spark.rdd.RDD
@@ -23,7 +23,9 @@ import org.apache.spark.sql._
   * The DriverContext object contains a number of parameters
   * that enable to work with Spark.
   */
-class DriverContext extends ConfigHelper with LoggerHelper {
+class DriverContext extends ConfigHelper
+  with LoggerHelper
+  with Serializable {
 
   ///////////////////////////////////////////////////////////////////////////
   // Spark conf
@@ -43,9 +45,8 @@ class DriverContext extends ConfigHelper with LoggerHelper {
       .builder()
       .appName(config.getString("app.name"))
       .master(config.getString("spark.master"))
-      //.config("spark.sql.warehouse.dir", warehouseLocation)
-      .config("hive.metastore.uris", config.getString("hive.address"))
-      .enableHiveSupport()
+      //.config("hive.metastore.uris", config.getString("hive.address"))
+      //.enableHiveSupport()
       .getOrCreate()
 
   lazy val dcFS: FileSystem =
@@ -59,15 +60,15 @@ class DriverContext extends ConfigHelper with LoggerHelper {
   // Parsers
   ///////////////////////////////////////////////////////////////////////////
 
-  private val dcSchemaRepos = new SchemaRepositoryImpl()
+  val dcSchemaRepos = new SchemaRepositoryImpl()
 
   // string to row log parser in serializable container
-  private lazy val dcDataParser =
+  val dcDataParser =
     new SerializableContainer[DataParser[String, Either[ErrorDetails, Row]]] {
       override def obj = ExecutorContext.dataParserImpl
     }
 
-  private val mainParser
+  val mainParser
   : DataParser[RDD[String], RDD[Either[ErrorDetails, Row]]] =
     new MainParser() {
 
@@ -78,7 +79,7 @@ class DriverContext extends ConfigHelper with LoggerHelper {
   // Data readers
   ///////////////////////////////////////////////////////////////////////////
 
-  private val dcArchiveReader
+  val dcArchiveReader
   : DataReader[RDD[String]] =
     new ArchiveReaderImpl() {
 
@@ -91,24 +92,22 @@ class DriverContext extends ConfigHelper with LoggerHelper {
   // Data recorders
   ///////////////////////////////////////////////////////////////////////////
 
-  private lazy val globalBatchId = Instant.now.toEpochMilli
+  lazy val globalBatchId = Instant.now.toEpochMilli
 
   // a recorder for storing the processed data and adding it to the database
-  private val dcHiveRecorder
+  val dcHiveRecorder
   : DataRecorder[RDD[Row]] =
     new HiveRecorderImpl() {
 
       lazy val log = logger
       lazy val sparkSession = dcSparkSession
-      lazy val fs = dcFS
-      lazy val dataTableName = config.getString("hive.processed_data")
-      lazy val batchTableName = config.getString("hive.processed_batches")
+      lazy val dataTableName = config.getString("hive.logTable")
       lazy val dataFrameGenericSchema = dcSchemaRepos.getSchema(GENERIC_EVENT).get
       lazy val batchId = globalBatchId.toString
     }
 
   // a recorder for storing the invalid data
-  private val dcFileRecorder
+  val dcFileRecorder
   : DataRecorder[RDD[String]] =
     new FileRecorderImpl() {
 
@@ -120,30 +119,28 @@ class DriverContext extends ConfigHelper with LoggerHelper {
   // Data handlers
   ///////////////////////////////////////////////////////////////////////////
 
-  private val dcValidRowHandler
+  val dcValidRowHandler
   : RowHandler[RDD[Either[ErrorDetails, Row]], RDD[Row]] =
     new ValidRowHandler()
 
-  private val dcInvalidRowHandler
+  val dcInvalidRowHandler
   : RowHandler[RDD[Either[ErrorDetails, Row]], Unit] =
     new InvalidRowHandler() {
 
       lazy val fileRecorder = dcFileRecorder
     }
 
-  private val dcMainHandler
+  val dcMainHandler
   : RowHandler[RDD[Either[ErrorDetails, Row]], RDD[Row]] =
     new MainHandler {
-
-      lazy val saveValidator = dcSaveValidatorImpl
 
       lazy val validRowHandler = dcValidRowHandler
       lazy val invalidRowHandler = dcInvalidRowHandler
     }
 
-  private val dcWorkingFolderHandler
-  : FileSystemHandler[Unit] =
-    new WorkingFolderHandlerImpl() {
+  val dcFileSystemPreparator
+  : FileSystemEnvPreparator =
+    new FileSystemEnvPreparator() {
 
       lazy val log = logger
       lazy val sparkSession = dcSparkSession
@@ -153,9 +150,9 @@ class DriverContext extends ConfigHelper with LoggerHelper {
       lazy val batchId = globalBatchId.toString
     }
 
-  private val dcProcessedFolderHandler
-  : FileSystemHandler[Unit] =
-    new ProcessedFolderHandlerImpl() {
+  val dcFileSystemCleaner
+  : FileSystemEnvCleaner =
+    new FileSystemEnvCleaner() {
 
       lazy val log = logger
       lazy val sparkSession = dcSparkSession
@@ -163,45 +160,6 @@ class DriverContext extends ConfigHelper with LoggerHelper {
       lazy val hdfsPath = s"$pathToFiles/READY"
       lazy val batchTableName = config.getString("hive.batchTable")
       lazy val batchId = globalBatchId.toString
-    }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // DB requests
-  ///////////////////////////////////////////////////////////////////////////
-
-  // stores data from the database at the time of application execution
-  // this implementation assumes the existence of required table
-  private lazy val dbData = dcSparkSession.sql(
-    s"SELECT userCookie FROM ${config.getString("app.name")} " +
-      "WHERE eventType = \"rt\""
-  )
-  // this one can be used even if the table not exists
-  /*
-    if (sparkSession.catalog.tableExists(config.getString("sparkSession.name"))) {
-        Some(sparkSession.sql(
-          "SELECT dateTime, eventType, requesrId, userCookie " +
-            s"FROM ${config.getString("sparkSession.name")} " +
-            "WHERE eventType = \"rt\""
-        ))
-    } else None
-  */
-
-  ///////////////////////////////////////////////////////////////////////////
-  // Validators
-  ///////////////////////////////////////////////////////////////////////////
-
-  private val dcSaveValidator
-  : Validator[Row, Either[ErrorDetails, Row]] =
-    new SaveAbilityValidatorImpl() {
-
-      // lazy val table = dbData
-      // lazy val clearTable = dbData.drop("batchId").collect.toSeq
-      lazy val userCookies = dbData.collect.mkString("\t")
-    }
-
-  private lazy val dcSaveValidatorImpl =
-    new SerializableContainer[Validator[Row, Either[ErrorDetails, Row]]] {
-      override def obj = dcSaveValidator
     }
 
   ///////////////////////////////////////////////////////////////////////////
@@ -211,8 +169,8 @@ class DriverContext extends ConfigHelper with LoggerHelper {
   // scopt object for app coordination
   val processor = new Processor() {
     val log = logger
-    val fsHandler = dcWorkingFolderHandler
-    val fsProcessedHandler = dcProcessedFolderHandler
+    val fsPreparator = dcFileSystemPreparator
+    val fsCleaner = dcFileSystemCleaner
     val gzReader = dcArchiveReader
     val parser = mainParser
     val handler = dcMainHandler
