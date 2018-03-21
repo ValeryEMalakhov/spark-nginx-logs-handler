@@ -16,7 +16,7 @@ abstract class Processor {
 
   val fsPreparator: FileSystemEnvPreparator
   val fsCleaner: FileSystemEnvCleaner
-
+  
   val gzReader: DataReader[RDD[String]]
   val parser: DataParser[RDD[String], RDD[Either[ErrorDetails, Row]]]
   val handler: RowHandler[RDD[Either[ErrorDetails, Row]], RDD[Row]]
