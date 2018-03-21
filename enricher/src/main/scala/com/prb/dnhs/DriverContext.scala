@@ -101,9 +101,7 @@ class DriverContext extends ConfigHelper
 
       lazy val log = logger
       lazy val sparkSession = dcSparkSession
-      lazy val fs = dcFS
       lazy val dataTableName = config.getString("hive.logTable")
-      lazy val batchTableName = config.getString("hive.batchTable")
       lazy val dataFrameGenericSchema = dcSchemaRepos.getSchema(GENERIC_EVENT).get
       lazy val batchId = globalBatchId.toString
     }
@@ -140,7 +138,7 @@ class DriverContext extends ConfigHelper
       lazy val invalidRowHandler = dcInvalidRowHandler
     }
 
-  val dcWorkingFolderHandler
+  val dcFileSystemPreparator
   : FileSystemEnvPreparator =
     new FileSystemEnvPreparator() {
 
@@ -152,7 +150,7 @@ class DriverContext extends ConfigHelper
       lazy val batchId = globalBatchId.toString
     }
 
-  val dcProcessedFolderHandler
+  val dcFileSystemCleaner
   : FileSystemEnvCleaner =
     new FileSystemEnvCleaner() {
 
@@ -171,8 +169,8 @@ class DriverContext extends ConfigHelper
   // scopt object for app coordination
   val processor = new Processor() {
     val log = logger
-    val fsPreparator = dcWorkingFolderHandler
-    val fsCleaner = dcProcessedFolderHandler
+    val fsPreparator = dcFileSystemPreparator
+    val fsCleaner = dcFileSystemCleaner
     val gzReader = dcArchiveReader
     val parser = mainParser
     val handler = dcMainHandler

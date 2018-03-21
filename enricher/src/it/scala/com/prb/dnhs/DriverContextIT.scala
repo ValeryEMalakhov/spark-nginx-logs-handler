@@ -31,8 +31,8 @@ object DriverContextIT extends DriverContext {
 
   override val processor = new Processor() {
     val log = logger
-    val fsPreparator = dcWorkingFolderHandler
-    val fsCleaner = dcProcessedFolderHandler
+    val fsPreparator = dcFileSystemPreparator
+    val fsCleaner = dcFileSystemCleaner
     val gzReader = dcArchiveReader
     val parser = mainParser
     val handler = dcMainHandler
