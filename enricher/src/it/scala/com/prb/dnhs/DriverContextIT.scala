@@ -37,5 +37,6 @@ object DriverContextIT extends DriverContext {
     val parser = mainParser
     val handler = dcMainHandler
     val hiveRecorder = dcHiveRecorder
+    val hbaseRecorder = dcHBaseRecorder
   }
 }

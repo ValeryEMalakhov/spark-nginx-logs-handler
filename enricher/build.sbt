@@ -3,7 +3,7 @@ import sbt.Keys._
 
 lazy val commonSettings = Seq(
   name := "LogsEnricher"
-  , version := "1.0.0.f4"
+  , version := "1.0.0.f5"
   , scalaVersion := "2.11.11"
   , autoScalaLibrary := false
 )
@@ -76,11 +76,11 @@ lazy val dependencySettings = Seq(
   libraryDependencies ++=
     spark ++
     hadoop ++
+    hbase ++
+    scalaz ++
     sTest ++
     Seq(
-      scalazStream
-      , scalazCore
-      , parquetColumn
+        parquetColumn
       , configType
       , scopt
       , slf4j

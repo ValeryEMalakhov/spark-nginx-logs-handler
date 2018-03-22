@@ -11,7 +11,7 @@ abstract class FileSystemEnvPreparator {
   val fs: FileSystem
 
   val hdfsPath: String
-  val batchTableName: String
+  val dataTableName: String
   val batchId: String
 
   def prepareEnv(pathToFS: String): Path = {
@@ -41,7 +41,7 @@ abstract class FileSystemEnvPreparator {
     val batchDefiningId = batchDefiningPath.toString
       .substring(batchDefiningPath.toString.lastIndexOf('/') + 1)
 
-    if (sparkSession.sql(s"SHOW PARTITIONS default.$batchTableName")
+    if (sparkSession.sql(s"SHOW PARTITIONS default.$dataTableName")
       .collect
       .exists(_.toString.contains(batchDefiningId))) {
       log.info("Data already processed - re-create the working folder")

@@ -16,11 +16,12 @@ abstract class Processor {
 
   val fsPreparator: FileSystemEnvPreparator
   val fsCleaner: FileSystemEnvCleaner
-  
+
   val gzReader: DataReader[RDD[String]]
   val parser: DataParser[RDD[String], RDD[Either[ErrorDetails, Row]]]
   val handler: RowHandler[RDD[Either[ErrorDetails, Row]], RDD[Row]]
   val hiveRecorder: DataRecorder[RDD[Row]]
+  val hbaseRecorder: DataRecorder[RDD[Row]]
 
   def process(args: ProcessorConfig): Unit = {
 
@@ -46,6 +47,10 @@ abstract class Processor {
     log.info("Record of results in the file system started")
     hiveRecorder.save(validRow)
     log.info("Record of results in the file system is over")
+
+    log.info("Record of results in the HBase started")
+    hbaseRecorder.save(validRow)
+    log.info("Record of results in the HBase is over")
 
     log.info("End of processing - move processed files from working folder")
     fsCleaner.cleanup(pathToFiles)

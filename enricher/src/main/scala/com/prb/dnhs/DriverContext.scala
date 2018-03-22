@@ -14,10 +14,13 @@ import com.prb.dnhs.parsers._
 import com.prb.dnhs.processor.Processor
 import com.prb.dnhs.readers._
 import com.prb.dnhs.recorders._
+import com.prb.dnhs.recorders.hbase.HBaseRecorder
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.FileSystem
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
+import org.apache.spark.sql.types.StructType
+import org.slf4j.Logger
 
 /**
   * The DriverContext object contains a number of parameters
@@ -101,7 +104,7 @@ class DriverContext extends ConfigHelper
 
       lazy val log = logger
       lazy val sparkSession = dcSparkSession
-      lazy val dataTableName = config.getString("hive.logTable")
+      lazy val dataTableName = config.getString("hive.table")
       lazy val dataFrameGenericSchema = dcSchemaRepos.getSchema(GENERIC_EVENT).get
       lazy val batchId = globalBatchId.toString
     }
@@ -114,6 +117,16 @@ class DriverContext extends ConfigHelper
       lazy val fileSaveDirPath = pathToFiles + "/DEFAULT"
       lazy val batchId = globalBatchId.toString
     }
+
+  val dcHBaseRecorder
+  : DataRecorder[RDD[Row]] =
+    new HBaseRecorder {
+
+    lazy val log = logger
+    lazy val genericSchema = dcSchemaRepos.getSchema(GENERIC_EVENT).get
+    lazy val dataTableName = config.getString("hbase.table")
+    lazy val sparkSession = dcSparkSession
+  }
 
   ///////////////////////////////////////////////////////////////////////////
   // Data handlers
@@ -146,7 +159,7 @@ class DriverContext extends ConfigHelper
       lazy val sparkSession = dcSparkSession
       lazy val fs = dcFS
       lazy val hdfsPath = s"$pathToFiles/READY"
-      lazy val batchTableName = config.getString("hive.batchTable")
+      lazy val dataTableName = config.getString("hive.table")
       lazy val batchId = globalBatchId.toString
     }
 
@@ -158,8 +171,6 @@ class DriverContext extends ConfigHelper
       lazy val sparkSession = dcSparkSession
       lazy val fs = dcFS
       lazy val hdfsPath = s"$pathToFiles/READY"
-      lazy val batchTableName = config.getString("hive.batchTable")
-      lazy val batchId = globalBatchId.toString
     }
 
   ///////////////////////////////////////////////////////////////////////////
@@ -175,6 +186,7 @@ class DriverContext extends ConfigHelper
     val parser = mainParser
     val handler = dcMainHandler
     val hiveRecorder = dcHiveRecorder
+    val hbaseRecorder = dcHBaseRecorder
   }
 
   ///////////////////////////////////////////////////////////////////////////

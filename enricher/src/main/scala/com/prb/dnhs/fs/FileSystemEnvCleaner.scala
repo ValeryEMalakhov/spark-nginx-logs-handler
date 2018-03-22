@@ -11,8 +11,6 @@ abstract class FileSystemEnvCleaner {
   val fs: FileSystem
 
   val hdfsPath: String
-  val batchTableName: String
-  val batchId: String
 
   def cleanup(pathToFiles: Path): Unit = {
     val processedPath = new Path(s"$hdfsPath/processed")
