@@ -118,7 +118,7 @@ class DriverContext extends ConfigHelper
       lazy val batchId = globalBatchId.toString
     }
 
-  val dcHBaseRecorder
+  val hbaseRecorder
   : DataRecorder[RDD[Row]] =
     new HBaseRecorder {
 
@@ -127,6 +127,11 @@ class DriverContext extends ConfigHelper
     lazy val dataTableName = config.getString("hbase.table")
     lazy val sparkSession = dcSparkSession
   }
+
+  val dcHBaseRecorder =
+    new SerializableContainer[DataRecorder[RDD[Row]]] {
+      override def obj = hbaseRecorder
+    }
 
   ///////////////////////////////////////////////////////////////////////////
   // Data handlers

@@ -1,4 +1,3 @@
-import sbt.Keys._
 import sbt._
 
 //==============Versions===============
@@ -22,6 +21,12 @@ object V {
   //  Tests  //
   lazy val specs2        = "4.0.2"
   lazy val scalatest     = "3.0.5"
+
+  // CDH
+  lazy val hiveCDH       = "1.1.0-cdh5.12.0"
+  lazy val hadoopCDH     = "2.6.0-cdh5.12.0"
+  lazy val hbaseCDH      = "1.2.0-cdh5.12.0"
+  lazy val jetty         = "6.1.26"
 }
 
 object Dependencies {
@@ -53,6 +58,16 @@ object Dependencies {
   lazy val hbase = Seq(
       hbaseClient
     , hbaseCommon
+  )
+
+  lazy val jettyCore      = "org.mortbay.jetty" % "jetty"           % V.jetty
+  lazy val jettySSLEngine = "org.mortbay.jetty" % "jetty-sslengine" % V.jetty
+  lazy val jettyUtil      = "org.mortbay.jetty" % "jetty-util"      % V.jetty
+
+  lazy val jetty = Seq(
+    jettyCore
+    , jettySSLEngine
+    , jettyUtil
   )
 
   lazy val parquetColumn = "org.apache.parquet" % "parquet-column" % V.parquet
