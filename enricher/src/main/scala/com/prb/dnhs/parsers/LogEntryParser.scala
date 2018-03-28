@@ -112,7 +112,7 @@ abstract class LogEntryParser
       case StringType => logEntry.queryString(field.name).toString
       case IntegerType => logEntry.queryString(field.name).toInt
       case FloatType => logEntry.queryString(field.name).toFloat
-      case ArrayType(StringType, _) => logEntry.queryString(field.name).split(",").toList
+      case ArrayType(StringType, _) => logEntry.queryString(field.name).drop(1).dropRight(1).split(",").toList
     }
   }
 

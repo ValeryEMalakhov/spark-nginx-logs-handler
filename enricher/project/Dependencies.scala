@@ -14,26 +14,29 @@ object V {
   lazy val typesafe      = "1.3.2"
   lazy val scopt         = "3.7.0"
 
-  lazy val slf4j         = "3.7.2"
+  lazy val slf4j         = "2.1.2"
   lazy val cats          = "1.0.1"
   lazy val json          = "2.9.4"
 
   //  Tests  //
-  lazy val specs2        = "4.0.2"
+  lazy val specs2        = "3.9.5"
   lazy val scalatest     = "3.0.5"
 
   // CDH
+  lazy val sparkCDH      = "1.6.0-cdh5.12.0"
   lazy val hiveCDH       = "1.1.0-cdh5.12.0"
   lazy val hadoopCDH     = "2.6.0-cdh5.12.0"
   lazy val hbaseCDH      = "1.2.0-cdh5.12.0"
+  lazy val parquetCDH    = "1.8.1-cdh5.7.0"
   lazy val jetty         = "6.1.26"
+  lazy val clouderaLog   = "1.0.3"
 }
 
 object Dependencies {
-  lazy val sparkCore      = "org.apache.spark" %% "spark-core"      % V.spark// % "provided"
-  lazy val sparkSQL       = "org.apache.spark" %% "spark-sql"       % V.spark// % "provided"
-  lazy val sparkStreaming = "org.apache.spark" %% "spark-streaming" % V.spark// % "provided"
-  lazy val sparkHive      = "org.apache.spark" %% "spark-hive"      % V.spark// % "provided"
+  lazy val sparkCore      = "org.apache.spark" %% "spark-core"      % V.sparkCDH// % "provided"
+  lazy val sparkSQL       = "org.apache.spark" %% "spark-sql"       % V.sparkCDH// % "provided"
+  lazy val sparkStreaming = "org.apache.spark" %% "spark-streaming" % V.sparkCDH// % "provided"
+  lazy val sparkHive      = "org.apache.spark" %% "spark-hive"      % V.sparkCDH// % "provided"
 
   lazy val spark = Seq(
       sparkCore
@@ -42,9 +45,9 @@ object Dependencies {
     , sparkHive
   )
 
-  lazy val hadoopCommon  = "org.apache.hadoop" % "hadoop-common"    % V.hadoop % "provided"
-  lazy val hadoopClient  = "org.apache.hadoop" % "hadoop-client"    % V.hadoop % "provided"
-  lazy val hadoopHdfs    = "org.apache.hadoop" % "hadoop-hdfs"      % V.hadoop % "provided"
+  lazy val hadoopCommon  = "org.apache.hadoop" % "hadoop-common"    % V.hadoopCDH % "provided"
+  lazy val hadoopClient  = "org.apache.hadoop" % "hadoop-client"    % V.hadoopCDH % "provided"
+  lazy val hadoopHdfs    = "org.apache.hadoop" % "hadoop-hdfs"      % V.hadoopCDH % "provided"
 
   lazy val hadoop = Seq(
       hadoopCommon
@@ -52,12 +55,16 @@ object Dependencies {
     , hadoopHdfs
   )
 
-  lazy val hbaseClient = "org.apache.hbase" % "hbase-client" % V.hbase
-  lazy val hbaseCommon = "org.apache.hbase" % "hbase-common" % V.hbase
+  lazy val hbaseClient = "org.apache.hbase" % "hbase-client" % V.hbaseCDH
+  lazy val hbaseServer = "org.apache.hbase" % "hbase-server" % V.hbaseCDH
+  lazy val hbaseCommon = "org.apache.hbase" % "hbase-common" % V.hbaseCDH
+  lazy val hbaseSpark  = "org.apache.hbase" % "hbase-spark"  % V.hbaseCDH
 
   lazy val hbase = Seq(
       hbaseClient
+    , hbaseServer
     , hbaseCommon
+    , hbaseSpark
   )
 
   lazy val jettyCore      = "org.mortbay.jetty" % "jetty"           % V.jetty
@@ -65,12 +72,24 @@ object Dependencies {
   lazy val jettyUtil      = "org.mortbay.jetty" % "jetty-util"      % V.jetty
 
   lazy val jetty = Seq(
-    jettyCore
+      jettyCore
     , jettySSLEngine
     , jettyUtil
   )
 
-  lazy val parquetColumn = "org.apache.parquet" % "parquet-column" % V.parquet
+  lazy val logredactor = "org.cloudera.logredactor" % "logredactor" % V.clouderaLog
+
+  lazy val parquetColumn = "org.apache.parquet" % "parquet-column" % V.parquetCDH
+  lazy val parquetCommon = "org.apache.parquet" % "parquet-common" % V.parquetCDH
+  lazy val parquetHadoop = "org.apache.parquet" % "parquet-hadoop" % V.parquetCDH
+  lazy val parquetScala  = "org.apache.parquet" %% "parquet-scala" % V.parquetCDH
+
+  lazy val parquet = Seq(
+      parquetColumn
+    , parquetCommon
+    , parquetHadoop
+    , parquetScala
+  )
 
   lazy val scalazStream  = "org.scalaz.stream" %% "scalaz-stream"  % V.scalazStream
   lazy val scalazCore    = "org.scalaz" %% "scalaz-core"           % V.scalazCore
@@ -81,7 +100,7 @@ object Dependencies {
   )
 
   lazy val configType = "com.typesafe" % "config" % V.typesafe
-  lazy val slf4j      = "com.typesafe.scala-logging" %% "scala-logging" % V.slf4j
+  lazy val slf4j      = "com.typesafe.scala-logging" %% "scala-logging-slf4j" % V.slf4j
 
   lazy val scopt = "com.github.scopt" %% "scopt"  % V.scopt
 

@@ -17,8 +17,10 @@ import com.prb.dnhs.recorders._
 import com.prb.dnhs.recorders.hbase.HBaseRecorder
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.FileSystem
+import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
+import org.apache.spark.sql.hive.HiveContext
 import org.apache.spark.sql.types.StructType
 import org.slf4j.Logger
 
@@ -42,15 +44,32 @@ class DriverContext extends ConfigHelper
   lazy val pathToFiles: String =
     s"${config.getString("hdfs.node")}/${config.getString("hdfs.files")}"
 
-  // SparkSession for Spark 2.*.*
-  lazy val dcSparkSession: SparkSession =
-    SparkSession
-      .builder()
-      .appName(config.getString("app.name"))
-      .master(config.getString("spark.master"))
-      //.config("hive.metastore.uris", config.getString("hive.address"))
-      //.enableHiveSupport()
-      .getOrCreate()
+  // SparkSession for Spark 1.6.* and older
+  lazy val dcSparkConfig: SparkConf =
+    new SparkConf()
+      .setAppName(config.getString("app.name"))
+      .setMaster(config.getString("spark.master"))
+
+  lazy val dcSparkContext: SparkContext =
+    new SparkContext(dcSparkConfig)
+
+  lazy val dcHiveContext: HiveContext =
+    new HiveContext(dcSparkContext)
+
+  //dcHiveContext.setConf("hive.metastore.uris", config.getString("hive.address"))
+
+  lazy val dcSQLContext: SQLContext =
+    new SQLContext(dcSparkContext)
+
+  // SparkSession for Spark 2.* and higher
+  //  lazy val dcSparkSession: SparkSession =
+  //    SparkSession
+  //      .builder()
+  //      .appName(config.getString("app.name"))
+  //      .master(config.getString("spark.master"))
+  //      //.config("hive.metastore.uris", config.getString("hive.address"))
+  //      //.enableHiveSupport()
+  //      .getOrCreate()
 
   lazy val dcFS: FileSystem =
     FileSystem.get(
@@ -86,7 +105,7 @@ class DriverContext extends ConfigHelper
   : DataReader[RDD[String]] =
     new ArchiveReaderImpl() {
 
-      lazy val sparkSession = dcSparkSession
+      lazy val sparkContext = dcSparkContext
       lazy val defInputPath = s"$pathToFiles/READY"
       lazy val batchId = globalBatchId.toString
     }
@@ -101,37 +120,32 @@ class DriverContext extends ConfigHelper
   val dcHiveRecorder
   : DataRecorder[RDD[Row]] =
     new HiveRecorderImpl() {
-
       lazy val log = logger
-      lazy val sparkSession = dcSparkSession
+      lazy val hiveContext = dcHiveContext
+      lazy val sqlContext = dcSQLContext
       lazy val dataTableName = config.getString("hive.table")
       lazy val dataFrameGenericSchema = dcSchemaRepos.getSchema(GENERIC_EVENT).get
       lazy val batchId = globalBatchId.toString
     }
 
-  // a recorder for storing the invalid data
-  val dcFileRecorder
-  : DataRecorder[RDD[String]] =
-    new FileRecorderImpl() {
-
-      lazy val fileSaveDirPath = pathToFiles + "/DEFAULT"
-      lazy val batchId = globalBatchId.toString
-    }
-
-  val hbaseRecorder
+  val dcHBaseRecorder
   : DataRecorder[RDD[Row]] =
     new HBaseRecorder {
-
-    lazy val log = logger
-    lazy val genericSchema = dcSchemaRepos.getSchema(GENERIC_EVENT).get
-    lazy val dataTableName = config.getString("hbase.table")
-    lazy val sparkSession = dcSparkSession
-  }
-
-  val dcHBaseRecorder =
-    new SerializableContainer[DataRecorder[RDD[Row]]] {
-      override def obj = hbaseRecorder
+      lazy val log = logger
+      lazy val genericSchema = dcSchemaRepos.getSchema(GENERIC_EVENT).get
+      lazy val tableName = config.getString("hbase.table")
+      lazy val columnFamily = config.getString("hbase.family")
+      lazy val columnQualifier = config.getString("hbase.qualifier")
+      lazy val sparkContext = dcSparkContext
+      lazy val sqlContext = dcSQLContext
     }
+
+  /*
+    val dcHBaseRecorder =
+      new SerializableContainer[DataRecorder[RDD[Row]]] {
+        override def obj = hbaseRecorder
+      }
+  */
 
   ///////////////////////////////////////////////////////////////////////////
   // Data handlers
@@ -143,15 +157,11 @@ class DriverContext extends ConfigHelper
 
   val dcInvalidRowHandler
   : RowHandler[RDD[Either[ErrorDetails, Row]], Unit] =
-    new InvalidRowHandler() {
-
-      lazy val fileRecorder = dcFileRecorder
-    }
+    new InvalidRowHandler() {}
 
   val dcMainHandler
   : RowHandler[RDD[Either[ErrorDetails, Row]], RDD[Row]] =
     new MainHandler {
-
       lazy val validRowHandler = dcValidRowHandler
       lazy val invalidRowHandler = dcInvalidRowHandler
     }
@@ -159,9 +169,8 @@ class DriverContext extends ConfigHelper
   val dcFileSystemPreparator
   : FileSystemEnvPreparator =
     new FileSystemEnvPreparator() {
-
       lazy val log = logger
-      lazy val sparkSession = dcSparkSession
+      lazy val sqlContext = dcSQLContext
       lazy val fs = dcFS
       lazy val hdfsPath = s"$pathToFiles/READY"
       lazy val dataTableName = config.getString("hive.table")
@@ -171,9 +180,6 @@ class DriverContext extends ConfigHelper
   val dcFileSystemCleaner
   : FileSystemEnvCleaner =
     new FileSystemEnvCleaner() {
-
-      lazy val log = logger
-      lazy val sparkSession = dcSparkSession
       lazy val fs = dcFS
       lazy val hdfsPath = s"$pathToFiles/READY"
     }

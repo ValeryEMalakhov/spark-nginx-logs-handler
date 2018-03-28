@@ -1,3 +1,3 @@
 package org.apache.spark.sql.execution.datasources.parquet
 
-class PublicParquetSchemaConverter extends ParquetSchemaConverter
+class PublicParquetSchemaConverter extends CatalystSchemaConverter

@@ -46,7 +46,7 @@ abstract class RddStringParser
         .parse(queryString, StandardCharsets.UTF_8)
         .asScala
         .filter(t => t.getValue != "-")
-        .map(t => t.getName -> t.getValue)
+        .map(s => s.getName -> s.getValue)
         .toMap
     )
   }

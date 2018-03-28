@@ -1,11 +1,11 @@
 package com.prb.dnhs.readers
 
+import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.SparkSession
 
 abstract class ArchiveReaderImpl extends DataReader[RDD[String]] {
 
-  val sparkSession: SparkSession
+  val sparkContext: SparkContext
   val defInputPath: String
   val batchId: String
 
@@ -14,7 +14,5 @@ abstract class ArchiveReaderImpl extends DataReader[RDD[String]] {
     * from the directory specified in the command-line arguments.
     */
   override def read(inputDir: String): RDD[String] =
-    sparkSession
-      .sparkContext
-      .textFile(s"$inputDir/*.gz")
+    sparkContext.textFile(s"$inputDir/*.gz")
 }

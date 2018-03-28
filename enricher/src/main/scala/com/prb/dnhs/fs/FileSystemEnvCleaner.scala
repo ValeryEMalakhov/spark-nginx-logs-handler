@@ -1,13 +1,9 @@
 package com.prb.dnhs.fs
 
-import org.apache.hadoop.fs._
-import org.apache.spark.sql.SparkSession
-import org.slf4j.Logger
+import org.apache.hadoop.fs.{FileSystem, Path}
 
 abstract class FileSystemEnvCleaner {
 
-  val log: Logger
-  val sparkSession: SparkSession
   val fs: FileSystem
 
   val hdfsPath: String

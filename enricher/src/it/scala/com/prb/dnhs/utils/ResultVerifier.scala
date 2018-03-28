@@ -4,7 +4,7 @@ import com.prb.dnhs.DriverContextIT
 
 object ResultVerifier {
 
-  private lazy val sparkSession = DriverContextIT.dcSparkSession
+  private lazy val hiveContext = DriverContextIT.dcHiveContext
   private lazy val fs           = DriverContextIT.dcFS
 
   private lazy val schemas = DriverContextIT.dcSchemaRepos
@@ -14,6 +14,6 @@ object ResultVerifier {
   private lazy val PROC_TABLE     = "processed_data"
 
   def checkBatchAvailability(batchId: Long): Boolean =
-    sparkSession.sql(s"SHOW PARTITIONS default.$PROC_TABLE")
+    hiveContext.sql(s"SHOW PARTITIONS $PROC_TABLE")
       .collect.exists(_.toString.contains(batchId.toString))
 }

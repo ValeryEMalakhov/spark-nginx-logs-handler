@@ -2,21 +2,23 @@ package com.prb.dnhs.recorders
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.functions._
+import org.apache.spark.sql.hive.HiveContext
 import org.apache.spark.sql.types.StructType
-import org.apache.spark.sql.{Row, SparkSession}
+import org.apache.spark.sql.{Row, SQLContext}
 import org.slf4j.Logger
 
 abstract class HiveRecorderImpl extends DataRecorder[RDD[Row]] {
 
   val log: Logger
-  val sparkSession: SparkSession
+  val hiveContext: HiveContext
+  val sqlContext: SQLContext
   val dataTableName: String
   val dataFrameGenericSchema: StructType
   val batchId: String
 
-  override def save(logRow: RDD[Row], path: String): Unit = {
+  override def save(logRow: RDD[Row]): Unit = {
 
-    val logDF = sparkSession.createDataFrame(logRow, dataFrameGenericSchema)
+    val logDF = hiveContext.createDataFrame(logRow, dataFrameGenericSchema)
 
     createTableIfNotExists(batchId)
 
@@ -27,21 +29,23 @@ abstract class HiveRecorderImpl extends DataRecorder[RDD[Row]] {
     logDF
       .withColumn("batchId", lit(batchId))
       .write
+      .partitionBy("batchId")
       .format("parquet")
       .insertInto(dataTableName)
   }
 
   // will be commented out, if there is no need to create a table
   private def createTableIfNotExists(batchId: String): Unit = {
-    if (!sparkSession.catalog.tableExists(dataTableName)) {
+    if (!hiveContext.tableNames.contains(dataTableName)) {
       // create new table if not exists
-      sparkSession
+      hiveContext
         .createDataFrame(
-          sparkSession.sparkContext.emptyRDD[Row],
+          hiveContext.sparkContext.emptyRDD[Row],
           dataFrameGenericSchema
         )
         .withColumn("batchId", lit(batchId))
         .write
+        .format("parquet")
         .format("parquet")
         .partitionBy("batchId")
         .saveAsTable(dataTableName)

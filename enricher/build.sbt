@@ -4,7 +4,7 @@ import sbt.Keys._
 lazy val commonSettings = Seq(
   name := "LogsEnricher"
   , version := "1.0.0.f5"
-  , scalaVersion := "2.11.11"
+  , scalaVersion := "2.10.4"
   , autoScalaLibrary := false
 )
 
@@ -13,14 +13,25 @@ lazy val enricher = project.in(file("."))
   .settings(dependencySettings)
   //.enablePlugins(Nexus)
   .enablePlugins(AssemblyPlugin)
+  .enablePlugins(sbtdocker.DockerPlugin)
   .settings(artifactSettings)
   .settings(assemblySettings)
+  .settings(dockerSettings)
   .settings(testSettings)
   .configs(FunTest)
   .settings(inConfig(FunTest)(Defaults.testSettings): _*)
   .settings(itSettings)
 
 addArtifact(artifact in(Compile, assembly), assembly)
+
+// scalacOptions += "-Ylog-classpath"
+
+resolvers ++= Seq(
+  "Hadoop Releases" at "https://repository.cloudera.com/content/repositories/releases/",
+  "Maven Releases" at "http://central.maven.org/maven2/",
+  "Cloudera Logs" at "http://repo.spring.io/plugins-release/",
+  "Cloudera Releases" at "https://repository.cloudera.com/artifactory/libs-release-local/"
+)
 
 lazy val artifactSettings = Seq(
   mainClass in(Compile, run) := Some("com.prb.dnhs.MainApp")
@@ -70,18 +81,37 @@ lazy val itSettings =
     //, resourceDirectory in IntegrationTest := baseDirectory.value / "src/it/resources"
   )
 
+lazy val dockerSettings = Seq(
+  // things the docker file generation depends on are listed here
+  dockerfile in docker := {
+    // any vals to be declared here
+    new sbtdocker.mutable.Dockerfile {
+      // The assembly task generates a fat JAR file
+      val artifact: File = assembly.value
+      val artifactTargetPath = s"/app/${artifact.name}"
+
+      new Dockerfile {
+        from("se_env")
+        add(artifact, artifactTargetPath)
+        //entryPoint("java", "-jar", artifactTargetPath)
+      }
+    }
+  }
+  , buildOptions in docker := BuildOptions(cache = false)
+)
+
 lazy val dependencySettings = Seq(
   dependencyOverrides ++=
-    json,
+    json ++ jetty ++ Seq(logredactor),
   libraryDependencies ++=
     spark ++
     hadoop ++
+    parquet ++
     hbase ++
     scalaz ++
     sTest ++
     Seq(
-        parquetColumn
-      , configType
+        configType
       , scopt
       , slf4j
       , cats

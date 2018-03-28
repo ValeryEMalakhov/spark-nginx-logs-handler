@@ -28,7 +28,11 @@ class ProcessorIT extends mutable.Specification
       "20/Feb/2018:17:03:55 +0000\trt\td83dc4abc50ed3a0df86ea95a90e6efe\t" +
       "102\t192.168.80.132\t192.168.80.1\t" +
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0\t" +
-      "segments={121,true,some%20info,1}"
+      "segments={121,true,some%20info,testtesttest}\n" +
+      "29/Feb/2018:17:10:25 +0000\trt\tbf9fb34412f38371280026ebdd3713dd\t" +
+      "102\t192.168.80.132\t192.168.80.1\t" +
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36" +
+      "\tsegments={122,true,some%20info}"
 
   log.debug("Test execution started")
   "If the log handler operation succeeded" >> {

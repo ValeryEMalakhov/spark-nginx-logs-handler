@@ -1,13 +1,13 @@
 package com.prb.dnhs.fs
 
 import org.apache.hadoop.fs._
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.SQLContext
 import org.slf4j.Logger
 
 abstract class FileSystemEnvPreparator {
 
   val log: Logger
-  val sparkSession: SparkSession
+  val sqlContext: SQLContext
   val fs: FileSystem
 
   val hdfsPath: String
@@ -41,7 +41,7 @@ abstract class FileSystemEnvPreparator {
     val batchDefiningId = batchDefiningPath.toString
       .substring(batchDefiningPath.toString.lastIndexOf('/') + 1)
 
-    if (sparkSession.sql(s"SHOW PARTITIONS default.$dataTableName")
+    if (sqlContext.sql(s"SHOW PARTITIONS default.$dataTableName")
       .collect
       .exists(_.toString.contains(batchDefiningId))) {
       log.info("Data already processed - re-create the working folder")

@@ -13,7 +13,8 @@ import scala.language.implicitConversions
 
 object TestUtils {
 
-  private lazy val sparkSession = DriverContextIT.dcSparkSession
+  //private lazy val sqlContext = DriverContextIT.dcSQLContext
+  private lazy val hiveContext = DriverContextIT.dcHiveContext
   private lazy val fs = DriverContextIT.dcFS
 
   private lazy val schemas = DriverContextIT.dcSchemaRepos
@@ -79,10 +80,10 @@ object TestUtils {
   def prepareDatabase(input: Seq[Row], name: String = PROC_TABLE): Unit = {
     val genericSchema = schemas.getSchema(GENERIC_EVENT).get
 
-    if (!sparkSession.catalog.tableExists(name))
-      sparkSession
+    if (!hiveContext.tableNames.contains(name))
+      hiveContext
         .createDataFrame(
-          sparkSession.sparkContext.parallelize(input),
+          hiveContext.sparkContext.parallelize(input),
           genericSchema
         )
         .withColumn("batchId", lit(batchId))
@@ -118,6 +119,9 @@ object TestUtils {
   }
 
   def cleaningDatabase(name: String = PROC_TABLE): Unit = {
-    sparkSession.sql(s"DROP TABLE IF EXISTS $name PURGE")
+    println()
+    println("Hive cleaning")
+    println()
+    hiveContext.sql(s"DROP TABLE IF EXISTS $name")
   }
 }

@@ -1,8 +1,6 @@
 package com.prb.dnhs.entities
 
 import scala.io.Source
-
-import org.apache.parquet.schema.{MessageType, MessageTypeParser}
 import org.apache.spark.sql.execution.datasources.parquet.PublicParquetSchemaConverter
 import org.apache.spark.sql.types.StructType
 import SchemaRepository._
@@ -22,7 +20,9 @@ class SchemaRepositoryImpl extends SchemaRepository {
     val fileSource = Source.fromURL(path)
     val file = fileSource.getLines
 
-    val message: MessageType = MessageTypeParser.parseMessageType(file.mkString)
+    val message =
+      parquet.schema.MessageTypeParser
+        .parseMessageType(file.mkString)
 
     schemaConverter.convert(message)
   }

@@ -2,13 +2,10 @@ package com.prb.dnhs.handlers
 
 import com.prb.dnhs.exceptions.ErrorDetails
 import com.prb.dnhs.exceptions.ErrorType.OtherError
-import com.prb.dnhs.recorders.DataRecorder
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 
 abstract class InvalidRowHandler extends RowHandler[RDD[Either[ErrorDetails, Row]], Unit] {
-
-  val fileRecorder: DataRecorder[RDD[String]]
 
   val TAB = "\t"
 
@@ -48,7 +45,6 @@ abstract class InvalidRowHandler extends RowHandler[RDD[Either[ErrorDetails, Row
       logRow: RDD[String],
       outputDir: String,
       pathSpecification: String): Unit = {
-
-    fileRecorder.save(logRow, s"$outputDir/$pathSpecification")
+    // some code
   }
 }
