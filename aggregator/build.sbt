@@ -8,7 +8,7 @@ lazy val commonSettings = Seq(
   , autoScalaLibrary := false
 )
 
-lazy val enricher = project.in(file("."))
+lazy val aggregator = project.in(file("."))
   .settings(commonSettings: _*)
   .settings(dependencySettings)
   .enablePlugins(AssemblyPlugin)
