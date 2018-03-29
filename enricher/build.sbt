@@ -3,7 +3,7 @@ import sbt.Keys._
 
 lazy val commonSettings = Seq(
   name := "LogsEnricher"
-  , version := "1.0.0.f5"
+  , version := "1.0.0.f6"
   , scalaVersion := "2.10.4"
   , autoScalaLibrary := false
 )
@@ -23,8 +23,6 @@ lazy val enricher = project.in(file("."))
   .settings(itSettings)
 
 addArtifact(artifact in(Compile, assembly), assembly)
-
-// scalacOptions += "-Ylog-classpath"
 
 resolvers ++= Seq(
   "Hadoop Releases" at "https://repository.cloudera.com/content/repositories/releases/",
@@ -93,7 +91,7 @@ lazy val dockerSettings = Seq(
       new Dockerfile {
         from("se_env")
         add(artifact, artifactTargetPath)
-        //entryPoint("java", "-jar", artifactTargetPath)
+        entryPoint("/bin/bash", "/root/le_startup.sh")
       }
     }
   }

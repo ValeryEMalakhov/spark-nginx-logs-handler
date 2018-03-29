@@ -5,7 +5,6 @@ import com.prb.dnhs.utils.ResultVerifier._
 import com.prb.dnhs.utils.SpecUtils
 import com.prb.dnhs.utils.TestUtils._
 import org.specs2._
-import org.specs2.specification.BeforeEach
 
 import scala.language.implicitConversions
 
@@ -36,6 +35,7 @@ class ProcessorIT extends mutable.Specification
 
   log.debug("Test execution started")
   "If the log handler operation succeeded" >> {
+
     "the current batch should have been added to the table of processed data" >> {
       log.debug("Preparing the test dataset")
       prepareFile(data = testData, name = "valid.log.gz")

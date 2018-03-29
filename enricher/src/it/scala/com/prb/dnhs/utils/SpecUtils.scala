@@ -2,7 +2,7 @@ package com.prb.dnhs.utils
 
 import com.prb.dnhs.DriverContextIT
 import com.prb.dnhs.utils.TestUtils._
-import org.specs2.specification.{AfterAll, BeforeAfter, BeforeAll}
+import org.specs2.specification.{AfterAll, BeforeAll}
 
 trait SpecUtils extends BeforeAll with AfterAll {
 

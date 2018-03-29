@@ -17,6 +17,9 @@ import com.prb.dnhs.recorders._
 import com.prb.dnhs.recorders.hbase.HBaseRecorder
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.FileSystem
+import org.apache.hadoop.hbase.HBaseConfiguration
+import org.apache.hadoop.hbase.client.{Connection, ConnectionFactory}
+import org.apache.hadoop.hbase.spark.HBaseContext
 import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
@@ -49,14 +52,15 @@ class DriverContext extends ConfigHelper
     new SparkConf()
       .setAppName(config.getString("app.name"))
       .setMaster(config.getString("spark.master"))
+      .set("spark.sql.warehouse.dir", warehouseLocation)
+      .set("hive.metastore.uris", config.getString("hive.address"))
+      .set("spark.sql.hive.convertMetastoreParquet", "true")
 
   lazy val dcSparkContext: SparkContext =
     new SparkContext(dcSparkConfig)
 
   lazy val dcHiveContext: HiveContext =
     new HiveContext(dcSparkContext)
-
-  //dcHiveContext.setConf("hive.metastore.uris", config.getString("hive.address"))
 
   lazy val dcSQLContext: SQLContext =
     new SQLContext(dcSparkContext)
@@ -77,6 +81,12 @@ class DriverContext extends ConfigHelper
       new Configuration(),
       config.getString("hdfs.user")
     )
+
+  lazy val dcHBaseConf = HBaseConfiguration.create()
+  // conf.addResource(new Path("/etc/hbase/conf/core-site.xml"))
+  // conf.addResource(new Path("/etc/hbase/conf/hbase-site.xml"))
+  lazy val dcHBaseConnection: Connection = ConnectionFactory.createConnection(dcHBaseConf)
+  lazy val dcHBaseContext = new HBaseContext(dcSparkContext, dcHBaseConf)
 
   ///////////////////////////////////////////////////////////////////////////
   // Parsers
@@ -122,7 +132,7 @@ class DriverContext extends ConfigHelper
     new HiveRecorderImpl() {
       lazy val log = logger
       lazy val hiveContext = dcHiveContext
-      lazy val sqlContext = dcSQLContext
+      lazy val warehouse = warehouseLocation
       lazy val dataTableName = config.getString("hive.table")
       lazy val dataFrameGenericSchema = dcSchemaRepos.getSchema(GENERIC_EVENT).get
       lazy val batchId = globalBatchId.toString
@@ -132,12 +142,15 @@ class DriverContext extends ConfigHelper
   : DataRecorder[RDD[Row]] =
     new HBaseRecorder {
       lazy val log = logger
-      lazy val genericSchema = dcSchemaRepos.getSchema(GENERIC_EVENT).get
+      lazy val sparkContext = dcSparkContext
+      lazy val sqlContext = dcSQLContext
+      lazy val hbaseConn = dcHBaseConnection
+      lazy val hbaseContext = dcHBaseContext
       lazy val tableName = config.getString("hbase.table")
       lazy val columnFamily = config.getString("hbase.family")
       lazy val columnQualifier = config.getString("hbase.qualifier")
-      lazy val sparkContext = dcSparkContext
-      lazy val sqlContext = dcSQLContext
+      lazy val genericSchema = dcSchemaRepos.getSchema(GENERIC_EVENT).get
+
     }
 
   /*

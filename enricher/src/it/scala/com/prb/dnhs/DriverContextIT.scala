@@ -12,6 +12,8 @@ import org.apache.spark.sql.SQLContext
 
 object DriverContextIT extends DriverContext {
 
+  override lazy val warehouseLocation: String = "ITest/hive"
+
   override lazy val pathToFiles: String =
     FileSystem.DEFAULT_FS + new File("ITest").getAbsolutePath
 
@@ -19,8 +21,11 @@ object DriverContextIT extends DriverContext {
     new SparkConf()
       .setAppName("LogsEnricherIT")
       .setMaster("local[1]")
-      .set("spark.sql.warehouse.dir", new File("ITest/hive").getAbsolutePath)
+      .set("spark.sql.warehouse.dir", warehouseLocation)
       .set("spark.sql.test", "")
+      .set("hive.exec.dynamic.partition", "true")
+      .set("hive.exec.dynamic.partition.mode", "nonstrict")
+      .set("spark.sql.hive.convertMetastoreParquet", "true")
 
   override lazy val dcSparkContext: SparkContext =
     new SparkContext(dcSparkConfig)
@@ -28,22 +33,8 @@ object DriverContextIT extends DriverContext {
   override lazy val dcHiveContext: HiveContext =
     new HiveContext(dcSparkContext)
 
-//  dcHiveContext.setConf("spark.sql.warehouse.dir", new File("ITest/hive").getAbsolutePath)
-//  dcHiveContext.setConf("spark.sql.test", "")
-
-  //  dcHiveContext.setConf("hive.metastore.uris", config.getString("hive.address"))
-
   override lazy val dcSQLContext: SQLContext =
     new SQLContext(dcSparkContext)
-
-  //  override lazy val dcSparkSession = SparkSession
-  //    .builder()
-  //    .appName("LogsEnricherIT")
-  //    .master("local[1]")
-  //    .config("spark.sql.warehouse.dir", new File("ITest/hive").getAbsolutePath)
-  //    .config("spark.sql.test", "")
-  //    .enableHiveSupport()
-  //    .getOrCreate()
 
   override lazy val dcFS: FileSystem =
     FileSystem.get(
