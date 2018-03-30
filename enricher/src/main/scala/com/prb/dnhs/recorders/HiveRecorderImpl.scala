@@ -36,7 +36,8 @@ abstract class HiveRecorderImpl extends DataRecorder[RDD[Row]] {
       hiveContext.sql(
         s"ALTER TABLE $dataTableName " +
           s"ADD IF NOT EXISTS PARTITION(batchId=$batchId) " +
-          s"location \'$warehouse\'")
+          s"location \'${warehouse.replaceAll("\\\\", "/")}/bathcId=$batchId\'"
+      )
 
       /**
         * Spark 2.*

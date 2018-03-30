@@ -29,8 +29,8 @@ abstract class Processor {
     val pathToFiles = fsPreparator.prepareEnv(args.inputDir)
 
     log.info("Reading of log-files from the file system started")
-    println(pathToFiles.toString)
     val logRDD = gzReader.read(pathToFiles.toString)
+    //val logRDD = gzReader.read(args.inputDir)
     log.info("Reading of log-files from the file system is over")
     if (args.debug) printData(logRDD)
 

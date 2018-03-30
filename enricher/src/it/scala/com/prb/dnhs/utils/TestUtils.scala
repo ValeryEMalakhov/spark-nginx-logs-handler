@@ -104,7 +104,8 @@ object TestUtils {
     hiveContext.sql(
       s"ALTER TABLE $table " +
         s"ADD IF NOT EXISTS PARTITION(batchId=$batchId) " +
-        s"location \'$warehouse\'")
+        s"location \'${warehouse.replaceAll("\\\\", "/")}/bathcId=$batchId\'"
+    )
 
     log.debug("Test database created")
   }

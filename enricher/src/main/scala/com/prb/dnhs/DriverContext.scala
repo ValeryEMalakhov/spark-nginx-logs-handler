@@ -24,8 +24,6 @@ import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
 import org.apache.spark.sql.hive.HiveContext
-import org.apache.spark.sql.types.StructType
-import org.slf4j.Logger
 
 /**
   * The DriverContext object contains a number of parameters
@@ -39,11 +37,10 @@ class DriverContext extends ConfigHelper
   // Spark conf
   ///////////////////////////////////////////////////////////////////////////
 
-  lazy val warehouseLocation: String =
-    new File("sparkSession-warehouse").getAbsolutePath
+  val warehouseLocation: String =
+    new File("warehouse").getAbsolutePath
 
   // default path to hdfs data folder
-
   lazy val pathToFiles: String =
     s"${config.getString("hdfs.node")}/${config.getString("hdfs.files")}"
 

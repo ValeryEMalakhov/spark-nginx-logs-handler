@@ -48,19 +48,12 @@ lazy val assemblySettings = Seq(
 )
 
 lazy val dependencySettings = Seq(
-  dependencyOverrides ++=
-    json ++ jetty ++ Seq(logredactor),
   libraryDependencies ++=
     spark ++
     hadoop ++
-    parquet ++
-    hbase ++
-    scalaz ++
-    sTest ++
     Seq(
         configType
       , scopt
       , slf4j
-      , cats
     )
 )
