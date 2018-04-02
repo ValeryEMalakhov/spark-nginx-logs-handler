@@ -6,6 +6,7 @@ enricher/project/target/*
 enricher/target/*
 enricher/metastore_db/*
 enricher/spark-warehouse/*
+enricher/warehouse/*
 enricher/ITest/*
 aggregator/.idea/
 aggregator/files/*
@@ -13,3 +14,4 @@ aggregator/project/target/*
 aggregator/target/*
 aggregator/metastore_db/*
 aggregator/spark-warehouse/*
+aggregator/warehouse/*

@@ -4,16 +4,18 @@ import java.io.File
 import java.net.URI
 import java.time.Instant
 
-import com.prb.agg.chive.{AdsHiveWriter, CHiveReader, LogHiveWriter}
+import com.prb.agg.chive.{BatchHiveWriter, CHiveReader}
 import com.prb.agg.file.SparkFileReader
 import com.prb.agg.helpers.{ConfigHelper, LoggerHelper}
-import com.prb.agg.prep.{Advertiser, Enricher}
-import com.prb.agg.proc.Processor
+import com.prb.agg.prep.Advertiser
+import com.prb.agg.proc.{Processor, QueriesExec}
+import com.prb.agg.sim.chive.{AdsHiveWriter, LogHiveWriter}
+import com.prb.agg.sim.prep.Enricher
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.FileSystem
-import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.hive.HiveContext
+import org.apache.spark.{SparkConf, SparkContext}
 import org.slf4j.Logger
 
 class DriverContext extends Serializable
@@ -36,8 +38,8 @@ class DriverContext extends Serializable
       .setAppName(config.getString("spark.name"))
       .setMaster(config.getString("spark.master"))
       .set("spark.sql.warehouse.dir", _warehouseLocation)
-      //.set("hive.metastore.uris", config.getString("hive.address"))
-      //.set("spark.sql.hive.convertMetastoreParquet", "true")
+  //.set("hive.metastore.uris", config.getString("hive.address"))
+  //.set("spark.sql.hive.convertMetastoreParquet", "true")
 
   lazy val _sparkContext: SparkContext =
     new SparkContext(_sparkConfig)
@@ -56,11 +58,11 @@ class DriverContext extends Serializable
         config.getString("hdfs.user")
       )
   */
-  FileSystem.get(
-    new URI(FileSystem.DEFAULT_FS),
-    new Configuration(),
-    FileSystem.FS_DEFAULT_NAME_KEY
-  )
+    FileSystem.get(
+      new URI(FileSystem.DEFAULT_FS),
+      new Configuration(),
+      FileSystem.FS_DEFAULT_NAME_KEY
+    )
 
   lazy val _batchId = Instant.now.toEpochMilli
 
@@ -90,6 +92,14 @@ class DriverContext extends Serializable
       lazy val log = logger
     }
 
+  val _batchHiveWriterWriter: BatchHiveWriter =
+    new BatchHiveWriter() {
+      lazy val sqlContext = _hiveContext
+      lazy val warehouse = _warehouseLocation
+      lazy val tableName = "proc_batches"
+      lazy val log = logger
+    }
+
   ///////////////////////////////////////////////////////////////////////////
   // File handlers
   ///////////////////////////////////////////////////////////////////////////
@@ -103,10 +113,13 @@ class DriverContext extends Serializable
   // Data handlers
   ///////////////////////////////////////////////////////////////////////////
 
-  val _advertiser = new Advertiser()
-  val _enricher = new Enricher(){
-    lazy val sqlContext = _hiveContext
-  }
+  val _advertiser: Advertiser =
+    new Advertiser()
+
+  val _enricher: Enricher =
+    new Enricher() {
+      lazy val sqlContext = _hiveContext
+    }
 
   ///////////////////////////////////////////////////////////////////////////
   // Processor
@@ -117,10 +130,18 @@ class DriverContext extends Serializable
     lazy val hiveReader = _hiveReader
     lazy val adsHiveWriter = _adsHiveWriter
     lazy val logHiveWriter = _logHiveWriter
+    lazy val batchHiveWriterWriter = _batchHiveWriterWriter
     lazy val fileReader = _fileReader
     lazy val adsAdvertiser = _advertiser
     lazy val logsEnricher = _enricher
+    lazy val queriesExecutor = _queriesExecutor
   }
+
+  val _queriesExecutor =
+    new QueriesExec() {
+      lazy val log: Logger = logger
+      lazy val sqlContext = _hiveContext
+    }
 }
 
 object DriverContext extends DriverContext

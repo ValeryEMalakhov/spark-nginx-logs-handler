@@ -1,11 +1,12 @@
 package com.prb.agg.proc
 
-import org.slf4j.Logger
-import com.prb.agg._
-import com.prb.agg.chive.{AdsHiveWriter, CHiveReader, LogHiveWriter}
+import com.prb.agg.chive.{BatchHiveWriter, CHiveReader}
 import com.prb.agg.file.SparkFileReader
-import com.prb.agg.prep.{Advertiser, Enricher}
+import com.prb.agg.prep.Advertiser
+import com.prb.agg.sim.chive.{AdsHiveWriter, LogHiveWriter}
+import com.prb.agg.sim.prep.Enricher
 import org.apache.spark.sql.functions._
+import org.slf4j.Logger
 
 abstract class Processor {
 
@@ -14,30 +15,38 @@ abstract class Processor {
   val hiveReader: CHiveReader
   val adsHiveWriter: AdsHiveWriter
   val logHiveWriter: LogHiveWriter
+  val batchHiveWriterWriter: BatchHiveWriter
 
   val fileReader: SparkFileReader
 
   val adsAdvertiser: Advertiser
   val logsEnricher: Enricher
 
+  val queriesExecutor: QueriesExec
+
   def process(args: ProcessorConfig): Unit = {
     log.info("Application started")
 
-    //val ads = adsAdvertiser.prepare(fileReader.read("data/ads.csv"))
-    //val logs = logsEnricher.prepare(fileReader.read("data/logs.csv"))
-    //adsHiveWriter.write(ads)
-    //logHiveWriter.write(logs)
-
-    val dbAds = hiveReader.read("ads")
     val dbLogs = hiveReader.read("processed_data")
-    //dbAds.show(false)
+    val dbAds = hiveReader.read("ads")
     //dbLogs.show(false)
+    //dbAds.show(false)
 
-    val joinData = dbLogs.join(dbAds, "AdId")
-    //joinData.filter(joinData("eventType") === "clk").show(false)
+    val joinedData = dbLogs.join(dbAds, "AdId")
 
-    joinData.groupBy("ageCategory", "section", "userCookie").agg(count("userCookie")).orderBy("userCookie").show(false)
+    // queriesExecutor.executeDFQueries(joinedData)
+    // queriesExecutor.executeSQLQueries(joinedData)
+
+    batchHiveWriterWriter.write(dbLogs)
 
     log.info("Application is finished")
+  }
+
+  private def prepEnv() = {
+    val logs = logsEnricher.prepare(fileReader.read("data/logs.csv"))
+    val ads = adsAdvertiser.prepare(fileReader.read("data/ads.csv"))
+
+    logHiveWriter.write(logs)
+    adsHiveWriter.write(ads)
   }
 }

@@ -1,6 +1,5 @@
-package com.prb.agg.chive
+package com.prb.agg.sim.chive
 
-import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.hive.HiveContext
 import org.slf4j.Logger

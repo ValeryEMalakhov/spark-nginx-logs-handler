@@ -1,4 +1,4 @@
-package com.prb.agg.prep
+package com.prb.agg.sim.prep
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, Row}
